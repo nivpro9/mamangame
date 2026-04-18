@@ -279,10 +279,8 @@ function initGame(levelNum) {
 function update(dt) {
   if (!player.alive) return;
 
-  // Landing phase — slide runway in; full auto-pilot only after goal reached
-  if (landing && landing.goalReached) { updateLanding(dt); return; }
-  if (landing && !landing.goalReached) {
-    // Slide runway in early while player still flies normally
+  // Slide runway in early
+  if (landing) {
     const targetRwX = W * 0.60;
     if (landing.runway.x > targetRwX) landing.runway.x -= Math.max(speed * 2.5, 8);
   }
@@ -507,6 +505,9 @@ function update(dt) {
   if (landing && !landing.goalReached && distance >= levelData.goal) {
     landing.goalReached = true;
   }
+
+  // ── CHECK IF PLAYER LANDED ON RUNWAY ──
+  checkLandingTouch();
 }
 
 function handleHit() {
@@ -538,39 +539,20 @@ function updateHUD() {
 }
 
 // ── LANDING SEQUENCE ─────────────────────────────────────
-function updateLanding(dt) {
+// Player flies themselves onto the runway — no autopilot
+function checkLandingTouch() {
+  if (!landing || !landing.goalReached) return;
   const rw = landing.runway;
-  const targetRwX = W * 0.60;
-
-  // Ensure runway is in position (should already be there from pre-spawn)
-  if (rw.x > targetRwX) rw.x = targetRwX;
-
-  // Target for plane: on the runway
-  const targetX = rw.x - 80;
-  const targetY = rw.y - 18;
-
-  if (landing.phase === 'approach') {
-    player.x += (targetX - player.x) * 0.08;
-    player.y += (targetY - player.y) * 0.09;
-    player.vy *= 0.85;
-
-    if (Math.abs(player.x - targetX) < 15 && Math.abs(player.y - targetY) < 10) {
-      landing.phase = 'touch';
-      landing.timer = 0;
-      spawnParticles(player.x, player.y, '#FFD700', 20);
-    }
-  } else if (landing.phase === 'touch') {
-    player.x += (targetX - player.x) * 0.2;
-    player.y += (targetY - player.y) * 0.2;
-    landing.timer += dt;
-    if (landing.timer > 0.5) {
-      landing.phase = 'done';
-      showLevelComplete();
-    }
+  // Landing zone: on top of the runway surface
+  const landX = rw.x - 60;
+  const landY = rw.y - 14;
+  const dx = player.x - landX;
+  const dy = player.y - landY;
+  if (Math.abs(dx) < 90 && Math.abs(dy) < 28) {
+    spawnParticles(player.x, player.y, '#FFD700', 20);
+    player.alive = false; // stop loop
+    setTimeout(showLevelComplete, 400);
   }
-
-  // Move clouds
-  clouds.forEach(c => { c.x -= speed * 0.3; if (c.x + c.w < 0) { c.x = W + 20; } });
 }
 
 // ── DRAW VEHICLE ─────────────────────────────────────────
@@ -758,6 +740,30 @@ function drawRunway(rw) {
     ctx.fillStyle='#ffeb3b';
     for(let i=x-140;i<x+140;i+=35){ ctx.fillRect(i, y-10, 18, 20); }
   }
+  // ── ARROWS on runway in level 1 to guide player ──
+  if (currentLevel === 1 && landing && landing.goalReached) {
+    const arrowX = rw.x - 160;
+    const arrowY = rw.y - 50;
+    const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.005);
+    ctx.save();
+    ctx.globalAlpha = 0.6 + pulse * 0.4;
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 28px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    // Three animated arrows pointing right toward the runway
+    for (let i = 0; i < 3; i++) {
+      const offset = ((Date.now() * 0.003 + i * 0.5) % 1) * 30;
+      ctx.globalAlpha = (0.3 + (i / 3) * 0.7) * (0.6 + pulse * 0.4);
+      ctx.fillText('▶', arrowX + i * 22 + offset, arrowY);
+    }
+    ctx.globalAlpha = 1;
+    ctx.font = 'bold 13px Arial';
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText('LAND HERE', rw.x - 60, rw.y - 30);
+    ctx.restore();
+  }
+
   ctx.restore();
 }
 
