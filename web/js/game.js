@@ -279,8 +279,13 @@ function initGame(levelNum) {
 function update(dt) {
   if (!player.alive) return;
 
-  // Landing phase — auto-pilot
-  if (landing) { updateLanding(dt); return; }
+  // Landing phase — slide runway in; full auto-pilot only after goal reached
+  if (landing && landing.goalReached) { updateLanding(dt); return; }
+  if (landing && !landing.goalReached) {
+    // Slide runway in early while player still flies normally
+    const targetRwX = W * 0.60;
+    if (landing.runway.x > targetRwX) landing.runway.x -= Math.max(speed * 2.5, 8);
+  }
 
   // Distance (calibrated: ~10-27 m/s depending on speed level)
   distance += speed * dt * 60 * 0.05;
@@ -485,8 +490,23 @@ function update(dt) {
   // ── HUD UPDATE ──
   updateHUD();
 
-  // ── CHECK LEVEL COMPLETE ──
-  if (distance >= levelData.goal && !landing) startLanding();
+  // ── PRE-SPAWN RUNWAY at 80% of goal so it's ready ──
+  if (!landing && distance >= levelData.goal * 0.80) {
+    spawnTimer = 999; // stop obstacles
+    const veh = VEHICLES[Save.data.activeVehicle];
+    landing = {
+      phase: 'approach',
+      timer: 0,
+      runway: { x: W + 200, y: H * 0.76, type: veh.landing },
+      goalReached: false,
+    };
+    document.getElementById('shoot-btn').classList.add('hidden');
+  }
+
+  // ── MARK GOAL REACHED ──
+  if (landing && !landing.goalReached && distance >= levelData.goal) {
+    landing.goalReached = true;
+  }
 }
 
 function handleHit() {
@@ -518,43 +538,32 @@ function updateHUD() {
 }
 
 // ── LANDING SEQUENCE ─────────────────────────────────────
-function startLanding() {
-  spawnTimer = 999; // stop spawning
-  const veh = VEHICLES[Save.data.activeVehicle];
-  landing = {
-    phase: 'approach',
-    timer: 0,
-    runway: { x: W + 200, y: H * 0.76, type: veh.landing },
-  };
-  document.getElementById('shoot-btn').classList.add('hidden');
-}
-
 function updateLanding(dt) {
   const rw = landing.runway;
   const targetRwX = W * 0.60;
 
-  // Runway slides in
-  if (rw.x > targetRwX) rw.x -= speed * 0.8;
+  // Ensure runway is in position (should already be there from pre-spawn)
+  if (rw.x > targetRwX) rw.x = targetRwX;
 
   // Target for plane: on the runway
   const targetX = rw.x - 80;
   const targetY = rw.y - 18;
 
   if (landing.phase === 'approach') {
-    player.x += (targetX - player.x) * 0.04;
-    player.y += (targetY - player.y) * 0.05;
-    player.vy *= 0.9;
+    player.x += (targetX - player.x) * 0.08;
+    player.y += (targetY - player.y) * 0.09;
+    player.vy *= 0.85;
 
-    if (Math.abs(player.x - targetX) < 15 && Math.abs(player.y - targetY) < 10 && rw.x <= targetRwX + 20) {
+    if (Math.abs(player.x - targetX) < 15 && Math.abs(player.y - targetY) < 10) {
       landing.phase = 'touch';
       landing.timer = 0;
       spawnParticles(player.x, player.y, '#FFD700', 20);
     }
   } else if (landing.phase === 'touch') {
-    player.x += (targetX - player.x) * 0.15;
-    player.y += (targetY - player.y) * 0.15;
+    player.x += (targetX - player.x) * 0.2;
+    player.y += (targetY - player.y) * 0.2;
     landing.timer += dt;
-    if (landing.timer > 1.8) {
+    if (landing.timer > 0.5) {
       landing.phase = 'done';
       showLevelComplete();
     }
