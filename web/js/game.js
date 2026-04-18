@@ -1350,6 +1350,7 @@ function showLevelComplete() {
   gameState = 'levelcomplete';
   if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
   document.getElementById('shoot-btn').classList.add('hidden');
+  Snd.play('levelcomplete');
 
   // Advance level
   Save.data.coins += sessionCoins;
@@ -1633,6 +1634,33 @@ const Snd = (() => {
           g.gain.setValueAtTime(0.18, t);
           g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
           o.start(t); o.stop(t + 0.26);
+        });
+      } else if (type === 'levelcomplete') {
+        // Happy fanfare: quick ascending run then triumphant chord
+        const fanfare = [
+          [523, 0.00, 0.10], [659, 0.10, 0.10], [784, 0.20, 0.10],
+          [1047,0.30, 0.18], [0,   0.48, 0.04],
+          [784, 0.52, 0.12], [1047,0.64, 0.12], [1319,0.76, 0.30],
+        ];
+        fanfare.forEach(([freq, start, dur]) => {
+          if (!freq) return;
+          const o = ac.createOscillator(), g = ac.createGain();
+          o.type = 'triangle'; o.frequency.value = freq;
+          o.connect(g); g.connect(ac.destination);
+          const t = ac.currentTime + start;
+          g.gain.setValueAtTime(0.28, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+          o.start(t); o.stop(t + dur + 0.01);
+        });
+        // Harmony layer (lower octave, softer)
+        [[392,0.30],[523,0.52],[659,0.76]].forEach(([freq, start]) => {
+          const o = ac.createOscillator(), g = ac.createGain();
+          o.type = 'sine'; o.frequency.value = freq;
+          o.connect(g); g.connect(ac.destination);
+          const t = ac.currentTime + start;
+          g.gain.setValueAtTime(0.12, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+          o.start(t); o.stop(t + 0.36);
         });
       }
     } catch(e) {}
