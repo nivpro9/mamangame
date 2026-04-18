@@ -1,0 +1,15 @@
+{
+  "name": "Paper Airplane",
+  "short_name": "Paper Airplane",
+  "description": "Fly your paper plane through 70 levels!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#87CEEB",
+  "theme_color": "#87CEEB",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
