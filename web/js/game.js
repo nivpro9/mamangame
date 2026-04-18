@@ -477,7 +477,6 @@ function applyLang() {
   // Refresh dynamic menu text if save is loaded
   if (Save.data) {
     document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
-    document.getElementById('menu-best').textContent = t('best') + ' ' + Save.data.bestLevel;
   }
 }
 
@@ -2122,9 +2121,6 @@ function showMenu() {
   document.getElementById('shoot-btn').classList.add('hidden');
   document.getElementById('menu-coins').textContent = Save.data.coins;
   document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
-  const prestige = Save.data.prestige || 0;
-  const stars = prestige > 0 ? '⭐'.repeat(Math.min(prestige, 5)) + ' ' : '';
-  document.getElementById('menu-best').textContent = stars + t('best') + ' ' + Save.data.bestLevel;
   showScreen('screen-menu');
   drawMenuVehicle();
   updateSpinButton();
@@ -2144,17 +2140,16 @@ function beginLevel(lvlNum) {
   if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
   gameState = 'playing';
   showScreen('screen-game');
-  // Wait one frame so the screen is visible and canvas has layout dimensions
-  requestAnimationFrame(() => {
-    canvas.width  = canvas.offsetWidth  || window.innerWidth;
-    canvas.height = canvas.offsetHeight || window.innerHeight;
-    W = canvas.width; H = canvas.height;
-    if (W < 10 || H < 10) { W = window.innerWidth; H = window.innerHeight; canvas.width = W; canvas.height = H; }
-    initGame(lvlNum);
-    Snd.startMusic();
-    lastTime = null;
-    frameId = requestAnimationFrame(loop);
-  });
+  // offsetWidth forces a synchronous layout flush so we always get the real size
+  const w = canvas.offsetWidth  || window.innerWidth;
+  const h = canvas.offsetHeight || window.innerHeight;
+  canvas.width  = w > 10 ? w : window.innerWidth;
+  canvas.height = h > 10 ? h : window.innerHeight;
+  W = canvas.width; H = canvas.height;
+  initGame(lvlNum);
+  Snd.startMusic();
+  lastTime = null;
+  frameId = requestAnimationFrame(loop);
 }
 
 function showGameOver() {
