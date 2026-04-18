@@ -66,7 +66,7 @@ const UPGRADES = [
 
 // ── LANGUAGES ────────────────────────────────────────────
 const LANGS = {
-  en: { name:'English',  flag:'🇬🇧', dir:'ltr', t:{
+  en: { name:'English', flag:'🇬🇧', dir:'ltr', t:{
     play:'PLAY', levelsBtn:'🗺️ LEVELS', upgradesMenu:'⚙️ UPGRADES', upgradesBtn:'🔧 UPGRADES',
     upgradesTitle:'UPGRADES', upgradesSec:'UPGRADES', levelsTitle:'LEVELS',
     level:'LEVEL', distance:'DISTANCE', ammo:'AMMO', coins:'COINS',
@@ -79,6 +79,39 @@ const LANGS = {
     tut3:'Collect <b>ammo boxes</b> to charge your cannon (buy Cannon in Upgrades)',
     tut4:'Grab <b>coins</b> to spend on vehicles and upgrades',
     tut5:'Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!',
+    vn0:'Paper Plane', vn1:'Upgraded Paper', vn2:'Drone', vn3:'Light Plane',
+    vn4:'Propeller Plane', vn5:'Rocket', vn6:'Small Airliner', vn7:'Large Airliner',
+    vn8:'Stealth Plane', vn9:'B-2 Spirit',
+    vp0:'Standard all-rounder',
+    vp1:'🧲 Coin magnet range +40%',
+    vp2:'🎯 Ultra-precise hover — gravity halved',
+    vp3:'⚡ Aerobatic — tighter turns',
+    vp4:'💨 Fan gusts reduced by 60%',
+    vp5:'🔥 Fire trail — hold for speed burst',
+    vp6:'🪙 Every coin worth +2 bonus',
+    vp7:'🛡 Starts each level with +1 free shield',
+    vp8:'👻 Enemy missiles 50% miss chance',
+    vp9:'🔫 Auto-fires cannon every 4s (no ammo needed)',
+    un_speed:'Engine Boost', un_control:'Better Control', un_magnet:'Coin Magnet',
+    un_shield:'Shield', un_cannon:'Cannon',
+    ud_speed:'Increases base speed',
+    ud_control:'Smoother flight response',
+    ud_magnet:'Attract nearby coins',
+    ud_shield:'Extra hit before crashing',
+    ud_cannon:'Unlocks ammo pickups & shooting',
+    bm0:'Sky', bm1:'Sunset', bm2:'Night', bm3:'Storm', bm4:'Arctic', bm5:'Canyon', bm6:'Space',
+    holdUp:'HOLD TO FLY UP',
+    comboText:'COMBO',
+    newBest:'🏆 NEW BEST',
+    prestigeText:'⭐ PRESTIGE {0} UNLOCKED! ⭐',
+    nextLevelText:'NEXT LEVEL',
+    ascendText:'⭐ ASCEND (RESTART)',
+    enteringZone:'ENTERING {0} ZONE',
+    coinsWorthText:'→ {0} ZONE — coins worth {1}× each!',
+    allCompleteText:'🌟 You completed all 70 levels! Starting prestige run...',
+    landHere:'LAND HERE',
+    shieldPickupText:'🛡 +SHIELD!',
+    active:'ACTIVE', owned:'OWNED',
   }},
   it: { name:'Italiano', flag:'🇮🇹', dir:'ltr', t:{
     play:'GIOCA', levelsBtn:'🗺️ LIVELLI', upgradesMenu:'⚙️ MIGLIORIE', upgradesBtn:'🔧 MIGLIORIE',
@@ -93,6 +126,38 @@ const LANGS = {
     tut3:'Raccogli <b>munizioni</b> per il cannone (acquista in Migliorie)',
     tut4:'Prendi le <b>monete</b> per veicoli e migliorie',
     tut5:'Raggiungi la <b>meta</b> — poi atterra sulla <b>pista</b>!',
+    vn0:'Aereo di carta', vn1:'Carta migliorata', vn2:'Drone', vn3:'Aereo leggero',
+    vn4:'Aereo a elica', vn5:'Razzo', vn6:'Piccolo aereo', vn7:'Grande aereo',
+    vn8:'Aereo stealth', vn9:'B-2 Spirit',
+    vp0:'Tuttotondo standard',
+    vp1:'🧲 Portata calamita +40%',
+    vp2:'🎯 Volo ultra-preciso — gravità dimezzata',
+    vp3:'⚡ Acrobatico — virate più strette',
+    vp4:'💨 Raffiche ventilatore ridotte del 60%',
+    vp5:'🔥 Scia di fuoco — tieni premuto per accelerare',
+    vp6:'🪙 Ogni moneta vale +2 bonus',
+    vp7:'🛡 Inizia ogni livello con +1 scudo gratuito',
+    vp8:'👻 I missili nemici mancano il 50% delle volte',
+    vp9:'🔫 Spara automaticamente ogni 4s (senza munizioni)',
+    un_speed:'Potenziamento motore', un_control:'Controllo migliore', un_magnet:'Calamita monete',
+    un_shield:'Scudo', un_cannon:'Cannone',
+    ud_speed:'Aumenta la velocità base',
+    ud_control:'Risposta di volo più fluida',
+    ud_magnet:'Attira le monete vicine',
+    ud_shield:'Colpo extra prima di schiantarsi',
+    ud_cannon:'Sblocca munizioni e sparo',
+    bm0:'Cielo', bm1:'Tramonto', bm2:'Notte', bm3:'Tempesta', bm4:'Artico', bm5:'Canyon', bm6:'Spazio',
+    holdUp:'TIENI PER SALIRE',
+    comboText:'COMBO',
+    newBest:'🏆 NUOVO RECORD',
+    prestigeText:'⭐ PRESTIGIO {0} SBLOCCATO! ⭐',
+    nextLevelText:'LIVELLO SUCCESSIVO',
+    ascendText:'⭐ ASCENDI (RICOMINCIA)',
+    enteringZone:'ENTRANDO ZONA {0}',
+    coinsWorthText:'→ Zona {0} — monete valgono {1}× ciascuna!',
+    allCompleteText:'🌟 Hai completato tutti i 70 livelli! Inizia il giro prestigio...',
+    landHere:'ATTERRA QUI',
+    shieldPickupText:'🛡 +SCUDO!',
   }},
   fr: { name:'Français', flag:'🇫🇷', dir:'ltr', t:{
     play:'JOUER', levelsBtn:'🗺️ NIVEAUX', upgradesMenu:'⚙️ AMÉLIORATIONS', upgradesBtn:'🔧 AMÉLIORATIONS',
@@ -107,6 +172,38 @@ const LANGS = {
     tut3:"Collectez des <b>munitions</b> pour le canon (acheter dans Améliorations)",
     tut4:'Prenez les <b>pièces</b> pour les véhicules et améliorations',
     tut5:'Atteignez la <b>distance</b> — puis atterrissez sur la <b>piste</b>!',
+    vn0:'Avion en papier', vn1:'Papier amélioré', vn2:'Drone', vn3:'Avion léger',
+    vn4:'Avion à hélice', vn5:'Fusée', vn6:'Petit avion', vn7:'Grand avion',
+    vn8:'Avion furtif', vn9:'B-2 Spirit',
+    vp0:'Polyvalent standard',
+    vp1:'🧲 Portée aimant +40%',
+    vp2:'🎯 Vol ultra-précis — gravité réduite de moitié',
+    vp3:'⚡ Aérobatique — virages plus serrés',
+    vp4:'💨 Rafales ventilateur réduites de 60%',
+    vp5:'🔥 Traînée de feu — maintenir pour accélérer',
+    vp6:'🪙 Chaque pièce vaut +2 bonus',
+    vp7:'🛡 Commence chaque niveau avec +1 bouclier gratuit',
+    vp8:'👻 Les missiles ennemis ratent 50% du temps',
+    vp9:'🔫 Tire automatiquement toutes les 4s (sans munitions)',
+    un_speed:'Boost moteur', un_control:'Meilleur contrôle', un_magnet:'Aimant à pièces',
+    un_shield:'Bouclier', un_cannon:'Canon',
+    ud_speed:'Augmente la vitesse de base',
+    ud_control:'Réponse de vol plus fluide',
+    ud_magnet:'Attire les pièces proches',
+    ud_shield:'Un coup supplémentaire avant le crash',
+    ud_cannon:'Débloque munitions et tir',
+    bm0:'Ciel', bm1:'Coucher de soleil', bm2:'Nuit', bm3:'Tempête', bm4:'Arctique', bm5:'Canyon', bm6:'Espace',
+    holdUp:'MAINTENIR POUR MONTER',
+    comboText:'COMBO',
+    newBest:'🏆 NOUVEAU RECORD',
+    prestigeText:'⭐ PRESTIGE {0} DÉBLOQUÉ! ⭐',
+    nextLevelText:'NIVEAU SUIVANT',
+    ascendText:'⭐ ASCENSION (RECOMMENCER)',
+    enteringZone:'ENTRÉE ZONE {0}',
+    coinsWorthText:'→ Zone {0} — pièces valent {1}× chacune!',
+    allCompleteText:'🌟 Vous avez complété les 70 niveaux! Démarrage du run prestige...',
+    landHere:'ATTERRIR ICI',
+    shieldPickupText:'🛡 +BOUCLIER!',
   }},
   ru: { name:'Русский', flag:'🇷🇺', dir:'ltr', t:{
     play:'ИГРАТЬ', levelsBtn:'🗺️ УРОВНИ', upgradesMenu:'⚙️ УЛУЧШЕНИЯ', upgradesBtn:'🔧 УЛУЧШЕНИЯ',
@@ -121,6 +218,38 @@ const LANGS = {
     tut3:'Собирайте <b>патроны</b> для пушки (купите в Улучшениях)',
     tut4:'Берите <b>монеты</b> для транспорта и улучшений',
     tut5:'Достигните <b>цели</b> — затем приземлитесь на <b>полосу</b>!',
+    vn0:'Бумажный самолёт', vn1:'Улучшенный', vn2:'Дрон', vn3:'Лёгкий самолёт',
+    vn4:'Пропеллер', vn5:'Ракета', vn6:'Малый лайнер', vn7:'Большой лайнер',
+    vn8:'Стелс', vn9:'B-2 Спирит',
+    vp0:'Стандартный универсал',
+    vp1:'🧲 Дальность магнита +40%',
+    vp2:'🎯 Ультраточный полёт — гравитация вдвое слабее',
+    vp3:'⚡ Пилотажный — резкие виражи',
+    vp4:'💨 Порывы ветра снижены на 60%',
+    vp5:'🔥 Огненный след — удержи для ускорения',
+    vp6:'🪙 Каждая монета +2 бонуса',
+    vp7:'🛡 Каждый уровень начинается с +1 бесплатным щитом',
+    vp8:'👻 Ракеты врагов промахиваются в 50% случаев',
+    vp9:'🔫 Автострельба каждые 4с (без боеприпасов)',
+    un_speed:'Улучшение двигателя', un_control:'Лучшее управление', un_magnet:'Магнит монет',
+    un_shield:'Щит', un_cannon:'Пушка',
+    ud_speed:'Увеличивает базовую скорость',
+    ud_control:'Более плавное управление полётом',
+    ud_magnet:'Притягивает близкие монеты',
+    ud_shield:'Дополнительный удар перед гибелью',
+    ud_cannon:'Открывает подбор боеприпасов и стрельбу',
+    bm0:'Небо', bm1:'Закат', bm2:'Ночь', bm3:'Буря', bm4:'Арктика', bm5:'Каньон', bm6:'Космос',
+    holdUp:'УДЕРЖИ ДЛЯ ПОДЪЁМА',
+    comboText:'КОМБО',
+    newBest:'🏆 НОВЫЙ РЕКОРД',
+    prestigeText:'⭐ ПРЕСТИЖ {0} РАЗБЛОКИРОВАН! ⭐',
+    nextLevelText:'СЛЕД. УРОВЕНЬ',
+    ascendText:'⭐ ВОЗНЕСТИСЬ (СНАЧАЛА)',
+    enteringZone:'ВХОДИМ В ЗОНУ {0}',
+    coinsWorthText:'→ Зона {0} — монеты стоят {1}× каждая!',
+    allCompleteText:'🌟 Вы прошли все 70 уровней! Начинается престижный забег...',
+    landHere:'ПРИЗЕМЛИСЬ ЗДЕСЬ',
+    shieldPickupText:'🛡 +ЩИТ!',
   }},
   ja: { name:'日本語', flag:'🇯🇵', dir:'ltr', t:{
     play:'プレイ', levelsBtn:'🗺️ レベル', upgradesMenu:'⚙️ アップグレード', upgradesBtn:'🔧 アップグレード',
@@ -135,6 +264,38 @@ const LANGS = {
     tut3:'<b>弾薬箱</b>を集めて大砲を充填（アップグレードで購入）',
     tut4:'<b>コイン</b>を集めて乗り物やアップグレードに使おう',
     tut5:'<b>距離目標</b>に到達したら<b>滑走路</b>に着陸しよう!',
+    vn0:'紙飛行機', vn1:'改良紙飛行機', vn2:'ドローン', vn3:'軽飛行機',
+    vn4:'プロペラ機', vn5:'ロケット', vn6:'小型旅客機', vn7:'大型旅客機',
+    vn8:'ステルス機', vn9:'B-2スピリット',
+    vp0:'標準オールラウンダー',
+    vp1:'🧲 コイン磁石範囲+40%',
+    vp2:'🎯 超精密ホバー — 重力半減',
+    vp3:'⚡ アクロバット — 急旋回',
+    vp4:'💨 ファン突風60%減',
+    vp5:'🔥 炎の軌跡 — 長押しで加速',
+    vp6:'🪙 コイン1枚につき+2ボーナス',
+    vp7:'🛡 各レベル開始時に無料シールド+1',
+    vp8:'👻 敵ミサイル50%外れ',
+    vp9:'🔫 4秒ごと自動発射（弾薬不要）',
+    un_speed:'エンジン強化', un_control:'操作改善', un_magnet:'コイン磁石',
+    un_shield:'シールド', un_cannon:'大砲',
+    ud_speed:'基本速度を上げる',
+    ud_control:'より滑らかな飛行操作',
+    ud_magnet:'近くのコインを引き寄せる',
+    ud_shield:'クラッシュ前に追加ヒット',
+    ud_cannon:'弾薬収集と射撃を解放',
+    bm0:'空', bm1:'夕暮れ', bm2:'夜', bm3:'嵐', bm4:'北極', bm5:'峡谷', bm6:'宇宙',
+    holdUp:'長押しで上昇',
+    comboText:'コンボ',
+    newBest:'🏆 ベスト更新',
+    prestigeText:'⭐ プレステージ{0}解放！⭐',
+    nextLevelText:'次のレベル',
+    ascendText:'⭐ 昇格（再スタート）',
+    enteringZone:'{0}ゾーンに突入',
+    coinsWorthText:'→ {0}ゾーン — コイン{1}×の価値!',
+    allCompleteText:'🌟 全70レベルクリア！プレステージラン開始...',
+    landHere:'ここに着陸',
+    shieldPickupText:'🛡 +シールド!',
   }},
   zh: { name:'中文', flag:'🇨🇳', dir:'ltr', t:{
     play:'开始', levelsBtn:'🗺️ 关卡', upgradesMenu:'⚙️ 升级', upgradesBtn:'🔧 升级',
@@ -149,6 +310,38 @@ const LANGS = {
     tut3:'收集<b>弹药箱</b>为大炮充能（在升级中购买大炮）',
     tut4:'收集<b>金币</b>购买飞行器和升级',
     tut5:'达到<b>距离目标</b> — 然后飞到<b>跑道</b>上降落!',
+    vn0:'纸飞机', vn1:'改良纸飞机', vn2:'无人机', vn3:'轻型飞机',
+    vn4:'螺旋桨飞机', vn5:'火箭', vn6:'小型客机', vn7:'大型客机',
+    vn8:'隐形飞机', vn9:'B-2幽灵',
+    vp0:'标准全能型',
+    vp1:'🧲 硬币磁铁范围+40%',
+    vp2:'🎯 超精确悬停 — 重力减半',
+    vp3:'⚡ 特技飞行 — 更紧急转弯',
+    vp4:'💨 风扇阵风减少60%',
+    vp5:'🔥 火焰尾迹 — 长按加速',
+    vp6:'🪙 每枚硬币额外+2奖励',
+    vp7:'🛡 每关开始获得+1免费护盾',
+    vp8:'👻 敌方导弹50%几率未中',
+    vp9:'🔫 每4秒自动开火（无需弹药）',
+    un_speed:'引擎强化', un_control:'更好控制', un_magnet:'硬币磁铁',
+    un_shield:'护盾', un_cannon:'大炮',
+    ud_speed:'增加基础速度',
+    ud_control:'更流畅的飞行操控',
+    ud_magnet:'吸引附近硬币',
+    ud_shield:'坠毁前额外一次撞击',
+    ud_cannon:'解锁弹药拾取和射击',
+    bm0:'天空', bm1:'夕阳', bm2:'夜晚', bm3:'风暴', bm4:'北极', bm5:'峡谷', bm6:'太空',
+    holdUp:'长按上飞',
+    comboText:'连击',
+    newBest:'🏆 新纪录',
+    prestigeText:'⭐ 声望{0}解锁！⭐',
+    nextLevelText:'下一关',
+    ascendText:'⭐ 晋级（重新开始）',
+    enteringZone:'进入{0}区域',
+    coinsWorthText:'→ {0}区域 — 每枚硬币价值{1}×!',
+    allCompleteText:'🌟 你完成了所有70关！开始声望挑战...',
+    landHere:'在此降落',
+    shieldPickupText:'🛡 +护盾!',
   }},
   he: { name:'עברית', flag:'🇮🇱', dir:'rtl', t:{
     play:'שחק', levelsBtn:'🗺️ שלבים', upgradesMenu:'⚙️ שדרוגים', upgradesBtn:'🔧 שדרוגים',
@@ -163,6 +356,38 @@ const LANGS = {
     tut3:'אסוף <b>קופסאות תחמושת</b> לטעינת התותח (קנה תותח בשדרוגים)',
     tut4:'אסוף <b>מטבעות</b> לקניית כלי טיס ושדרוגים',
     tut5:'הגע ל<b>יעד המרחק</b> — ואז נחת על <b>המסלול</b>!',
+    vn0:'מטוס נייר', vn1:'נייר משודרג', vn2:'רחפן', vn3:'מטוס קל',
+    vn4:'מטוס מדחף', vn5:'טיל', vn6:'מטוס קטן', vn7:'מטוס גדול',
+    vn8:'מטוס סטלת', vn9:'B-2 רוח',
+    vp0:'כל-יכול סטנדרטי',
+    vp1:'🧲 טווח מגנט מטבעות +40%',
+    vp2:'🎯 ריחוף על-מדויק — כבידה חצויה',
+    vp3:'⚡ אקרובטי — פניות חדות יותר',
+    vp4:'💨 רוח המאוורר מופחתת ב-60%',
+    vp5:'🔥 שביל אש — לחץ ממושך להאצה',
+    vp6:'🪙 כל מטבע שווה +2 בונוס',
+    vp7:'🛡 מתחיל כל שלב עם +1 מגן חינם',
+    vp8:'👻 טילי האויב מחטיאים 50% מהפעמים',
+    vp9:'🔫 יורה אוטומטית כל 4 שניות (ללא תחמושת)',
+    un_speed:'שיפור מנוע', un_control:'שליטה טובה יותר', un_magnet:'מגנט מטבעות',
+    un_shield:'מגן', un_cannon:'תותח',
+    ud_speed:'מגדיל מהירות בסיסית',
+    ud_control:'תגובת טיסה חלקה יותר',
+    ud_magnet:'מושך מטבעות קרובים',
+    ud_shield:'מכה נוספת לפני התרסקות',
+    ud_cannon:'פותח תחמושת וירייה',
+    bm0:'שמיים', bm1:'שקיעה', bm2:'לילה', bm3:'סערה', bm4:'ארקטי', bm5:'קניון', bm6:'חלל',
+    holdUp:'לחץ ממושך לעלות',
+    comboText:'קומבו',
+    newBest:'🏆 שיא חדש',
+    prestigeText:'⭐ יוקרה {0} נפתחה! ⭐',
+    nextLevelText:'שלב הבא',
+    ascendText:'⭐ עלייה (התחלה מחדש)',
+    enteringZone:'כניסה לאזור {0}',
+    coinsWorthText:'→ אזור {0} — מטבעות שווים {1}× כל אחד!',
+    allCompleteText:'🌟 סיימת את כל 70 השלבים! מתחיל ריצת יוקרה...',
+    landHere:'נחת כאן',
+    shieldPickupText:'🛡 +מגן!',
   }},
   ar: { name:'العربية', flag:'🇸🇦', dir:'rtl', t:{
     play:'العب', levelsBtn:'🗺️ مستويات', upgradesMenu:'⚙️ تحسينات', upgradesBtn:'🔧 تحسينات',
@@ -177,6 +402,38 @@ const LANGS = {
     tut3:'اجمع <b>صناديق الذخيرة</b> لشحن المدفع (اشتره من التحسينات)',
     tut4:'اجمع <b>العملات</b> للإنفاق على المركبات والتحسينات',
     tut5:'بلغ <b>هدف المسافة</b> — ثم اهبط على <b>المدرج</b>!',
+    vn0:'طائرة ورق', vn1:'ورق محسّن', vn2:'طائرة مسيّرة', vn3:'طائرة خفيفة',
+    vn4:'طائرة مروحية', vn5:'صاروخ', vn6:'طائرة صغيرة', vn7:'طائرة كبيرة',
+    vn8:'طائرة شبح', vn9:'B-2 روح',
+    vp0:'متعدد الأغراض',
+    vp1:'🧲 نطاق مغناطيس العملات +40%',
+    vp2:'🎯 تحليق فائق الدقة — جاذبية منقوصة',
+    vp3:'⚡ بهلوانية — منعطفات أحدة',
+    vp4:'💨 رياح المروحة تقل 60%',
+    vp5:'🔥 أثر ناري — اضغط مطولاً للتسريع',
+    vp6:'🪙 كل عملة تساوي +2 مكافأة',
+    vp7:'🛡 يبدأ كل مستوى بدرع مجاني +1',
+    vp8:'👻 صواريخ الأعداء تخطئ 50% من الوقت',
+    vp9:'🔫 يطلق تلقائياً كل 4 ثوانٍ (بدون ذخيرة)',
+    un_speed:'تعزيز المحرك', un_control:'تحكم أفضل', un_magnet:'مغناطيس العملات',
+    un_shield:'درع', un_cannon:'مدفع',
+    ud_speed:'يزيد السرعة الأساسية',
+    ud_control:'استجابة طيران أكثر سلاسة',
+    ud_magnet:'يجذب العملات القريبة',
+    ud_shield:'ضربة إضافية قبل الانهيار',
+    ud_cannon:'يفتح التقاط الذخيرة والتصويب',
+    bm0:'السماء', bm1:'الغروب', bm2:'الليل', bm3:'العاصفة', bm4:'القطب', bm5:'الوادي', bm6:'الفضاء',
+    holdUp:'اضغط مطولاً للصعود',
+    comboText:'سلسلة',
+    newBest:'🏆 رقم قياسي جديد',
+    prestigeText:'⭐ المكانة {0} مفتوحة! ⭐',
+    nextLevelText:'المستوى التالي',
+    ascendText:'⭐ الارتقاء (إعادة البدء)',
+    enteringZone:'دخول منطقة {0}',
+    coinsWorthText:'→ منطقة {0} — العملات تساوي {1}× لكل منها!',
+    allCompleteText:'🌟 أكملت جميع المستويات الـ70! بدء جولة المكانة...',
+    landHere:'الهبوط هنا',
+    shieldPickupText:'🛡 +درع!',
   }},
 };
 
@@ -184,6 +441,12 @@ let currentLang = localStorage.getItem('pfe_lang') || 'en';
 
 function t(key) {
   return (LANGS[currentLang] && LANGS[currentLang].t[key]) || LANGS.en.t[key] || key;
+}
+// Template helper: tf('hello {0} and {1}', 'world', 'you') → 'hello world and you'
+function tf(key, ...args) {
+  let s = t(key);
+  args.forEach((v, i) => { s = s.replace('{' + i + '}', v); });
+  return s;
 }
 
 function applyLang() {
@@ -602,7 +865,7 @@ function initGame(levelNum) {
 
   // Biome change banner
   if (currentLevel % 10 === 1 && currentLevel > 1) {
-    biomeBanner.text = 'ENTERING ' + BIOMES[currentBiome].name.toUpperCase() + ' ZONE';
+    biomeBanner.text = tf('enteringZone', t('bm' + currentBiome).toUpperCase());
     biomeBanner.timer = 2.5;
   } else if (currentLevel === 1) {
     biomeBanner.text = '';
@@ -824,7 +1087,7 @@ function update(dt) {
       shieldHits = Math.min(shieldHits + 1, 5);
       spawnParticles(sp.x, sp.y, '#4CAF50', 14);
       Snd.play('shield');
-      popups.push({ text: '🛡 +SHIELD!', x: sp.x, y: sp.y - 24, alpha: 1, timer: 1.8, color: '#4CAF50' });
+      popups.push({ text: t('shieldPickupText'), x: sp.x, y: sp.y - 24, alpha: 1, timer: 1.8, color: '#4CAF50' });
       return false;
     }
     return sp.x > -40;
@@ -1405,7 +1668,7 @@ function drawRunway(rw) {
     ctx.globalAlpha = 1;
     ctx.font = 'bold 13px Arial';
     ctx.fillStyle = '#FFD700';
-    ctx.fillText('LAND HERE', rw.x - 60, rw.y - 30);
+    ctx.fillText(t('landHere'), rw.x - 60, rw.y - 30);
     ctx.restore();
   }
 
@@ -1547,7 +1810,7 @@ function draw(t) {
     ctx.lineWidth = 2;
     ctx.font = '11px Arial'; ctx.textAlign = 'center';
     ctx.fillStyle = `rgba(255,255,255,${pulse * 1.5})`;
-    ctx.fillText('HOLD TO FLY UP', W * 0.5, H - 18);
+    ctx.fillText(t('holdUp'), W * 0.5, H - 18);
     ctx.restore();
   }
 
@@ -1564,9 +1827,9 @@ function draw(t) {
     ctx.font = `bold ${fs}px Arial`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 5;
-    ctx.strokeText('COMBO ×' + coinCombo, 0, 0);
+    ctx.strokeText(t('comboText') + ' ×' + coinCombo, 0, 0);
     ctx.fillStyle = comboColor;
-    ctx.fillText('COMBO ×' + coinCombo, 0, 0);
+    ctx.fillText(t('comboText') + ' ×' + coinCombo, 0, 0);
     ctx.restore();
   }
 
@@ -1683,26 +1946,26 @@ function showLevelComplete() {
   // Bravo line — show PB or prestige or well done
   const bravoEl = document.getElementById('lc-bravo');
   if (isLast) {
-    bravoEl.textContent = '⭐ PRESTIGE ' + Save.data.prestige + ' UNLOCKED! ⭐';
+    bravoEl.textContent = tf('prestigeText', Save.data.prestige);
   } else if (isNewPB) {
-    bravoEl.textContent = '🏆 NEW BEST: ' + distM + 'm!';
+    bravoEl.textContent = t('newBest') + ': ' + distM + 'm!';
   } else {
     bravoEl.textContent = t('wellDone');
   }
 
   document.getElementById('nextLevelBtn').textContent = isLast
-    ? '⭐ ASCEND (RESTART) ›'
-    : t('levelsTitle') + ' ' + (currentLevel + 1) + ' ›';
+    ? t('ascendText') + ' ›'
+    : t('nextLevelText') + ' ' + (currentLevel + 1) + ' ›';
 
   // If entering new biome, show banner text on complete screen
   const nextLevel = isLast ? 1 : currentLevel + 1;
   const newBiome = LEVELS[nextLevel - 1]?.biome;
   const bioLabel = document.getElementById('lc-biome');
   if (!isLast && nextLevel % 10 === 1 && newBiome !== currentBiome) {
-    bioLabel.textContent = '→ ' + BIOMES[newBiome].name.toUpperCase() + ' ZONE — coins worth ' + COIN_VALUES[newBiome] + '× each!';
+    bioLabel.textContent = tf('coinsWorthText', t('bm' + newBiome).toUpperCase(), COIN_VALUES[newBiome]);
     bioLabel.classList.remove('hidden');
   } else if (isLast) {
-    bioLabel.textContent = '🌟 You completed all 70 levels! Starting prestige run...';
+    bioLabel.textContent = t('allCompleteText');
     bioLabel.classList.remove('hidden');
   } else {
     bioLabel.classList.add('hidden');
@@ -1762,7 +2025,7 @@ function renderLevelSelect() {
       <div class="world-section">
         <div class="world-header" style="background:${color}">
           <span class="world-emoji">${WORLD_EMOJIS[wi]}</span>
-          <span class="world-name">${biome.name.toUpperCase()}</span>
+          <span class="world-name">${t('bm' + wi).toUpperCase()}</span>
           <span class="world-range">${wi*10+1}–${wi*10+10}</span>
         </div>
         <div class="world-bubbles">${bubbles}</div>
@@ -1791,7 +2054,7 @@ function drawMenuVehicle() {
   const vCtx = vc.getContext('2d');
   vCtx.clearRect(0, 0, 120, 80);
   const v = VEHICLES[Save.data.activeVehicle];
-  document.getElementById('vehicle-name').textContent = v.name;
+  document.getElementById('vehicle-name').textContent = t('vn' + v.id);
   drawVehicle(vCtx, 60, 40, v, 0, 1.4);
   if (gameState === 'menu') requestAnimationFrame(drawMenuVehicle);
 }
@@ -1803,10 +2066,10 @@ function renderShop() {
     const owned = Save.data.ownedVehicles.includes(v.id);
     const active = Save.data.activeVehicle === v.id;
     const cls = active ? 'active' : owned ? 'owned' : 'locked';
-    const bottom = active ? '<div class="vc-badge" style="color:#FF6B35">ACTIVE</div>'
-      : owned ? '<div class="vc-badge" style="color:#4CAF50">OWNED</div>'
+    const bottom = active ? `<div class="vc-badge" style="color:#FF6B35">${t('active')||'ACTIVE'}</div>`
+      : owned ? `<div class="vc-badge" style="color:#4CAF50">${t('owned')||'OWNED'}</div>`
       : `<div class="vc-cost">🪙 ${v.cost}</div>`;
-    return `<div class="vehicle-card ${cls}" onclick="selectVehicle(${v.id})"><div class="vc-icon">${v.emoji}</div><div class="vc-name">${v.name}</div><div class="vc-perk">${v.perk}</div>${bottom}</div>`;
+    return `<div class="vehicle-card ${cls}" onclick="selectVehicle(${v.id})"><div class="vc-icon">${v.emoji}</div><div class="vc-name">${t('vn'+v.id)}</div><div class="vc-perk">${t('vp'+v.id)}</div>${bottom}</div>`;
   }).join('');
 
   document.getElementById('upgrades-list').innerHTML = UPGRADES.map(upg => {
@@ -1814,13 +2077,13 @@ function renderShop() {
     const maxed = level >= upg.maxLevel;
     const cost = maxed ? 0 : upg.costs[level];
     const pct = (level / upg.maxLevel) * 100;
-    const descExtra = upg.id === 'speed' && level > 0 ? ` — +${level*12}% speed now` :
-                      upg.id === 'control' && level > 0 ? ` — +${level*15}% control now` : '';
+    const descExtra = upg.id === 'speed' && level > 0 ? ` — +${level*12}%` :
+                      upg.id === 'control' && level > 0 ? ` — +${level*15}%` : '';
     return `<div class="upgrade-row" onclick="buyUpgrade('${upg.id}')">
       <div class="up-icon">${upg.icon}</div>
       <div class="up-info">
-        <div class="up-name">${upg.name} <span style="color:rgba(255,255,255,0.4);font-size:12px">Lv ${level}/${upg.maxLevel}</span></div>
-        <div class="up-desc">${upg.desc}${descExtra}</div>
+        <div class="up-name">${t('un_'+upg.id)} <span style="color:rgba(255,255,255,0.4);font-size:12px">Lv ${level}/${upg.maxLevel}</span></div>
+        <div class="up-desc">${t('ud_'+upg.id)}${descExtra}</div>
         <div class="up-bar"><div class="up-bar-fill" style="width:${pct}%"></div></div>
       </div>
       ${maxed ? '<div class="up-maxed">MAX</div>' : `<div class="up-cost">🪙 ${cost}</div>`}
@@ -2090,6 +2353,9 @@ window.addEventListener('load', () => {
   canvas.width = W; canvas.height = H;
 
   Save.load();
+  // Unlock all vehicles
+  VEHICLES.forEach(v => { if (!Save.data.ownedVehicles.includes(v.id)) Save.data.ownedVehicles.push(v.id); });
+  Save.save();
   setupTouch();
 
   document.getElementById('playBtn').addEventListener('click', startGame);
