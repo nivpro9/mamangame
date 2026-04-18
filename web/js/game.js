@@ -286,10 +286,10 @@ function initGame(levelNum) {
 function update(dt) {
   if (!player.alive) return;
 
-  // Slide runway in from right
+  // Slide runway in — stops just past the player so they can fly onto it
   if (landing) {
-    const targetRwX = W * 0.65;
-    if (landing.runway.x > targetRwX) landing.runway.x -= Math.max(speed * 3, 10);
+    const targetRwX = player.x + 60;
+    if (landing.runway.x > targetRwX) landing.runway.x -= Math.max(speed * 3, 12);
   }
 
   // Distance (calibrated: ~10-27 m/s depending on speed level)
@@ -545,12 +545,12 @@ function updateHUD() {
 function checkLandingTouch() {
   if (!landing) return;
   const rw = landing.runway;
-  // Landing zone: on top of the runway surface
-  const landX = rw.x - 60;
-  const landY = rw.y - 14;
-  const dx = player.x - landX;
+  // Runway must be close to player x first
+  if (rw.x > player.x + 120) return;
+  // Player needs to fly down to runway height
+  const landY = rw.y - 16;
   const dy = player.y - landY;
-  if (Math.abs(dx) < 90 && Math.abs(dy) < 28) {
+  if (Math.abs(dy) < 32) {
     spawnParticles(player.x, player.y, '#FFD700', 20);
     Snd.play('land');
     player.alive = false;
@@ -1224,10 +1224,20 @@ const Snd = (() => {
   }
 
   // Simple looping background music using oscillators
+  // Upbeat chiptune — two-voice melody + bass arpeggio
   const MELODY = [
-    [392,0.3],[440,0.15],[494,0.15],[523,0.3],[494,0.15],[440,0.15],
-    [392,0.3],[392,0.15],[349,0.15],[330,0.3],[294,0.3],
-    [330,0.15],[349,0.15],[392,0.4],[0,0.2],
+    // Phrase A — bright & bouncy
+    [659,0.15],[0,0.05],[784,0.15],[0,0.05],[880,0.2],[0,0.05],
+    [784,0.15],[0,0.05],[740,0.15],[0,0.05],[659,0.25],[0,0.1],
+    [587,0.15],[0,0.05],[659,0.15],[0,0.05],[784,0.3],[0,0.1],
+    // Phrase B — energetic climb
+    [523,0.12],[587,0.12],[659,0.12],[698,0.12],[784,0.25],[0,0.1],
+    [880,0.12],[0,0.05],[784,0.12],[0,0.05],[698,0.12],[0,0.05],[659,0.3],[0,0.1],
+    // Phrase C — fun descend
+    [784,0.2],[659,0.15],[587,0.15],[523,0.2],[0,0.08],
+    [587,0.15],[659,0.15],[784,0.2],[880,0.15],[0,0.05],[988,0.3],[0,0.15],
+    // Turnaround
+    [880,0.12],[784,0.12],[698,0.12],[659,0.12],[587,0.12],[523,0.12],[494,0.25],[0,0.2],
   ];
 
   function startMusic() {
@@ -1245,10 +1255,10 @@ const Snd = (() => {
         MELODY.forEach(([freq, dur]) => {
           if (freq > 0) {
             const o = ac.createOscillator(), g = ac.createGain();
-            o.type = 'square'; o.frequency.value = freq;
+            o.type = 'triangle'; o.frequency.value = freq;
             o.connect(g); g.connect(musicGain);
-            g.gain.setValueAtTime(0.5, t);
-            g.gain.setValueAtTime(0.0, t + dur - 0.02);
+            g.gain.setValueAtTime(0.4, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + dur - 0.01);
             o.start(t); o.stop(t + dur);
           }
           t += dur;
