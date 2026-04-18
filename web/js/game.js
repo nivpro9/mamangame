@@ -1083,6 +1083,8 @@ function initGame(levelNum) {
   isHolding = false;
 
   const upg = Save.data.upgrades;
+  // Guard: clamp activeVehicle to valid range
+  if (!VEHICLES[Save.data.activeVehicle]) Save.data.activeVehicle = 0;
   shieldHits = upg.shield + (Save.data.activeVehicle === 7 ? 1 : 0); // Large Airliner perk
   // Apply spin bonuses
   if (Save.data.spinShields > 0) { shieldHits += Save.data.spinShields; Save.data.spinShields = 0; Save.save(); }
@@ -2103,9 +2105,15 @@ function hexToRgb(hex) {
 function loop(ts) {
   const dt = Math.min((ts - (lastTime || ts)) / 1000, 0.05);
   lastTime = ts;
-  update(dt);
-  draw(ts / 1000);
-  if (player.alive || landing || boss || particles.length > 0) frameId = requestAnimationFrame(loop);
+  try {
+    update(dt);
+    draw(ts / 1000);
+  } catch (e) {
+    console.error('[loop error]', e);
+  }
+  if (player && (player.alive || landing || boss || particles.length > 0)) {
+    frameId = requestAnimationFrame(loop);
+  }
 }
 
 // ── SCREENS ──────────────────────────────────────────────
