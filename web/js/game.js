@@ -307,23 +307,33 @@ function update(dt) {
   const veh = VEHICLES[Save.data.activeVehicle];
   speed = Math.min(levelData.speed * veh.speed * (1 + upg.speed * 0.12) + distance * 0.0002, levelData.speed * 1.4);
 
-  // ── PHYSICS (joystick) ──
-  const gravity   = 480;   // px/s² downward
-  const uplift    = 720;   // px/s² when pushing up
-  const sidePush  = 350;   // px/s² horizontal
-  const maxVy     = 300;   // px/s clamp
-  const maxVx     = 120;
+  // ── PHYSICS (floating joystick — responsive lerp) ──
+  const MAX_VY  = 340;  // px/s vertical max
+  const MAX_VX  = 180;  // px/s horizontal max
+  const RESP    = 18;   // how fast velocity reaches target (higher = snappier)
+  const GRAVITY = 140;  // px/s² gentle fall when joystick idle
   const ctrl = veh.control * (1 + upg.control * 0.15);
 
+  let targetVy = 0, targetVx = 0;
   if (JOY.active) {
-    player.vy += (gravity + JOY.dy * uplift * ctrl) * dt;
-    player.vx += JOY.dx * sidePush * ctrl * dt;
-  } else {
-    player.vy += gravity * dt;
-    player.vx *= Math.pow(0.05, dt); // friction
+    // Small deadzone (8%) to avoid drift
+    const jy = Math.abs(JOY.dy) > 0.08 ? JOY.dy : 0;
+    const jx = Math.abs(JOY.dx) > 0.08 ? JOY.dx : 0;
+    targetVy = jy * MAX_VY * ctrl;
+    targetVx = jx * MAX_VX * ctrl;
   }
-  player.vy = Math.max(-maxVy * ctrl, Math.min(maxVy, player.vy));
-  player.vx = Math.max(-maxVx, Math.min(maxVx, player.vx));
+
+  // Lerp velocity toward target — feels instant and responsive
+  const lf = 1 - Math.exp(-RESP * dt);
+  player.vy += (targetVy - player.vy) * lf;
+  player.vx += (targetVx - player.vx) * lf;
+
+  // Gravity always present (gentle, so player must push up to stay)
+  player.vy += GRAVITY * dt;
+
+  // Clamp
+  player.vy = Math.max(-MAX_VY * ctrl, Math.min(MAX_VY, player.vy));
+  player.vx = Math.max(-MAX_VX, Math.min(MAX_VX, player.vx));
   player.x += player.vx * dt;
   player.y += player.vy * dt;
 
@@ -779,32 +789,54 @@ function drawRunway(rw) {
 
 // ── DRAW JOYSTICK ────────────────────────────────────────
 function drawJoystick() {
-  const bx = JOY.baseX, by = JOY.baseY;
   const br = JOY.baseR, kr = JOY.knobR;
-  const kx = JOY.active ? JOY.knobX : bx;
-  const ky = JOY.active ? JOY.knobY : by;
 
-  // Base
+  if (!JOY.active) {
+    // Show pulsing hint at default bottom-center position
+    const hx = W * 0.5, hy = H - 90;
+    const pulse = 0.18 + 0.08 * Math.sin(Date.now() * 0.003);
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,255,255,${pulse * 1.8})`;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath(); ctx.arc(hx, hy, br, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = `rgba(255,255,255,${pulse * 1.6})`;
+    ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('TOUCH & DRAG', hx, hy);
+    ctx.restore();
+    return;
+  }
+
+  const bx = JOY.baseX, by = JOY.baseY;
+  const kx = JOY.knobX, ky = JOY.knobY;
+
   ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.28)';
-  ctx.strokeStyle = 'rgba(255,255,255,0.32)';
+  // Base ring
+  ctx.fillStyle = 'rgba(0,0,0,0.30)';
+  ctx.strokeStyle = 'rgba(255,255,255,0.38)';
   ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
-  // Guide lines
-  ctx.strokeStyle = 'rgba(255,255,255,0.14)'; ctx.lineWidth = 1;
+  // Guide cross
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(bx - br + 8, by); ctx.lineTo(bx + br - 8, by);
   ctx.moveTo(bx, by - br + 8); ctx.lineTo(bx, by + br - 8);
   ctx.stroke();
 
+  // Direction line
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(kx, ky); ctx.stroke();
+
   // Knob
-  const kg = ctx.createRadialGradient(kx - kr*0.3, ky - kr*0.3, 0, kx, ky, kr);
+  const kg = ctx.createRadialGradient(kx - kr * 0.3, ky - kr * 0.3, 0, kx, ky, kr);
   kg.addColorStop(0, 'rgba(255,255,255,0.95)');
-  kg.addColorStop(1, 'rgba(180,210,255,0.65)');
+  kg.addColorStop(1, 'rgba(160,200,255,0.65)');
   ctx.fillStyle = kg;
-  ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
   ctx.restore();
 }
 
@@ -1121,10 +1153,13 @@ function setupTouch() {
       if (JOY.touchId !== -1) continue;
       const r = canvas.getBoundingClientRect();
       const tx = touch.clientX - r.left, ty = touch.clientY - r.top;
-      const dx = tx - JOY.baseX, dy = ty - JOY.baseY;
-      if (Math.sqrt(dx*dx + dy*dy) < JOY.baseR * 1.8) {
+      // Floating joystick: activates anywhere in the lower 60% of screen
+      if (ty > H * 0.38) {
         JOY.active = true; JOY.touchId = touch.identifier;
-        updateJoystick(tx, ty);
+        // Base moves to where finger lands
+        JOY.baseX = tx; JOY.baseY = ty;
+        JOY.knobX = tx; JOY.knobY = ty;
+        JOY.dx = 0; JOY.dy = 0;
       }
     }
   }, { passive: false });
@@ -1153,9 +1188,12 @@ function setupTouch() {
   gc.addEventListener('mousedown', e => {
     const r = canvas.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
-    const dx = mx - JOY.baseX, dy = my - JOY.baseY;
-    if (Math.sqrt(dx*dx + dy*dy) < JOY.baseR * 1.8) {
-      mouseDown = true; JOY.active = true; updateJoystick(mx, my);
+    // Floating joystick for mouse too — lower 60% of screen
+    if (my > H * 0.38) {
+      mouseDown = true; JOY.active = true;
+      JOY.baseX = mx; JOY.baseY = my;
+      JOY.knobX = mx; JOY.knobY = my;
+      JOY.dx = 0; JOY.dy = 0;
     }
   });
   gc.addEventListener('mousemove', e => {
