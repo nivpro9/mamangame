@@ -3,6 +3,19 @@
 //  PAPER FLIGHT EVOLUTION — complete rewrite with levels
 // ═══════════════════════════════════════════════════════
 
+// ── BOSS LEVELS (last level of every world) ──────────────
+const BOSS_LEVELS = new Set([10, 20, 30, 40, 50, 60, 70]);
+const BOSS_NAMES  = ['GUARDIAN','FIRE DEMON','SHADOW LORD','STEEL TITAN','ICE GIANT','SAND BEAST','VOID EMPEROR'];
+const BOSS_COLORS = [
+  ['#4CAF50','#1B5E20'], // Sky
+  ['#FF5722','#BF360C'], // Sunset
+  ['#7C4DFF','#311B92'], // Night
+  ['#607D8B','#263238'], // Storm
+  ['#00BCD4','#006064'], // Arctic
+  ['#FF9800','#E65100'], // Canyon
+  ['#E040FB','#4A148C'], // Space
+];
+
 // ── BIOMES (one per 10 levels) ──────────────────────────
 const BIOMES = [
   { name:'Sky',    sky:['#3a8fc2','#87CEEB','#c8e9f9'], cloud:'255,255,255', stars:false, rain:false, snow:false, nebula:false },
@@ -507,6 +520,8 @@ const Save = {
     upgrades: { speed:0, control:0, magnet:0, shield:0, cannon:0 },
     currentLevel: 1, tutorialDone: false,
     levelBests: {}, prestige: 0,
+    lastSpin: 0, spinShields: 0, spinAmmo: 0,
+    lastLogin: 0, loginStreak: 0,
   },
   data: null,
   fresh() { return JSON.parse(JSON.stringify(this.defaults)); },
@@ -550,6 +565,11 @@ const Save = {
     if (this.data.tutorialDone === undefined) this.data.tutorialDone = false;
     if (!this.data.levelBests) this.data.levelBests = {};
     if (this.data.prestige === undefined) this.data.prestige = 0;
+    if (this.data.lastSpin === undefined) this.data.lastSpin = 0;
+    if (this.data.spinShields === undefined) this.data.spinShields = 0;
+    if (this.data.spinAmmo === undefined) this.data.spinAmmo = 0;
+    if (this.data.lastLogin === undefined) this.data.lastLogin = 0;
+    if (this.data.loginStreak === undefined) this.data.loginStreak = 0;
     // Re-save to populate all storage mechanisms in case one was missing
     this.save();
   },
@@ -575,6 +595,9 @@ let biomeBanner = { text: '', timer: 0 };
 
 // Session ID — incremented on every new game to cancel stale delayed callbacks
 let gameSession = 0;
+
+// Boss state (null when no boss is active)
+let boss = null;
 
 // Landing state
 let landing = null; // null | { runway:{x,y,w,type}, phase:'approach'|'touch'|'done', timer }
@@ -681,6 +704,204 @@ function applyPrize(prize) {
   popups.push({ text: prize.label, x: player.x, y: player.y - 30, alpha: 1, timer: 2.2, color: prize.color });
 }
 
+// ── BOSS ─────────────────────────────────────────────────
+function createBoss() {
+  const worldIdx = Math.floor((currentLevel - 1) / 10);
+  const hp = 15 + worldIdx * 12; // 15,27,39,51,63,75,87
+  return {
+    x: W * 1.15, y: H * 0.5,
+    vy: 0, hp, maxHp: hp,
+    phase: 0,        // 0=normal 1=rage(60%) 2=frenzy(30%)
+    attackTimer: 2.5,
+    missileTimer: 6,
+    anim: 0,
+    world: worldIdx,
+    entered: false,
+    dead: false,
+  };
+}
+
+function updateBoss(dt) {
+  if (!boss || boss.dead) return;
+  boss.anim += dt * 3;
+
+  const targetX = W * 0.72;
+  if (!boss.entered) {
+    boss.x -= speed * 0.7 + 3;
+    if (boss.x <= targetX) { boss.x = targetX; boss.entered = true; }
+  } else {
+    // Hover toward targetX
+    boss.x += (targetX - boss.x) * 0.03;
+    // Track player vertically
+    const dy = player.y - boss.y;
+    boss.vy += dy * 80 * dt;
+    boss.vy *= 0.88;
+    boss.y = Math.max(70, Math.min(H - 70, boss.y + boss.vy * dt));
+
+    // Phase transitions
+    boss.phase = boss.hp < boss.maxHp * 0.3 ? 2 : boss.hp < boss.maxHp * 0.6 ? 1 : 0;
+    const rage = [1.0, 1.35, 1.8][boss.phase];
+
+    // Spread shot attack
+    boss.attackTimer -= dt;
+    if (boss.attackTimer <= 0) {
+      const numShots = [2, 3, 5][boss.phase];
+      const baseAngle = Math.atan2(player.y - boss.y, player.x - boss.x);
+      for (let i = 0; i < numShots; i++) {
+        const angle = baseAngle + (i - (numShots - 1) / 2) * 0.22;
+        const spd = 200 + currentLevel * 3;
+        enemyBullets.push({ x: boss.x - 48, y: boss.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, r: 6, isBoss: true });
+      }
+      boss.attackTimer = 2.5 / rage;
+    }
+
+    // Homing missiles (world 2+)
+    if (boss.world >= 2) {
+      boss.missileTimer -= dt;
+      if (boss.missileTimer <= 0) {
+        const angle = Math.atan2(player.y - boss.y, player.x - boss.x);
+        enemyBullets.push({ x: boss.x - 48, y: boss.y, vx: Math.cos(angle) * 80, vy: Math.sin(angle) * 80, r: 9, isBoss: true, homing: true });
+        boss.missileTimer = 5.5 / rage;
+      }
+    }
+  }
+
+  // Player bullets hit boss
+  bullets = bullets.filter(b => {
+    const dx = b.x - boss.x, dy = b.y - boss.y;
+    if (Math.abs(dx) < 50 && Math.abs(dy) < 36) {
+      boss.hp = Math.max(0, boss.hp - 1);
+      screenShake = 0.25;
+      spawnParticles(b.x, b.y, '#ff5722', 6);
+      if (boss.hp <= 0) killBoss();
+      return false;
+    }
+    return true;
+  });
+
+  // Body collision with player
+  if (player.alive && player.invincible <= 0) {
+    const dx = player.x - boss.x, dy = player.y - boss.y;
+    if (Math.abs(dx) < 52 + 22 && Math.abs(dy) < 40 + 14) handleHit();
+  }
+}
+
+function killBoss() {
+  if (!boss || boss.dead) return;
+  boss.dead = true;
+  boss.hp = 0;
+  const bossRef = boss;
+  // Chain explosion sequence
+  for (let i = 0; i < 9; i++) {
+    const _s = gameSession;
+    setTimeout(() => {
+      if (gameSession !== _s) return;
+      const ox = (Math.random() - 0.5) * 90, oy = (Math.random() - 0.5) * 60;
+      spawnParticles(bossRef.x + ox, bossRef.y + oy, ['#ff5722','#FFD700','#ff8c00','#ffffff'][i % 4], 18);
+      screenShake = 0.7;
+      Snd.play('crash');
+    }, i * 200);
+  }
+  const reward = 30 + bossRef.world * 15;
+  sessionCoins += reward;
+  popups.push({ text: '⭐ BOSS DEFEATED! +' + reward + ' 🪙', x: W * 0.5, y: H * 0.4, alpha: 1, timer: 3.5, color: '#FFD700' });
+  const _s = gameSession;
+  setTimeout(() => {
+    if (gameSession !== _s) return;
+    boss = null;
+    player.alive = false;
+    showLevelComplete();
+  }, 2000);
+}
+
+function drawBoss() {
+  if (!boss) return;
+  const [c1, c2] = BOSS_COLORS[boss.world] || BOSS_COLORS[0];
+  const anim = boss.anim;
+  const pulse = 0.5 + 0.5 * Math.sin(anim * 2);
+  const isDead = boss.dead;
+  const alpha = isDead ? Math.max(0, 1 - (anim - (boss.anim - 0))) : 1;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.translate(boss.x, boss.y);
+  ctx.scale(-1, 1); // face left toward player
+
+  // Outer glow
+  const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, 72);
+  gr.addColorStop(0, c1 + '55');
+  gr.addColorStop(1, c1 + '00');
+  ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, 72, 0, Math.PI * 2); ctx.fill();
+
+  // Main body
+  ctx.fillStyle = c2;
+  ctx.beginPath();
+  ctx.moveTo(48, 0); ctx.lineTo(12, -30); ctx.lineTo(-28, -22);
+  ctx.lineTo(-44, 0); ctx.lineTo(-28, 22); ctx.lineTo(12, 30);
+  ctx.closePath(); ctx.fill();
+
+  // Upper armor
+  ctx.fillStyle = c1;
+  ctx.beginPath();
+  ctx.moveTo(42, -4); ctx.lineTo(12, -24); ctx.lineTo(-26, -18); ctx.lineTo(-20, -4);
+  ctx.closePath(); ctx.fill();
+
+  // Lower armor
+  ctx.beginPath();
+  ctx.moveTo(42, 4); ctx.lineTo(12, 24); ctx.lineTo(-26, 18); ctx.lineTo(-20, 4);
+  ctx.closePath(); ctx.fill();
+
+  // Wings
+  ctx.fillStyle = c2;
+  ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-18, -54); ctx.lineTo(-30, -22); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(-18, 54); ctx.lineTo(-30, 22); ctx.closePath(); ctx.fill();
+
+  // Eye / cannon
+  const eyeColor = boss.phase === 2 ? '#ff1111' : boss.phase === 1 ? '#FF8C00' : '#FFD700';
+  ctx.shadowColor = eyeColor; ctx.shadowBlur = 8 + pulse * 10;
+  ctx.fillStyle = eyeColor;
+  ctx.beginPath(); ctx.arc(30, 0, 10, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.arc(32, -2, 3.5, 0, Math.PI * 2); ctx.fill();
+
+  // Engine flares
+  [[-36, -16], [-36, 16]].forEach(([ex, ey]) => {
+    const fl = 5 + Math.random() * 7;
+    const eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, fl + 8);
+    eg.addColorStop(0, 'rgba(255,200,50,0.9)'); eg.addColorStop(0.5, 'rgba(255,80,0,0.6)'); eg.addColorStop(1, 'rgba(255,0,0,0)');
+    ctx.fillStyle = eg; ctx.beginPath(); ctx.ellipse(ex - fl / 2, ey, fl, 4, 0, 0, Math.PI * 2); ctx.fill();
+  });
+
+  ctx.restore();
+
+  // Boss HP bar (drawn at fixed canvas position, above HUD)
+  if (!boss.dead) {
+    const bw = Math.min(W * 0.55, 260), bh = 14, bx = (W - bw) / 2, by = 52;
+    const pct = Math.max(0, boss.hp / boss.maxHp);
+    // Background pill
+    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.beginPath(); ctx.roundRect(bx - 3, by - 3, bw + 6, bh + 6, 10); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 8); ctx.fill();
+    // HP fill
+    const fillColor = pct > 0.6 ? '#4CAF50' : pct > 0.3 ? '#FF9800' : '#f44336';
+    if (pct > 0) {
+      ctx.fillStyle = fillColor;
+      ctx.beginPath(); ctx.roundRect(bx, by, bw * pct, bh, 8); ctx.fill();
+      if (boss.phase === 2) { // rage pulse
+        ctx.fillStyle = `rgba(255,0,0,${0.2 * pulse})`;
+        ctx.beginPath(); ctx.roundRect(bx, by, bw * pct, bh, 8); ctx.fill();
+      }
+    }
+    // Label
+    const bname = BOSS_NAMES[boss.world] || 'BOSS';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = 'bold 10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(`⚔️ ${bname}  ${boss.hp} / ${boss.maxHp}`, W / 2, by - 5);
+  }
+}
+
 // ── ENEMIES ──────────────────────────────────────────────
 function createEnemy() {
   const y = H * 0.15 + Math.random() * H * 0.65;
@@ -741,6 +962,15 @@ function updateEnemies(dt) {
   enemyBullets = enemyBullets.filter(b => {
     b.x += b.vx * dt;
     b.y += b.vy * dt;
+    // Homing missile tracking
+    if (b.homing && player.alive) {
+      const dx = player.x - b.x, dy = player.y - b.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len > 10) {
+        b.vx += (dx / len * 130 - b.vx) * dt * 1.6;
+        b.vy += (dy / len * 130 - b.vy) * dt * 1.6;
+      }
+    }
     if (player.invincible <= 0) {
       const dx = player.x - b.x, dy = player.y - b.y;
       if (Math.sqrt(dx*dx+dy*dy) < b.r + 18) {
@@ -841,6 +1071,7 @@ function initGame(levelNum) {
   levelData = LEVELS[currentLevel - 1];
   currentBiome = levelData.biome;
 
+  boss = null;
   distance = 0; sessionCoins = 0;
   obstacles = []; coins = []; ammoPickups = []; shieldPickups = []; particles = []; bullets = []; mysteryBoxes = [];
   enemies = []; enemyBullets = []; popups = [];
@@ -854,10 +1085,13 @@ function initGame(levelNum) {
 
   const upg = Save.data.upgrades;
   shieldHits = upg.shield + (Save.data.activeVehicle === 7 ? 1 : 0); // Large Airliner perk
+  // Apply spin bonuses
+  if (Save.data.spinShields > 0) { shieldHits += Save.data.spinShields; Save.data.spinShields = 0; Save.save(); }
   speed = levelData.speed * VEHICLES[Save.data.activeVehicle].speed * (1 + upg.speed * 0.12);
 
   const cap = maxAmmo();
   ammo = cap > 0 ? Math.floor(cap * 0.5) : 0;
+  if (Save.data.spinAmmo > 0 && cap > 0) { ammo = Math.min(cap, ammo + Save.data.spinAmmo); Save.data.spinAmmo = 0; Save.save(); }
 
   player = createPlayer();
   landing = null;
@@ -1125,6 +1359,9 @@ function update(dt) {
   // ── ENEMIES ──
   updateEnemies(dt);
 
+  // ── BOSS ──
+  if (boss) updateBoss(dt);
+
   // ── MYSTERY BOXES ──
   mysteryBoxes = mysteryBoxes.filter(mb => {
     if (mb.collected) return false;
@@ -1188,16 +1425,24 @@ function update(dt) {
   // ── HUD UPDATE ──
   updateHUD();
 
-  // ── SPAWN RUNWAY when goal is reached ──
-  if (!landing && distance >= levelData.goal) {
+  // ── GOAL REACHED: boss level → spawn boss, normal → spawn runway ──
+  if (!landing && !boss && distance >= levelData.goal) {
     spawnTimer = 999; // stop obstacles
-    const veh = VEHICLES[Save.data.activeVehicle];
-    landing = {
-      runway: { x: W + 200, y: H * 0.76, type: veh.landing },
-      goalReached: true,
-    };
-    document.getElementById('shoot-btn').classList.add('hidden');
-    Snd.play('landing_start');
+    if (BOSS_LEVELS.has(currentLevel)) {
+      // Spawn the boss
+      boss = createBoss();
+      popups.push({ text: '⚔️ BOSS INCOMING!', x: W * 0.5, y: H * 0.38, alpha: 1, timer: 2.5, color: '#FF4444' });
+      screenShake = 0.8;
+      Snd.play('landing_start');
+    } else {
+      const veh = VEHICLES[Save.data.activeVehicle];
+      landing = {
+        runway: { x: W + 200, y: H * 0.76, type: veh.landing },
+        goalReached: true,
+      };
+      document.getElementById('shoot-btn').classList.add('hidden');
+      Snd.play('landing_start');
+    }
   }
 
   // ── CHECK IF PLAYER LANDED ON RUNWAY ──
@@ -1757,6 +2002,7 @@ function draw(t) {
   mysteryBoxes.forEach(mb => drawMysteryBox(mb));
   bullets.forEach(b => drawBullet(b));
   enemies.forEach(en => drawEnemy(en));
+  if (boss) drawBoss();
   drawEnemyBullets();
   obstacles.forEach(o => drawObstacle(o));
   drawPopups();
@@ -1860,7 +2106,7 @@ function loop(ts) {
   lastTime = ts;
   update(dt);
   draw(ts / 1000);
-  if (player.alive || landing || particles.length > 0) frameId = requestAnimationFrame(loop);
+  if (player.alive || landing || boss || particles.length > 0) frameId = requestAnimationFrame(loop);
 }
 
 // ── SCREENS ──────────────────────────────────────────────
@@ -1881,6 +2127,7 @@ function showMenu() {
   document.getElementById('menu-best').textContent = stars + t('best') + ' ' + Save.data.bestLevel;
   showScreen('screen-menu');
   drawMenuVehicle();
+  updateSpinButton();
 }
 
 function startGame() {
@@ -1897,13 +2144,17 @@ function beginLevel(lvlNum) {
   if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
   gameState = 'playing';
   showScreen('screen-game');
-  canvas.width = canvas.offsetWidth || window.innerWidth;
-  canvas.height = canvas.offsetHeight || window.innerHeight;
-  W = canvas.width; H = canvas.height;
-  initGame(lvlNum);
-  Snd.startMusic();
-  lastTime = null;
-  frameId = requestAnimationFrame(loop);
+  // Wait one frame so the screen is visible and canvas has layout dimensions
+  requestAnimationFrame(() => {
+    canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    canvas.height = canvas.offsetHeight || window.innerHeight;
+    W = canvas.width; H = canvas.height;
+    if (W < 10 || H < 10) { W = window.innerWidth; H = window.innerHeight; canvas.width = W; canvas.height = H; }
+    initGame(lvlNum);
+    Snd.startMusic();
+    lastTime = null;
+    frameId = requestAnimationFrame(loop);
+  });
 }
 
 function showGameOver() {
@@ -2015,16 +2266,20 @@ function renderLevelSelect() {
     const bubbles = worldLevels.map(lv => {
       const done    = lv.id < current;
       const active  = lv.id === current;
-
+      const locked  = lv.id > current;
+      const isBoss  = BOSS_LEVELS.has(lv.id);
+      const bossClass = isBoss ? ' boss-level' : '';
+      const bossCrown = isBoss ? '<span class="lv-boss-crown">⚔️</span>' : '';
       const pb = Save.data.levelBests && Save.data.levelBests[lv.id];
       const pbStr = pb ? ` title="Level ${lv.id} — Best: ${pb}m"` : ` title="Level ${lv.id}"`;
-      if (done) {
-        return `<div class="lv-bubble done"${pbStr} onclick="startLevelFromSelect(${lv.id})">✓${pb ? '<span class="lv-pb">'+pb+'m</span>' : ''}</div>`;
-      } else if (active) {
-        return `<div class="lv-bubble current"${pbStr} onclick="startLevelFromSelect(${lv.id})">${lv.id}</div>`;
+
+      if (locked) {
+        return `<div class="lv-bubble locked${bossClass}"${pbStr}>${bossCrown}<span class="lv-lock-icon">🔒</span><span class="lv-lock-num">${lv.id}</span></div>`;
+      } else if (done) {
+        return `<div class="lv-bubble done${bossClass}"${pbStr} onclick="startLevelFromSelect(${lv.id})">${bossCrown}✓${pb ? '<span class="lv-pb">'+pb+'m</span>' : ''}</div>`;
       } else {
-        // All future levels unlocked for inspection
-        return `<div class="lv-bubble" style="opacity:0.7" title="Level ${lv.id}" onclick="startLevelFromSelect(${lv.id})">${lv.id}</div>`;
+        // active (current level)
+        return `<div class="lv-bubble current${bossClass}"${pbStr} onclick="startLevelFromSelect(${lv.id})">${bossCrown}${lv.id}</div>`;
       }
     }).join('');
 
@@ -2041,8 +2296,7 @@ function renderLevelSelect() {
 }
 
 function startLevelFromSelect(lvlId) {
-  Save.data.currentLevel = lvlId;
-  Save.save();
+  if (lvlId > Save.data.currentLevel) return; // locked
   beginLevel(lvlId);
 }
 
@@ -2352,6 +2606,249 @@ const Snd = (() => {
   return { play, startMusic, stopMusic };
 })();
 
+// ── INDEXEDDB PERSISTENCE (survives browser clear) ───────
+const IDB = (() => {
+  const DB = 'PaperAirplaneDB', VER = 1, STORE = 'save';
+  let db = null;
+  function open() {
+    return new Promise((res, rej) => {
+      if (db) return res(db);
+      const req = indexedDB.open(DB, VER);
+      req.onupgradeneeded = e => e.target.result.createObjectStore(STORE, { keyPath: 'id' });
+      req.onsuccess = e => { db = e.target.result; res(db); };
+      req.onerror = rej;
+    });
+  }
+  async function set(val) {
+    try {
+      await open();
+      return new Promise((res, rej) => {
+        const tx = db.transaction(STORE, 'readwrite');
+        tx.objectStore(STORE).put({ id: 'data', payload: JSON.stringify(val) });
+        tx.oncomplete = res; tx.onerror = rej;
+      });
+    } catch(e) {}
+  }
+  async function get() {
+    try {
+      await open();
+      return new Promise((res, rej) => {
+        const tx = db.transaction(STORE, 'readonly');
+        const req = tx.objectStore(STORE).get('data');
+        req.onsuccess = e => res(e.target.result ? JSON.parse(e.target.result.payload) : null);
+        req.onerror = rej;
+      });
+    } catch(e) { return null; }
+  }
+  return { set, get };
+})();
+
+// Patch Save to also use IndexedDB
+const _origSave = Save.save.bind(Save);
+Save.save = function() { _origSave(); IDB.set(this.data); };
+
+// Try to recover from IndexedDB if localStorage is empty
+Save._loadIDB = async function() {
+  const stored = await IDB.get();
+  if (!stored) return;
+  // Only apply if current data looks like defaults (no progress)
+  if (!this.data || (this.data.coins === 0 && this.data.currentLevel === 1 && this.data.bestLevel === 1)) {
+    this.data = { ...this.fresh(), ...stored };
+    this.save();
+  }
+};
+
+// ── DAILY LOGIN GIFT ─────────────────────────────────────
+const DAY_REWARDS = [20, 30, 40, 60, 80, 100, 150]; // streak day 1-7, then repeats
+
+function checkDailyGift() {
+  const now = Date.now();
+  const lastLogin = Save.data.lastLogin || 0;
+  const streak    = Save.data.loginStreak || 0;
+  const msInDay   = 24 * 3600 * 1000;
+  const daysSince = Math.floor((now - lastLogin) / msInDay);
+  if (daysSince < 1) return; // already logged in today
+
+  const newStreak  = daysSince === 1 ? streak + 1 : 1; // reset if missed a day
+  const rewardAmt  = DAY_REWARDS[(newStreak - 1) % DAY_REWARDS.length];
+
+  Save.data.lastLogin   = now;
+  Save.data.loginStreak = newStreak;
+  Save.data.coins      += rewardAmt;
+  Save.save();
+
+  // Show gift popup after a short delay so the menu is visible
+  setTimeout(() => showDailyGiftPopup(newStreak, rewardAmt), 600);
+}
+
+function showDailyGiftPopup(streak, coins) {
+  // Reuse spin modal styling with different content
+  const overlay = document.createElement('div');
+  overlay.className = 'spin-modal';
+  overlay.id = 'gift-overlay';
+  overlay.innerHTML = `
+    <div class="spin-box" style="gap:14px;max-width:300px">
+      <div style="font-size:56px;line-height:1">🎁</div>
+      <div class="spin-title" style="font-size:18px">DAILY GIFT!</div>
+      <div style="color:rgba(255,255,255,0.7);font-size:13px;letter-spacing:1px">DAY ${streak} STREAK</div>
+      <div style="font-size:36px;font-weight:bold;color:#FFD700;text-shadow:0 0 16px rgba(255,215,0,0.8)">+${coins} 🪙</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:11px">Come back tomorrow for more!</div>
+      <button class="btn-play" style="font-size:18px;padding:12px 40px;max-width:200px" onclick="document.getElementById('gift-overlay').remove();document.getElementById('menu-coins').textContent=Save.data.coins;">COLLECT!</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+// ── DAILY SPIN ───────────────────────────────────────────
+const SPIN_PRIZES = [
+  { id:'coins10',  label:'+10 🪙',      color:'#FFD700', weight:30 },
+  { id:'coins30',  label:'+30 🪙',      color:'#FFC200', weight:20 },
+  { id:'coins100', label:'+100 🪙',     color:'#FF9900', weight:10 },
+  { id:'coins250', label:'+250 🪙',     color:'#FF6B35', weight:5  },
+  { id:'ammo',     label:'+10 💥 Ammo', color:'#ff7043', weight:12 },
+  { id:'shield',   label:'🛡 Shield',   color:'#4CAF50', weight:12 },
+  { id:'vehicle',  label:'🎁 FREE PLANE!', color:'#E040FB', weight:4 },
+  { id:'coins50',  label:'+50 🪙',      color:'#FFB300', weight:7  },
+];
+
+function spinAvailable() {
+  return Date.now() - (Save.data.lastSpin || 0) >= 24 * 3600 * 1000;
+}
+
+function updateSpinButton() {
+  const btn = document.getElementById('spinBtn');
+  const badge = document.getElementById('spin-badge');
+  const countdown = document.getElementById('spin-countdown');
+  if (!btn) return;
+  if (spinAvailable()) {
+    btn.classList.remove('spin-unavailable');
+    badge.classList.remove('hidden');
+    countdown.textContent = '';
+  } else {
+    btn.classList.add('spin-unavailable');
+    badge.classList.add('hidden');
+    const rem = 24 * 3600 * 1000 - (Date.now() - (Save.data.lastSpin || 0));
+    const h = Math.floor(rem / 3600000);
+    const m = Math.floor((rem % 3600000) / 60000);
+    countdown.textContent = `${h}h ${m}m`;
+  }
+}
+
+function drawSpinWheel() {
+  const canvas = document.getElementById('spin-wheel');
+  if (!canvas) return;
+  const c = canvas.getContext('2d');
+  const r = canvas.width / 2;
+  const n = SPIN_PRIZES.length;
+  const seg = (Math.PI * 2) / n;
+  c.clearRect(0, 0, canvas.width, canvas.height);
+
+  SPIN_PRIZES.forEach((prize, i) => {
+    const start = i * seg - Math.PI / 2;
+    const end   = start + seg;
+    // Segment fill
+    c.beginPath(); c.moveTo(r, r); c.arc(r, r, r - 2, start, end); c.closePath();
+    c.fillStyle = prize.color; c.fill();
+    c.strokeStyle = 'rgba(0,0,0,0.35)'; c.lineWidth = 2; c.stroke();
+    // Label
+    c.save(); c.translate(r, r); c.rotate(start + seg / 2);
+    c.textAlign = 'right'; c.font = 'bold 10px Arial';
+    c.strokeStyle = 'rgba(0,0,0,0.7)'; c.lineWidth = 3;
+    c.strokeText(prize.label, r - 10, 4);
+    c.fillStyle = 'white'; c.fillText(prize.label, r - 10, 4);
+    c.restore();
+  });
+
+  // Center hub
+  c.beginPath(); c.arc(r, r, 22, 0, Math.PI * 2);
+  c.fillStyle = '#1a1a2e'; c.fill();
+  c.strokeStyle = 'rgba(255,255,255,0.3)'; c.lineWidth = 2; c.stroke();
+  c.fillStyle = 'white'; c.font = 'bold 16px Arial';
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('✈️', r, r);
+}
+
+let _spinInProgress = false;
+
+function showSpin() {
+  if (!spinAvailable()) return;
+  const modal = document.getElementById('spin-modal');
+  modal.classList.remove('hidden');
+  // Reset wheel rotation
+  const wheel = document.getElementById('spin-wheel');
+  wheel.style.transition = 'none';
+  wheel.style.transform = 'rotate(0deg)';
+  document.getElementById('spin-result').textContent = '';
+  const goBtn = document.getElementById('spin-btn-go');
+  goBtn.disabled = false;
+  goBtn.textContent = '🎰 SPIN!';
+  goBtn.onclick = doSpin;
+  _spinInProgress = false;
+  drawSpinWheel();
+}
+
+function closeSpin() {
+  document.getElementById('spin-modal').classList.add('hidden');
+}
+
+function doSpin() {
+  if (_spinInProgress) return;
+  _spinInProgress = true;
+  // Pick prize
+  const total = SPIN_PRIZES.reduce((s, p) => s + p.weight, 0);
+  let r = Math.random() * total, chosen = SPIN_PRIZES[0], prizeIdx = 0;
+  for (let i = 0; i < SPIN_PRIZES.length; i++) {
+    r -= SPIN_PRIZES[i].weight;
+    if (r <= 0) { chosen = SPIN_PRIZES[i]; prizeIdx = i; break; }
+  }
+  // Calculate target rotation so chosen segment faces the pointer (top)
+  const segDeg = 360 / SPIN_PRIZES.length;
+  const spins = 5 + Math.floor(Math.random() * 3);
+  const targetDeg = spins * 360 + (360 - prizeIdx * segDeg - segDeg / 2);
+  const wheel = document.getElementById('spin-wheel');
+  wheel.style.transition = 'transform 4.2s cubic-bezier(0.17,0.67,0.12,0.99)';
+  wheel.style.transform = `rotate(${targetDeg}deg)`;
+  // Disable button during spin
+  const goBtn = document.getElementById('spin-btn-go');
+  goBtn.disabled = true;
+  goBtn.textContent = '⏳';
+  setTimeout(() => {
+    applySpinPrize(chosen);
+    Save.data.lastSpin = Date.now();
+    Save.save();
+    const resultEl = document.getElementById('spin-result');
+    resultEl.textContent = chosen.label;
+    resultEl.style.color = chosen.color;
+    goBtn.textContent = '✓ CLOSE';
+    goBtn.disabled = false;
+    goBtn.onclick = closeSpin;
+    updateSpinButton();
+    document.getElementById('menu-coins').textContent = Save.data.coins;
+  }, 4400);
+}
+
+function applySpinPrize(prize) {
+  if (prize.id.startsWith('coins')) {
+    const n = parseInt(prize.id.replace('coins', ''));
+    Save.data.coins += n;
+  } else if (prize.id === 'shield') {
+    Save.data.spinShields = Math.min(5, (Save.data.spinShields || 0) + 1);
+  } else if (prize.id === 'ammo') {
+    Save.data.spinAmmo = Math.min(20, (Save.data.spinAmmo || 0) + 10);
+  } else if (prize.id === 'vehicle') {
+    const unowned = VEHICLES.filter(v => v.id >= 1 && !Save.data.ownedVehicles.includes(v.id));
+    if (unowned.length > 0) {
+      const gift = unowned[Math.floor(Math.random() * unowned.length)];
+      Save.data.ownedVehicles.push(gift.id);
+      prize.label = gift.emoji + ' ' + gift.name + '!';
+    } else {
+      // All vehicles owned — bonus coins instead
+      Save.data.coins += 200;
+      prize.label = '+200 🪙 (all planes owned!)';
+    }
+  }
+  Save.save();
+}
+
 // ── INIT ─────────────────────────────────────────────────
 window.addEventListener('load', () => {
   canvas = document.getElementById('gameCanvas');
@@ -2360,9 +2857,7 @@ window.addEventListener('load', () => {
   canvas.width = W; canvas.height = H;
 
   Save.load();
-  // Unlock all vehicles
-  VEHICLES.forEach(v => { if (!Save.data.ownedVehicles.includes(v.id)) Save.data.ownedVehicles.push(v.id); });
-  Save.save();
+  Save._loadIDB(); // async recovery from IndexedDB if localStorage was cleared
   setupTouch();
 
   document.getElementById('playBtn').addEventListener('click', startGame);
@@ -2393,10 +2888,12 @@ window.addEventListener('load', () => {
     if (document.visibilityState === 'hidden') Save.save();
   });
 
-  // Auto-save every 5 seconds
+  // Auto-save every 5 seconds + refresh spin countdown every minute
   setInterval(() => { if (Save.data) Save.save(); }, 5000);
+  setInterval(() => { if (gameState === 'menu') updateSpinButton(); }, 60000);
 
   initLangSelector();
   applyLang();
   showMenu();
+  checkDailyGift();
 });

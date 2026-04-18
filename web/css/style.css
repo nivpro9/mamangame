@@ -366,9 +366,110 @@ body {
 }
 /* Locked level */
 .lv-bubble.locked {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.35);
+  border-color: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.25);
   cursor: default;
-  font-size: 16px;
+  flex-direction: column;
+  gap: 0;
+  font-size: 10px;
+  position: relative;
+  overflow: visible;
+}
+.lv-lock-icon { font-size: 18px; line-height: 1; }
+.lv-lock-num  { font-size: 8px; color: rgba(255,255,255,0.35); line-height: 1; }
+
+/* Chain links above/below locked bubbles */
+.lv-bubble.locked::before,
+.lv-bubble.locked::after {
+  content: '⛓';
+  position: absolute;
+  font-size: 10px;
+  opacity: 0.4;
+  left: 50%; transform: translateX(-50%);
+  pointer-events: none;
+}
+.lv-bubble.locked::before { top: -13px; }
+.lv-bubble.locked::after  { bottom: -13px; }
+
+/* Boss levels — special glow */
+.lv-bubble.boss-level {
+  border-color: #FF5722 !important;
+  box-shadow: 0 0 10px rgba(255,87,34,0.5);
+}
+.lv-bubble.boss-level.done  { border-color: #FF5722 !important; }
+.lv-bubble.boss-level.current { border-color: #FF5722 !important; box-shadow: 0 0 16px rgba(255,87,34,0.8), 0 0 30px rgba(255,87,34,0.4); }
+.lv-boss-crown {
+  position: absolute; top: -10px; right: -4px;
+  font-size: 12px; pointer-events: none;
+}
+
+/* ── DAILY SPIN BUTTON ── */
+.btn-spin {
+  background: linear-gradient(135deg, #7C4DFF, #E040FB);
+  color: white; border: 3px solid rgba(255,255,255,0.4); border-radius: 50px;
+  font-size: 18px; font-weight: bold; letter-spacing: 1px;
+  padding: 14px 40px; cursor: pointer; width: 100%; max-width: 320px;
+  box-shadow: 0 5px 0 #4A148C, 0 8px 20px rgba(124,77,255,0.5);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform .1s, box-shadow .1s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  position: relative;
+}
+.btn-spin:active { transform: scale(0.96) translateY(3px); box-shadow: 0 2px 0 #4A148C; }
+.btn-spin.spin-unavailable {
+  background: linear-gradient(135deg, #37474f, #546e7a);
+  box-shadow: 0 5px 0 #263238, 0 8px 20px rgba(0,0,0,0.3);
+}
+.spin-badge {
+  background: #FF5722; color: white; border-radius: 50%;
+  width: 20px; height: 20px; font-size: 12px; font-weight: bold;
+  display: flex; align-items: center; justify-content: center;
+  animation: pulse 0.8s infinite alternate;
+}
+.spin-countdown { font-size: 12px; opacity: 0.7; font-weight: normal; letter-spacing: 0; }
+
+/* ── SPIN MODAL ── */
+.spin-modal {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.82); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.spin-box {
+  background: linear-gradient(160deg, #1a0a3e, #0d1a3e);
+  border: 2px solid rgba(180,100,255,0.35); border-radius: 28px;
+  padding: 28px 20px 24px; max-width: 340px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  box-shadow: 0 0 60px rgba(124,77,255,0.3), 0 20px 60px rgba(0,0,0,0.7);
+  position: relative;
+}
+.spin-close-x {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.7);
+  width: 32px; height: 32px; border-radius: 50%; font-size: 16px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.spin-title {
+  color: white; font-size: 22px; font-weight: bold; letter-spacing: 3px;
+  text-shadow: 0 0 20px rgba(180,100,255,0.8);
+}
+.spin-wheel-wrap {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+}
+.spin-pointer {
+  font-size: 24px; color: #FFD700;
+  text-shadow: 0 0 12px rgba(255,215,0,0.8);
+  line-height: 1; margin-bottom: -4px; z-index: 1;
+  animation: none;
+}
+#spin-wheel {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(124,77,255,0.5), 0 0 0 4px rgba(255,255,255,0.15);
+  transform-origin: center center;
+}
+.spin-result {
+  min-height: 36px; font-size: 24px; font-weight: bold; letter-spacing: 2px;
+  text-shadow: 0 0 16px currentColor;
+  text-align: center;
 }
