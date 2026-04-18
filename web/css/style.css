@@ -160,6 +160,17 @@ body {
 }
 .lc-stat-label { color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 2px; margin-bottom: 6px; }
 .lc-stat-value { color: white; font-size: 26px; font-weight: bold; }
+.lc-bravo {
+  font-size: 22px; font-weight: bold; color: #FFD700;
+  text-shadow: 0 0 16px rgba(255,215,0,0.8);
+  letter-spacing: 2px;
+  animation: bravoIn 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both;
+}
+@keyframes bravoIn {
+  0% { transform: scale(0.5) translateY(20px); opacity: 0; }
+  60% { transform: scale(1.15) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
 .lc-biome {
   color: #80deea; font-size: 14px; font-weight: bold; letter-spacing: 2px;
   background: rgba(0,200,255,0.1); padding: 8px 20px; border-radius: 20px;

@@ -983,7 +983,7 @@ function showLevelComplete() {
   document.getElementById('lc-level').textContent = currentLevel;
   document.getElementById('lc-distance').textContent = Math.floor(distance) + 'm';
   document.getElementById('lc-coins').textContent = '+' + sessionCoins;
-  document.getElementById('lc-next').textContent = currentLevel >= 70 ? 'PLAY AGAIN' : 'LEVEL ' + nextLevel + ' ›';
+  document.getElementById('nextLevelBtn').textContent = currentLevel >= 70 ? 'PLAY AGAIN' : 'NEXT LEVEL ' + nextLevel + ' ›';
 
   // If entering new biome, show banner text on complete screen
   const newBiome = LEVELS[nextLevel - 1]?.biome;
