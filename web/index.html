@@ -19,30 +19,30 @@
 <div id="tutorial-modal" class="tutorial-modal hidden">
   <div class="tut-box">
     <div class="tut-icon">✈️</div>
-    <h2 class="tut-title">HOW TO PLAY</h2>
+    <h2 class="tut-title" data-i18n="howToPlay">HOW TO PLAY</h2>
     <div class="tut-steps">
       <div class="tut-step">
         <span class="tut-step-icon">✋</span>
-        <span><b>Hold</b> the screen to fly up — <b>release</b> to fall down</span>
+        <span data-i18n-html="tut1"><b>Hold</b> the screen to fly up — <b>release</b> to fall down</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">🟩</span>
-        <span>Fly through the <b>gaps</b> in the pillars — don't crash!</span>
+        <span data-i18n-html="tut2">Fly through the <b>gaps</b> in the pillars — don't crash!</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">📦</span>
-        <span>Collect <b>ammo boxes</b> to charge your cannon (buy Cannon in Upgrades)</span>
+        <span data-i18n-html="tut3">Collect <b>ammo boxes</b> to charge your cannon (buy Cannon in Upgrades)</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">🪙</span>
-        <span>Grab <b>coins</b> to spend on vehicles and upgrades</span>
+        <span data-i18n-html="tut4">Grab <b>coins</b> to spend on vehicles and upgrades</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">🛬</span>
-        <span>Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!</span>
+        <span data-i18n-html="tut5">Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!</span>
       </div>
     </div>
-    <button id="tut-start-btn" class="btn-play">LET'S FLY!</button>
+    <button id="tut-start-btn" class="btn-play" data-i18n="letsFly">LET'S FLY!</button>
   </div>
 </div>
 
@@ -52,6 +52,11 @@
     <div class="sky-cloud c1"></div>
     <div class="sky-cloud c2"></div>
     <div class="sky-cloud c3"></div>
+  </div>
+  <!-- Language Selector -->
+  <div class="lang-selector" id="langSelector">
+    <button class="lang-btn" id="langBtn">🇬🇧</button>
+    <div class="lang-dropdown hidden" id="langDropdown"></div>
   </div>
   <div class="menu-content">
     <div class="logo">
@@ -67,9 +72,9 @@
       <div class="stat"><span id="menu-level">LVL 1</span></div>
       <div class="stat"><span id="menu-best">BEST 1</span></div>
     </div>
-    <button id="playBtn" class="btn-play">PLAY</button>
-    <button id="levelsBtn" class="btn-levels">🗺️ LEVELS</button>
-    <button id="shopBtn" class="btn-upgrades">⚙️ UPGRADES</button>
+    <button id="playBtn" class="btn-play" data-i18n="play">PLAY</button>
+    <button id="levelsBtn" class="btn-levels" data-i18n="levelsBtn">🗺️ LEVELS</button>
+    <button id="shopBtn" class="btn-upgrades" data-i18n="upgradesMenu">⚙️ UPGRADES</button>
   </div>
 </div>
 
@@ -79,17 +84,17 @@
   <button id="shoot-btn" class="shoot-btn hidden">🔫</button>
   <div class="game-hud">
     <div class="hud-left">
-      <span class="hud-label">LEVEL</span>
+      <span class="hud-label" data-i18n="level">LEVEL</span>
       <span id="hud-level">1</span>
       <span class="hud-label" style="margin-top:3px">🟡 <span id="hud-coins" style="color:#FFD700;font-weight:bold;">0</span></span>
     </div>
     <div class="hud-center">
-      <span class="hud-label">DISTANCE</span>
+      <span class="hud-label" data-i18n="distance">DISTANCE</span>
       <span id="hud-distance">0m</span>
       <span id="hud-goal" class="hud-goal">/ 250m</span>
     </div>
     <div class="hud-right">
-      <span class="hud-label">AMMO</span>
+      <span class="hud-label" data-i18n="ammo">AMMO</span>
       <span id="hud-ammo" class="hud-ammo-dots">—</span>
     </div>
   </div>
@@ -99,24 +104,24 @@
 <div id="screen-gameover" class="screen">
   <div class="gameover-content">
     <div class="crash-icon">💥</div>
-    <h1 class="go-title">CRASHED!</h1>
+    <h1 class="go-title" data-i18n="crashed">CRASHED!</h1>
     <div class="go-stats">
       <div class="go-stat">
-        <div class="go-stat-label">LEVEL</div>
+        <div class="go-stat-label" data-i18n="level">LEVEL</div>
         <div class="go-stat-value" id="go-level">1</div>
       </div>
       <div class="go-stat">
-        <div class="go-stat-label">DISTANCE</div>
+        <div class="go-stat-label" data-i18n="distance">DISTANCE</div>
         <div class="go-stat-value" id="go-distance" style="font-size:18px">0m</div>
       </div>
       <div class="go-stat">
-        <div class="go-stat-label">COINS</div>
+        <div class="go-stat-label" data-i18n="coins">COINS</div>
         <div class="go-stat-value" id="go-coins">+0</div>
       </div>
     </div>
-    <button id="retryBtn" class="btn-play">TRY AGAIN</button>
-    <button id="goShopBtn" class="btn-shop">🔧 UPGRADES</button>
-    <button id="goMenuBtn" class="btn-menu">MENU</button>
+    <button id="retryBtn" class="btn-play" data-i18n="tryAgain">TRY AGAIN</button>
+    <button id="goShopBtn" class="btn-shop" data-i18n="upgradesBtn">🔧 UPGRADES</button>
+    <button id="goMenuBtn" class="btn-menu" data-i18n="menu">MENU</button>
   </div>
 </div>
 
@@ -124,26 +129,26 @@
 <div id="screen-levelcomplete" class="screen">
   <div class="levelcomplete-content">
     <div class="lc-icon">🎉</div>
-    <h1 class="lc-title">LEVEL COMPLETE!</h1>
-    <div class="lc-bravo" id="lc-bravo">⭐ WELL DONE! ⭐</div>
+    <h1 class="lc-title" data-i18n="levelComplete">LEVEL COMPLETE!</h1>
+    <div class="lc-bravo" id="lc-bravo" data-i18n="wellDone">⭐ WELL DONE! ⭐</div>
     <div class="lc-stats">
       <div class="lc-stat">
-        <div class="lc-stat-label">LEVEL</div>
+        <div class="lc-stat-label" data-i18n="level">LEVEL</div>
         <div class="lc-stat-value" id="lc-level">1</div>
       </div>
       <div class="lc-stat">
-        <div class="lc-stat-label">DISTANCE</div>
+        <div class="lc-stat-label" data-i18n="distance">DISTANCE</div>
         <div class="lc-stat-value" id="lc-distance">0m</div>
       </div>
       <div class="lc-stat">
-        <div class="lc-stat-label">COINS</div>
+        <div class="lc-stat-label" data-i18n="coins">COINS</div>
         <div class="lc-stat-value" id="lc-coins">+0</div>
       </div>
     </div>
     <div id="lc-biome" class="lc-biome hidden"></div>
     <button id="nextLevelBtn" class="btn-play">NEXT LEVEL ›</button>
-    <button id="lcShopBtn" class="btn-shop">🔧 UPGRADES</button>
-    <button id="lcMenuBtn" class="btn-menu">MENU</button>
+    <button id="lcShopBtn" class="btn-shop" data-i18n="upgradesBtn">🔧 UPGRADES</button>
+    <button id="lcMenuBtn" class="btn-menu" data-i18n="menu">MENU</button>
   </div>
 </div>
 
@@ -151,7 +156,7 @@
 <div id="screen-levels" class="screen">
   <div class="shop-header">
     <button id="levelsBackBtn" class="btn-back">←</button>
-    <h1>LEVELS</h1>
+    <h1 data-i18n="levelsTitle">LEVELS</h1>
     <div class="shop-coins">LVL <span id="levels-current">1</span> / 70</div>
   </div>
   <div class="levels-scroll">
@@ -163,15 +168,15 @@
 <div id="screen-shop" class="screen">
   <div class="shop-header">
     <button id="shopBackBtn" class="btn-back">←</button>
-    <h1>UPGRADES</h1>
+    <h1 data-i18n="upgradesTitle">UPGRADES</h1>
     <div class="shop-coins">🪙 <span id="shop-coins">0</span></div>
   </div>
   <div class="shop-section">
-    <h3>VEHICLES</h3>
+    <h3 data-i18n="vehicles">VEHICLES</h3>
     <div class="vehicles-grid" id="vehicles-grid"></div>
   </div>
   <div class="shop-section">
-    <h3>UPGRADES</h3>
+    <h3 data-i18n="upgradesSec">UPGRADES</h3>
     <div class="upgrades-list" id="upgrades-list"></div>
   </div>
 </div>

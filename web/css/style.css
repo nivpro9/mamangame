@@ -91,6 +91,36 @@ body {
   flex-shrink: 0;
 }
 
+/* ── LANGUAGE SELECTOR ── */
+.lang-selector {
+  position: absolute; top: 18px; right: 16px; z-index: 10;
+}
+.lang-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.25); backdrop-filter: blur(10px);
+  font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: transform .1s;
+  line-height: 1;
+}
+.lang-btn:active { transform: scale(0.92); }
+.lang-dropdown {
+  position: absolute; top: 52px; right: 0;
+  background: rgba(15,20,40,0.95); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.15); border-radius: 16px;
+  padding: 8px; min-width: 160px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.lang-opt {
+  background: transparent; border: none; color: white;
+  font-size: 15px; padding: 9px 14px; border-radius: 10px;
+  cursor: pointer; text-align: left; transition: background .15s;
+  white-space: nowrap;
+}
+.lang-opt:hover, .lang-opt.lang-active { background: rgba(255,255,255,0.12); }
+.lang-opt.lang-active { color: #FFD700; }
+
 .btn-play {
   background: linear-gradient(135deg, #FF6B35, #f7410f);
   color: white; border: none; border-radius: 50px;

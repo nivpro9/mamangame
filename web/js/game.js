@@ -64,6 +64,176 @@ const UPGRADES = [
   { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Unlocks ammo pickups & shooting', maxLevel:3, costs:[300,600,1200]        },
 ];
 
+// ── LANGUAGES ────────────────────────────────────────────
+const LANGS = {
+  en: { name:'English',  flag:'🇬🇧', dir:'ltr', t:{
+    play:'PLAY', levelsBtn:'🗺️ LEVELS', upgradesMenu:'⚙️ UPGRADES', upgradesBtn:'🔧 UPGRADES',
+    upgradesTitle:'UPGRADES', upgradesSec:'UPGRADES', levelsTitle:'LEVELS',
+    level:'LEVEL', distance:'DISTANCE', ammo:'AMMO', coins:'COINS',
+    crashed:'CRASHED!', tryAgain:'TRY AGAIN', menu:'MENU',
+    levelComplete:'LEVEL COMPLETE!', vehicles:'VEHICLES',
+    howToPlay:'HOW TO PLAY', letsFly:"LET'S FLY!", wellDone:'⭐ WELL DONE! ⭐',
+    lvl:'LVL', best:'BEST', playAgain:'PLAY AGAIN',
+    tut1:'<b>Hold</b> the screen to fly up — <b>release</b> to fall down',
+    tut2:"Fly through the <b>gaps</b> in the pillars — don't crash!",
+    tut3:'Collect <b>ammo boxes</b> to charge your cannon (buy Cannon in Upgrades)',
+    tut4:'Grab <b>coins</b> to spend on vehicles and upgrades',
+    tut5:'Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!',
+  }},
+  it: { name:'Italiano', flag:'🇮🇹', dir:'ltr', t:{
+    play:'GIOCA', levelsBtn:'🗺️ LIVELLI', upgradesMenu:'⚙️ MIGLIORIE', upgradesBtn:'🔧 MIGLIORIE',
+    upgradesTitle:'MIGLIORIE', upgradesSec:'MIGLIORIE', levelsTitle:'LIVELLI',
+    level:'LIVELLO', distance:'DISTANZA', ammo:'MUNIZIONI', coins:'MONETE',
+    crashed:'SCHIANTO!', tryAgain:'RIPROVA', menu:'MENU',
+    levelComplete:'LIVELLO COMPLETATO!', vehicles:'VEICOLI',
+    howToPlay:'COME GIOCARE', letsFly:'VOLIAMO!', wellDone:'⭐ OTTIMO! ⭐',
+    lvl:'LIV', best:'RECORD', playAgain:'ANCORA',
+    tut1:'<b>Tieni premuto</b> per salire — <b>rilascia</b> per scendere',
+    tut2:'Vola attraverso i <b>varchi</b> nei pilastri — non schiantarti!',
+    tut3:'Raccogli <b>munizioni</b> per il cannone (acquista in Migliorie)',
+    tut4:'Prendi le <b>monete</b> per veicoli e migliorie',
+    tut5:'Raggiungi la <b>meta</b> — poi atterra sulla <b>pista</b>!',
+  }},
+  fr: { name:'Français', flag:'🇫🇷', dir:'ltr', t:{
+    play:'JOUER', levelsBtn:'🗺️ NIVEAUX', upgradesMenu:'⚙️ AMÉLIORATIONS', upgradesBtn:'🔧 AMÉLIORATIONS',
+    upgradesTitle:'AMÉLIORATIONS', upgradesSec:'AMÉLIORATIONS', levelsTitle:'NIVEAUX',
+    level:'NIVEAU', distance:'DISTANCE', ammo:'MUNITIONS', coins:'PIÈCES',
+    crashed:'CRASH!', tryAgain:'RÉESSAYER', menu:'MENU',
+    levelComplete:'NIVEAU TERMINÉ!', vehicles:'VÉHICULES',
+    howToPlay:'COMMENT JOUER', letsFly:'ON VOLE!', wellDone:'⭐ BRAVO! ⭐',
+    lvl:'NIV', best:'RECORD', playAgain:'REJOUER',
+    tut1:"<b>Maintenez</b> l'écran pour monter — <b>relâchez</b> pour descendre",
+    tut2:'Volez à travers les <b>espaces</b> dans les piliers — sans crasher!',
+    tut3:"Collectez des <b>munitions</b> pour le canon (acheter dans Améliorations)",
+    tut4:'Prenez les <b>pièces</b> pour les véhicules et améliorations',
+    tut5:'Atteignez la <b>distance</b> — puis atterrissez sur la <b>piste</b>!',
+  }},
+  ru: { name:'Русский', flag:'🇷🇺', dir:'ltr', t:{
+    play:'ИГРАТЬ', levelsBtn:'🗺️ УРОВНИ', upgradesMenu:'⚙️ УЛУЧШЕНИЯ', upgradesBtn:'🔧 УЛУЧШЕНИЯ',
+    upgradesTitle:'УЛУЧШЕНИЯ', upgradesSec:'УЛУЧШЕНИЯ', levelsTitle:'УРОВНИ',
+    level:'УРОВЕНЬ', distance:'ДИСТАНЦИЯ', ammo:'ПАТРОНЫ', coins:'МОНЕТЫ',
+    crashed:'КРУШЕНИЕ!', tryAgain:'ЕЩЁ РАЗ', menu:'МЕНЮ',
+    levelComplete:'УРОВЕНЬ ПРОЙДЕН!', vehicles:'ТРАНСПОРТ',
+    howToPlay:'КАК ИГРАТЬ', letsFly:'ПОЛЕТЕЛИ!', wellDone:'⭐ ОТЛИЧНО! ⭐',
+    lvl:'УР', best:'РЕКОРД', playAgain:'СНОВА',
+    tut1:'<b>Удерживайте</b> экран для подъёма — <b>отпустите</b> для снижения',
+    tut2:'Летите сквозь <b>промежутки</b> в столбах — не врезайтесь!',
+    tut3:'Собирайте <b>патроны</b> для пушки (купите в Улучшениях)',
+    tut4:'Берите <b>монеты</b> для транспорта и улучшений',
+    tut5:'Достигните <b>цели</b> — затем приземлитесь на <b>полосу</b>!',
+  }},
+  ja: { name:'日本語', flag:'🇯🇵', dir:'ltr', t:{
+    play:'プレイ', levelsBtn:'🗺️ レベル', upgradesMenu:'⚙️ アップグレード', upgradesBtn:'🔧 アップグレード',
+    upgradesTitle:'アップグレード', upgradesSec:'アップグレード', levelsTitle:'レベル',
+    level:'レベル', distance:'距離', ammo:'弾薬', coins:'コイン',
+    crashed:'クラッシュ!', tryAgain:'もう一度', menu:'メニュー',
+    levelComplete:'レベルクリア!', vehicles:'乗り物',
+    howToPlay:'遊び方', letsFly:'飛ぼう!', wellDone:'⭐ すごい! ⭐',
+    lvl:'LV', best:'最高', playAgain:'もう一度',
+    tut1:'<b>押し続ける</b>と上昇 — <b>離す</b>と下降',
+    tut2:'柱の<b>隙間</b>を飛び抜けよう — ぶつからないように!',
+    tut3:'<b>弾薬箱</b>を集めて大砲を充填（アップグレードで購入）',
+    tut4:'<b>コイン</b>を集めて乗り物やアップグレードに使おう',
+    tut5:'<b>距離目標</b>に到達したら<b>滑走路</b>に着陸しよう!',
+  }},
+  zh: { name:'中文', flag:'🇨🇳', dir:'ltr', t:{
+    play:'开始', levelsBtn:'🗺️ 关卡', upgradesMenu:'⚙️ 升级', upgradesBtn:'🔧 升级',
+    upgradesTitle:'升级', upgradesSec:'升级', levelsTitle:'关卡',
+    level:'关卡', distance:'距离', ammo:'弹药', coins:'金币',
+    crashed:'坠毁!', tryAgain:'再试一次', menu:'菜单',
+    levelComplete:'关卡完成!', vehicles:'飞行器',
+    howToPlay:'游戏说明', letsFly:'出发!', wellDone:'⭐ 太棒了! ⭐',
+    lvl:'关', best:'最佳', playAgain:'再玩',
+    tut1:'<b>按住</b>屏幕上升 — <b>松开</b>下降',
+    tut2:'飞过柱子间的<b>间隙</b> — 不要撞上!',
+    tut3:'收集<b>弹药箱</b>为大炮充能（在升级中购买大炮）',
+    tut4:'收集<b>金币</b>购买飞行器和升级',
+    tut5:'达到<b>距离目标</b> — 然后飞到<b>跑道</b>上降落!',
+  }},
+  he: { name:'עברית', flag:'🇮🇱', dir:'rtl', t:{
+    play:'שחק', levelsBtn:'🗺️ שלבים', upgradesMenu:'⚙️ שדרוגים', upgradesBtn:'🔧 שדרוגים',
+    upgradesTitle:'שדרוגים', upgradesSec:'שדרוגים', levelsTitle:'שלבים',
+    level:'שלב', distance:'מרחק', ammo:'תחמושת', coins:'מטבעות',
+    crashed:'התרסקת!', tryAgain:'נסה שוב', menu:'תפריט',
+    levelComplete:'השלב הושלם!', vehicles:'כלי טיס',
+    howToPlay:'איך משחקים', letsFly:'יאללה נטוס!', wellDone:'⭐ כל הכבוד! ⭐',
+    lvl:'שלב', best:'שיא', playAgain:'שחק שוב',
+    tut1:'<b>לחץ</b> על המסך לעלות — <b>שחרר</b> לרדת',
+    tut2:'טוס דרך <b>הפרצות</b> בעמודים — אל תתרסק!',
+    tut3:'אסוף <b>קופסאות תחמושת</b> לטעינת התותח (קנה תותח בשדרוגים)',
+    tut4:'אסוף <b>מטבעות</b> לקניית כלי טיס ושדרוגים',
+    tut5:'הגע ל<b>יעד המרחק</b> — ואז נחת על <b>המסלול</b>!',
+  }},
+  ar: { name:'العربية', flag:'🇸🇦', dir:'rtl', t:{
+    play:'العب', levelsBtn:'🗺️ مستويات', upgradesMenu:'⚙️ تحسينات', upgradesBtn:'🔧 تحسينات',
+    upgradesTitle:'تحسينات', upgradesSec:'تحسينات', levelsTitle:'مستويات',
+    level:'المستوى', distance:'المسافة', ammo:'ذخيرة', coins:'عملات',
+    crashed:'تحطمت!', tryAgain:'حاول مجدداً', menu:'قائمة',
+    levelComplete:'اكتمل المستوى!', vehicles:'مركبات',
+    howToPlay:'كيف تلعب', letsFly:'هيا نطير!', wellDone:'⭐ أحسنت! ⭐',
+    lvl:'مستوى', best:'أفضل', playAgain:'العب مجدداً',
+    tut1:'<b>اضغط مطولاً</b> للصعود — <b>أطلق</b> للنزول',
+    tut2:'حلق عبر <b>الفجوات</b> في الأعمدة — لا تتحطم!',
+    tut3:'اجمع <b>صناديق الذخيرة</b> لشحن المدفع (اشتره من التحسينات)',
+    tut4:'اجمع <b>العملات</b> للإنفاق على المركبات والتحسينات',
+    tut5:'بلغ <b>هدف المسافة</b> — ثم اهبط على <b>المدرج</b>!',
+  }},
+};
+
+let currentLang = localStorage.getItem('pfe_lang') || 'en';
+
+function t(key) {
+  return (LANGS[currentLang] && LANGS[currentLang].t[key]) || LANGS.en.t[key] || key;
+}
+
+function applyLang() {
+  const lang = LANGS[currentLang];
+  document.documentElement.lang = currentLang;
+  document.body.dir = lang.dir;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.dataset.i18nHtml);
+  });
+  const langBtn = document.getElementById('langBtn');
+  if (langBtn) langBtn.textContent = lang.flag;
+  // Refresh dynamic menu text if save is loaded
+  if (Save.data) {
+    document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
+    document.getElementById('menu-best').textContent = t('best') + ' ' + Save.data.bestLevel;
+  }
+}
+
+function setLang(code) {
+  if (!LANGS[code]) return;
+  currentLang = code;
+  localStorage.setItem('pfe_lang', code);
+  applyLang();
+}
+
+function initLangSelector() {
+  const dropdown = document.getElementById('langDropdown');
+  Object.entries(LANGS).forEach(([code, lang]) => {
+    const btn = document.createElement('button');
+    btn.className = 'lang-opt' + (code === currentLang ? ' lang-active' : '');
+    btn.textContent = lang.flag + ' ' + lang.name;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setLang(code);
+      dropdown.classList.add('hidden');
+      dropdown.querySelectorAll('.lang-opt').forEach(b => b.classList.remove('lang-active'));
+      btn.classList.add('lang-active');
+    });
+    dropdown.appendChild(btn);
+  });
+  document.getElementById('langBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.classList.toggle('hidden');
+  });
+  document.addEventListener('click', () => dropdown.classList.add('hidden'));
+}
+
 // ── SAVE ─────────────────────────────────────────────────
 const Save = {
   KEY: 'pfe_v2',
@@ -1308,8 +1478,8 @@ function showMenu() {
   Snd.stopMusic();
   document.getElementById('shoot-btn').classList.add('hidden');
   document.getElementById('menu-coins').textContent = Save.data.coins;
-  document.getElementById('menu-level').textContent = 'LVL ' + Save.data.currentLevel;
-  document.getElementById('menu-best').textContent = 'BEST ' + Save.data.bestLevel;
+  document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
+  document.getElementById('menu-best').textContent = t('best') + ' ' + Save.data.bestLevel;
   showScreen('screen-menu');
   drawMenuVehicle();
 }
@@ -1364,7 +1534,7 @@ function showLevelComplete() {
   document.getElementById('lc-level').textContent = currentLevel;
   document.getElementById('lc-distance').textContent = Math.floor(distance) + 'm';
   document.getElementById('lc-coins').textContent = '+' + sessionCoins;
-  document.getElementById('nextLevelBtn').textContent = currentLevel >= 70 ? 'PLAY AGAIN' : 'NEXT LEVEL ' + nextLevel + ' ›';
+  document.getElementById('nextLevelBtn').textContent = currentLevel >= 70 ? t('playAgain') : t('levelsTitle') + ' ' + nextLevel + ' ›';
 
   // If entering new biome, show banner text on complete screen
   const newBiome = LEVELS[nextLevel - 1]?.biome;
@@ -1763,5 +1933,7 @@ window.addEventListener('load', () => {
   // Auto-save every 5 seconds
   setInterval(() => { if (Save.data) Save.save(); }, 5000);
 
+  initLangSelector();
+  applyLang();
   showMenu();
 });
