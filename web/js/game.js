@@ -122,10 +122,10 @@ let landing = null; // null | { runway:{x,y,w,type}, phase:'approach'|'touch'|'d
 
 // Tutorial hints (drawn on canvas)
 let tutHints = []; // [{text, x, y, alpha, timer}]
-let tutPhase = 0;  // 0=joystick hint, 1=gap hint, 2=ammo hint, 3=done
+let tutPhase = 0;  // 0=hint, 1=gap hint, 2=ammo hint, 3=done
 
-// Joystick
-const JOY = { baseX:0, baseY:0, knobX:0, knobY:0, dx:0, dy:0, active:false, touchId:-1, baseR:48, knobR:24 };
+// Hold-to-fly control
+let isHolding = false;
 
 // ── AMMO CAPACITY ─────────────────────────────────────────
 function maxAmmo() { return [0, 4, 7, 10][Math.min(3, Save.data.upgrades.cannon)]; }
@@ -133,7 +133,7 @@ function maxAmmo() { return [0, 4, 7, 10][Math.min(3, Save.data.upgrades.cannon)
 // ── PLAYER ───────────────────────────────────────────────
 function createPlayer() {
   const v = VEHICLES[Save.data.activeVehicle];
-  return { x: W * 0.22, y: H * 0.5, vy: 0, vx: 0, w: 48, h: 32, vehicle: v, trail: [], invincible: 0, alive: true };
+  return { x: W * 0.25, y: H * 0.5, vy: 0, w: 48, h: 32, vehicle: v, trail: [], invincible: 0, alive: true };
 }
 
 // ── OBSTACLES ────────────────────────────────────────────
@@ -205,20 +205,6 @@ function updateShootBtn() {
   }
 }
 
-// ── JOYSTICK ─────────────────────────────────────────────
-function updateJoystick(tx, ty) {
-  const dx = tx - JOY.baseX, dy = ty - JOY.baseY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const maxR = JOY.baseR * 0.85;
-  if (dist > maxR) {
-    JOY.dx = dx / dist; JOY.dy = dy / dist;
-    JOY.knobX = JOY.baseX + JOY.dx * maxR;
-    JOY.knobY = JOY.baseY + JOY.dy * maxR;
-  } else {
-    JOY.dx = dx / maxR; JOY.dy = dy / maxR;
-    JOY.knobX = tx; JOY.knobY = ty;
-  }
-}
 
 // ── BACKGROUND STARS / BG PARTICLES ──────────────────────
 function initBgEffects(biome) {
@@ -254,22 +240,19 @@ function initGame(levelNum) {
   obstacles = []; coins = []; ammoPickups = []; particles = []; bullets = [];
   spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
   shootCooldown = 0; shootAutoTimer = 3;
+  isHolding = false;
 
   const upg = Save.data.upgrades;
   shieldHits = upg.shield;
   speed = levelData.speed * VEHICLES[Save.data.activeVehicle].speed * (1 + upg.speed * 0.12);
 
   const cap = maxAmmo();
-  ammo = cap > 0 ? Math.floor(cap * 0.5) : 0; // start with half ammo
+  ammo = cap > 0 ? Math.floor(cap * 0.5) : 0;
 
   player = createPlayer();
   landing = null;
   tutHints = [];
   tutPhase = 0;
-
-  JOY.baseX = W * 0.5; JOY.baseY = H - 90;
-  JOY.knobX = JOY.baseX; JOY.knobY = JOY.baseY;
-  JOY.active = false; JOY.touchId = -1; JOY.dx = 0; JOY.dy = 0;
 
   initBgEffects(currentBiome);
 
@@ -307,39 +290,21 @@ function update(dt) {
   const veh = VEHICLES[Save.data.activeVehicle];
   speed = Math.min(levelData.speed * veh.speed * (1 + upg.speed * 0.12) + distance * 0.0002, levelData.speed * 1.4);
 
-  // ── PHYSICS (floating joystick — responsive lerp) ──
-  const MAX_VY  = 340;  // px/s vertical max
-  const MAX_VX  = 180;  // px/s horizontal max
-  const RESP    = 18;   // how fast velocity reaches target (higher = snappier)
-  const GRAVITY = 140;  // px/s² gentle fall when joystick idle
-  const ctrl = veh.control * (1 + upg.control * 0.15);
+  // ── PHYSICS: hold screen = fly up, release = fall ──
+  const ctrl      = veh.control * (1 + upg.control * 0.15);
+  const gravity   = 520;
+  const uplift    = 740;
+  const maxFall   = 340;
+  const maxRise   = -270 * Math.min(ctrl, 1.9);
 
-  let targetVy = 0, targetVx = 0;
-  if (JOY.active) {
-    // Small deadzone (8%) to avoid drift
-    const jy = Math.abs(JOY.dy) > 0.08 ? JOY.dy : 0;
-    const jx = Math.abs(JOY.dx) > 0.08 ? JOY.dx : 0;
-    targetVy = jy * MAX_VY * ctrl;
-    targetVx = jx * MAX_VX * ctrl;
+  if (isHolding) {
+    player.vy = Math.max(player.vy - uplift * ctrl * dt, maxRise);
+  } else {
+    player.vy = Math.min(player.vy + gravity * dt, maxFall);
   }
-
-  // Lerp velocity toward target — feels instant and responsive
-  const lf = 1 - Math.exp(-RESP * dt);
-  player.vy += (targetVy - player.vy) * lf;
-  player.vx += (targetVx - player.vx) * lf;
-
-  // Gravity always present (gentle, so player must push up to stay)
-  player.vy += GRAVITY * dt;
-
-  // Clamp
-  player.vy = Math.max(-MAX_VY * ctrl, Math.min(MAX_VY, player.vy));
-  player.vx = Math.max(-MAX_VX, Math.min(MAX_VX, player.vx));
-  player.x += player.vx * dt;
   player.y += player.vy * dt;
 
   // Clamp to screen
-  const xMin = W * 0.05, xMax = W * 0.50;
-  player.x = Math.max(xMin, Math.min(xMax, player.x));
   player.y = Math.max(player.h * 0.5, Math.min(H - player.h * 0.5, player.y));
   if (player.y <= player.h * 0.5 || player.y >= H - player.h * 0.5) player.vy = 0;
 
@@ -787,58 +752,6 @@ function drawRunway(rw) {
   ctx.restore();
 }
 
-// ── DRAW JOYSTICK ────────────────────────────────────────
-function drawJoystick() {
-  const br = JOY.baseR, kr = JOY.knobR;
-
-  if (!JOY.active) {
-    // Show pulsing hint at default bottom-center position
-    const hx = W * 0.5, hy = H - 90;
-    const pulse = 0.18 + 0.08 * Math.sin(Date.now() * 0.003);
-    ctx.save();
-    ctx.strokeStyle = `rgba(255,255,255,${pulse * 1.8})`;
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 6]);
-    ctx.beginPath(); ctx.arc(hx, hy, br, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = `rgba(255,255,255,${pulse * 1.6})`;
-    ctx.font = '10px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('TOUCH & DRAG', hx, hy);
-    ctx.restore();
-    return;
-  }
-
-  const bx = JOY.baseX, by = JOY.baseY;
-  const kx = JOY.knobX, ky = JOY.knobY;
-
-  ctx.save();
-  // Base ring
-  ctx.fillStyle = 'rgba(0,0,0,0.30)';
-  ctx.strokeStyle = 'rgba(255,255,255,0.38)';
-  ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-  // Guide cross
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(bx - br + 8, by); ctx.lineTo(bx + br - 8, by);
-  ctx.moveTo(bx, by - br + 8); ctx.lineTo(bx, by + br - 8);
-  ctx.stroke();
-
-  // Direction line
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(kx, ky); ctx.stroke();
-
-  // Knob
-  const kg = ctx.createRadialGradient(kx - kr * 0.3, ky - kr * 0.3, 0, kx, ky, kr);
-  kg.addColorStop(0, 'rgba(255,255,255,0.95)');
-  kg.addColorStop(1, 'rgba(160,200,255,0.65)');
-  ctx.fillStyle = kg;
-  ctx.strokeStyle = 'rgba(255,255,255,0.75)'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-
-  ctx.restore();
-}
 
 // ── DRAW BACKGROUND ──────────────────────────────────────
 function drawBackground(t) {
@@ -960,8 +873,17 @@ function draw(t) {
     ctx.fillRect(0,0,W,H);
   }
 
-  // Joystick (only when playing and not landing)
-  if (gameState === 'playing' && !landing) drawJoystick();
+  // Tap-to-fly hint (subtle pulsing arc at bottom when not holding)
+  if (gameState === 'playing' && !landing && !isHolding) {
+    const pulse = 0.12 + 0.06 * Math.sin(Date.now() * 0.003);
+    ctx.save();
+    ctx.strokeStyle = `rgba(255,255,255,${pulse})`;
+    ctx.lineWidth = 2;
+    ctx.font = '11px Arial'; ctx.textAlign = 'center';
+    ctx.fillStyle = `rgba(255,255,255,${pulse * 1.5})`;
+    ctx.fillText('HOLD TO FLY UP', W * 0.5, H - 18);
+    ctx.restore();
+  }
 
   // Progress bar at very top
   if (levelData) {
@@ -1205,67 +1127,20 @@ function buyUpgrade(id) {
 function setupTouch() {
   const gc = document.getElementById('screen-game');
 
-  gc.addEventListener('touchstart', e => {
-    e.preventDefault();
-    for (const touch of e.changedTouches) {
-      if (JOY.touchId !== -1) continue;
-      const r = canvas.getBoundingClientRect();
-      const tx = touch.clientX - r.left, ty = touch.clientY - r.top;
-      // Floating joystick: activates anywhere in the lower 60% of screen
-      if (ty > H * 0.38) {
-        JOY.active = true; JOY.touchId = touch.identifier;
-        // Base moves to where finger lands
-        JOY.baseX = tx; JOY.baseY = ty;
-        JOY.knobX = tx; JOY.knobY = ty;
-        JOY.dx = 0; JOY.dy = 0;
-      }
-    }
-  }, { passive: false });
-
-  gc.addEventListener('touchmove', e => {
-    e.preventDefault();
-    for (const touch of e.changedTouches) {
-      if (touch.identifier === JOY.touchId) {
-        const r = canvas.getBoundingClientRect();
-        updateJoystick(touch.clientX - r.left, touch.clientY - r.top);
-      }
-    }
-  }, { passive: false });
-
-  gc.addEventListener('touchend', e => {
-    for (const touch of e.changedTouches) {
-      if (touch.identifier === JOY.touchId) {
-        JOY.active = false; JOY.touchId = -1; JOY.dx = 0; JOY.dy = 0;
-      }
-    }
-  });
-  gc.addEventListener('touchcancel', () => { JOY.active = false; JOY.touchId = -1; JOY.dx = 0; JOY.dy = 0; });
+  // Hold anywhere on screen = fly up
+  gc.addEventListener('touchstart', e => { e.preventDefault(); isHolding = true; }, { passive: false });
+  gc.addEventListener('touchend',   () => { isHolding = false; });
+  gc.addEventListener('touchcancel',() => { isHolding = false; });
 
   // Mouse (desktop)
-  let mouseDown = false;
-  gc.addEventListener('mousedown', e => {
-    const r = canvas.getBoundingClientRect();
-    const mx = e.clientX - r.left, my = e.clientY - r.top;
-    // Floating joystick for mouse too — lower 60% of screen
-    if (my > H * 0.38) {
-      mouseDown = true; JOY.active = true;
-      JOY.baseX = mx; JOY.baseY = my;
-      JOY.knobX = mx; JOY.knobY = my;
-      JOY.dx = 0; JOY.dy = 0;
-    }
-  });
-  gc.addEventListener('mousemove', e => {
-    if (!mouseDown) return;
-    const r = canvas.getBoundingClientRect();
-    updateJoystick(e.clientX - r.left, e.clientY - r.top);
-  });
-  gc.addEventListener('mouseup', () => { mouseDown = false; JOY.active = false; JOY.dx = 0; JOY.dy = 0; });
-  gc.addEventListener('mouseleave', () => { mouseDown = false; JOY.active = false; JOY.dx = 0; JOY.dy = 0; });
+  gc.addEventListener('mousedown',  () => { isHolding = true; });
+  gc.addEventListener('mouseup',    () => { isHolding = false; });
+  gc.addEventListener('mouseleave', () => { isHolding = false; });
 
-  // Shoot button
+  // Shoot button — separate, doesn't affect isHolding
   const shootBtn = document.getElementById('shoot-btn');
   shootBtn.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); shoot(); }, { passive: false });
-  shootBtn.addEventListener('mousedown', e => { e.stopPropagation(); shoot(); });
+  shootBtn.addEventListener('mousedown',  e => { e.stopPropagation(); shoot(); });
 }
 
 // ── INIT ─────────────────────────────────────────────────
