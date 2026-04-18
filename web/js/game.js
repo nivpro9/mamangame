@@ -1071,6 +1071,64 @@ function showShop() {
   showScreen('screen-shop');
 }
 
+// ── LEVEL SELECT ──────────────────────────────────────────
+const WORLD_EMOJIS  = ['☀️','🌅','🌙','⛈️','🏔️','🏜️','🚀'];
+const WORLD_COLORS  = [
+  'rgba(58,143,194,0.55)',  // Sky
+  'rgba(192,74,32,0.55)',   // Sunset
+  'rgba(13,13,56,0.75)',    // Night
+  'rgba(26,32,48,0.75)',    // Storm
+  'rgba(156,212,239,0.4)',  // Arctic
+  'rgba(138,62,16,0.6)',    // Canyon
+  'rgba(6,0,42,0.85)',      // Space
+];
+
+function showLevelSelect() {
+  document.getElementById('levels-current').textContent = Save.data.currentLevel;
+  renderLevelSelect();
+  showScreen('screen-levels');
+}
+
+function renderLevelSelect() {
+  const current = Save.data.currentLevel;
+  const container = document.getElementById('worlds-container');
+
+  container.innerHTML = BIOMES.map((biome, wi) => {
+    const worldLevels = LEVELS.slice(wi * 10, wi * 10 + 10);
+    const color = WORLD_COLORS[wi];
+
+    const bubbles = worldLevels.map(lv => {
+      const done    = lv.id < current;
+      const active  = lv.id === current;
+      const locked  = lv.id > current;
+
+      if (done) {
+        return `<div class="lv-bubble done" onclick="startLevelFromSelect(${lv.id})" title="Level ${lv.id}">✓</div>`;
+      } else if (active) {
+        return `<div class="lv-bubble current" onclick="startLevelFromSelect(${lv.id})" title="Level ${lv.id} — CURRENT">${lv.id}</div>`;
+      } else {
+        return `<div class="lv-bubble locked" title="Level ${lv.id} — Locked">🔒</div>`;
+      }
+    }).join('');
+
+    return `
+      <div class="world-section">
+        <div class="world-header" style="background:${color}">
+          <span class="world-emoji">${WORLD_EMOJIS[wi]}</span>
+          <span class="world-name">${biome.name.toUpperCase()}</span>
+          <span class="world-range">${wi*10+1}–${wi*10+10}</span>
+        </div>
+        <div class="world-bubbles">${bubbles}</div>
+      </div>`;
+  }).join('');
+}
+
+function startLevelFromSelect(lvlId) {
+  Save.data.currentLevel = lvlId;
+  Save.save();
+  beginLevel(lvlId);
+}
+
 // ── TUTORIAL MODAL ────────────────────────────────────────
 function showTutorialModal() {
   document.getElementById('tutorial-modal').classList.remove('hidden');
@@ -1221,6 +1279,8 @@ window.addEventListener('load', () => {
   setupTouch();
 
   document.getElementById('playBtn').addEventListener('click', startGame);
+  document.getElementById('levelsBtn').addEventListener('click', showLevelSelect);
+  document.getElementById('levelsBackBtn').addEventListener('click', showMenu);
   document.getElementById('shopBtn').addEventListener('click', showShop);
   document.getElementById('retryBtn').addEventListener('click', () => beginLevel(currentLevel));
   document.getElementById('goShopBtn').addEventListener('click', showShop);
