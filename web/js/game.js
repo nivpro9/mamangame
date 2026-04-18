@@ -67,6 +67,7 @@ const UPGRADES = [
 // ── SAVE ─────────────────────────────────────────────────
 const Save = {
   KEY: 'pfe_v2',
+  COOKIE_DAYS: 365,
   defaults: {
     coins: 0, bestLevel: 1, activeVehicle: 0,
     ownedVehicles: [0],
@@ -75,36 +76,46 @@ const Save = {
   },
   data: null,
   fresh() { return JSON.parse(JSON.stringify(this.defaults)); },
+
+  // ── Cookie helpers ──
+  _setCookie(val) {
+    try {
+      const exp = new Date(Date.now() + this.COOKIE_DAYS * 864e5).toUTCString();
+      document.cookie = `${this.KEY}=${encodeURIComponent(val)};expires=${exp};path=/;SameSite=Lax`;
+    } catch(e) {}
+  },
+  _getCookie() {
+    try {
+      const match = document.cookie.split('; ').find(r => r.startsWith(this.KEY + '='));
+      return match ? decodeURIComponent(match.split('=')[1]) : null;
+    } catch(e) { return null; }
+  },
+
+  // ── Save to ALL storage mechanisms ──
   save() {
     const json = JSON.stringify(this.data);
     try { localStorage.setItem(this.KEY, json); } catch(e) {}
     try { sessionStorage.setItem(this.KEY, json); } catch(e) {}
+    this._setCookie(json);
   },
+
+  // ── Load from first available source ──
   load() {
     let raw = null;
     try { raw = localStorage.getItem(this.KEY); } catch(e) {}
     if (!raw) { try { raw = sessionStorage.getItem(this.KEY); } catch(e) {} }
+    if (!raw) { raw = this._getCookie(); }
     try { this.data = raw ? JSON.parse(raw) : null; } catch { this.data = null; }
-    if (!this.data) {
-      this.data = this.fresh();
-      try {
-        const old = JSON.parse(localStorage.getItem('pfe_save'));
-        if (old) {
-          this.data.coins = old.coins || 0;
-          this.data.activeVehicle = old.activeVehicle || 0;
-          this.data.ownedVehicles = old.ownedVehicles || [0];
-          if (old.upgrades) ['speed','control','magnet','shield'].forEach(k => {
-            if (old.upgrades[k]) this.data.upgrades[k] = old.upgrades[k];
-          });
-        }
-      } catch {}
-    }
+    if (!this.data) this.data = this.fresh();
+    // Field safety
     if (!this.data.upgrades) this.data.upgrades = { speed:0,control:0,magnet:0,shield:0,cannon:0 };
     if (this.data.upgrades.cannon === undefined) this.data.upgrades.cannon = 0;
-    if (!this.data.ownedVehicles) this.data.ownedVehicles = [0];
-    if (!this.data.currentLevel) this.data.currentLevel = 1;
+    if (!this.data.ownedVehicles || !this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
+    if (!this.data.currentLevel || this.data.currentLevel < 1) this.data.currentLevel = 1;
     if (!this.data.bestLevel) this.data.bestLevel = 1;
     if (this.data.tutorialDone === undefined) this.data.tutorialDone = false;
+    // Re-save to populate all storage mechanisms in case one was missing
+    this.save();
   },
 };
 
@@ -1420,9 +1431,17 @@ window.addEventListener('load', () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       W = canvas.width; H = canvas.height;
-      // no joystick to reposition
     }
   });
+
+  // Save on tab close / background
+  window.addEventListener('beforeunload', () => Save.save());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') Save.save();
+  });
+
+  // Auto-save every 5 seconds
+  setInterval(() => { if (Save.data) Save.save(); }, 5000);
 
   showMenu();
 });
