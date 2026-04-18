@@ -56,8 +56,8 @@ body {
 .logo { text-align: center; }
 .logo-plane { font-size: 64px; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); animation: float 3s ease-in-out infinite; }
 @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-.logo h1 { font-size: 36px; color: white; text-shadow: 0 3px 10px rgba(0,0,0,0.4); letter-spacing: 3px; }
-.logo h2 { font-size: 18px; color: rgba(255,255,255,0.85); letter-spacing: 6px; margin-top: 2px; }
+.logo h1 { font-size: 58px; color: #fff; letter-spacing: 4px; text-shadow: 0 4px 0 #1976D2, 0 6px 0 #0D47A1, 0 8px 16px rgba(0,0,0,0.4); -webkit-text-stroke: 2px #1565C0; margin: 0; }
+.logo h2 { font-size: 48px; color: #FFD600; letter-spacing: 3px; margin-top: -4px; text-shadow: 0 4px 0 #E65100, 0 6px 0 #BF360C, 0 8px 16px rgba(0,0,0,0.4); -webkit-text-stroke: 2px #E65100; }
 
 .vehicle-display { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 #vehicleCanvas { filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25)); }
