@@ -43,16 +43,16 @@ const LEVELS = generateLevels();
 
 // ── VEHICLES ─────────────────────────────────────────────
 const VEHICLES = [
-  { id:0, name:'Paper Plane',     emoji:'✉️',  cost:0,     speed:1.0,  control:1.0,  color:'#ffffff', landing:'strip'   },
-  { id:1, name:'Upgraded Paper',  emoji:'📄',  cost:150,   speed:1.15, control:1.1,  color:'#e3f2fd', landing:'strip'   },
-  { id:2, name:'Drone',           emoji:'🚁',  cost:400,   speed:0.95, control:1.7,  color:'#90caf9', landing:'helipad' },
-  { id:3, name:'Light Plane',     emoji:'🛩️', cost:900,   speed:1.3,  control:1.2,  color:'#4fc3f7', landing:'runway'  },
-  { id:4, name:'Propeller Plane', emoji:'✈️',  cost:1800,  speed:1.5,  control:1.15, color:'#ffd54f', landing:'runway'  },
-  { id:5, name:'Rocket',          emoji:'🚀',  cost:3200,  speed:2.0,  control:0.85, color:'#ff7043', landing:'pad'     },
-  { id:6, name:'Small Airliner',  emoji:'🛫',  cost:5000,  speed:1.7,  control:1.0,  color:'#ce93d8', landing:'airport' },
-  { id:7, name:'Large Airliner',  emoji:'🛬',  cost:8000,  speed:1.9,  control:0.9,  color:'#b39ddb', landing:'airport' },
-  { id:8, name:'Stealth Plane',   emoji:'🌑',  cost:12000, speed:2.3,  control:1.2,  color:'#546e7a', landing:'military'},
-  { id:9, name:'B-2 Spirit',      emoji:'🛸',  cost:18000, speed:2.6,  control:1.3,  color:'#37474f', landing:'military'},
+  { id:0, name:'Paper Plane',     emoji:'✉️',  cost:0,    speed:1.0,  control:1.0,  color:'#ffffff', landing:'strip'   },
+  { id:1, name:'Upgraded Paper',  emoji:'📄',  cost:80,   speed:1.15, control:1.1,  color:'#e3f2fd', landing:'strip'   },
+  { id:2, name:'Drone',           emoji:'🚁',  cost:200,  speed:0.95, control:1.7,  color:'#90caf9', landing:'helipad' },
+  { id:3, name:'Light Plane',     emoji:'🛩️', cost:450,  speed:1.3,  control:1.2,  color:'#4fc3f7', landing:'runway'  },
+  { id:4, name:'Propeller Plane', emoji:'✈️',  cost:900,  speed:1.5,  control:1.15, color:'#ffd54f', landing:'runway'  },
+  { id:5, name:'Rocket',          emoji:'🚀',  cost:1600, speed:2.0,  control:0.85, color:'#ff7043', landing:'pad'     },
+  { id:6, name:'Small Airliner',  emoji:'🛫',  cost:2800, speed:1.7,  control:1.0,  color:'#ce93d8', landing:'airport' },
+  { id:7, name:'Large Airliner',  emoji:'🛬',  cost:4500, speed:1.9,  control:0.9,  color:'#b39ddb', landing:'airport' },
+  { id:8, name:'Stealth Plane',   emoji:'🌑',  cost:7000, speed:2.3,  control:1.2,  color:'#546e7a', landing:'military'},
+  { id:9, name:'B-2 Spirit',      emoji:'🛸',  cost:11000,speed:2.6,  control:1.3,  color:'#37474f', landing:'military'},
 ];
 
 // ── UPGRADES ─────────────────────────────────────────────
@@ -122,11 +122,11 @@ const Save = {
 // ── GAME STATE ───────────────────────────────────────────
 let canvas, ctx, W, H;
 let gameState = 'menu'; // menu | playing | landing | levelcomplete | dead | shop
-let player, obstacles, coins, ammoPickups, particles, bullets, mysteryBoxes;
+let player, obstacles, coins, ammoPickups, particles, bullets, mysteryBoxes, enemies, enemyBullets;
 let distance, speed, sessionCoins, ammo;
 let frameId, lastTime;
 let shieldHits, shootCooldown, shootAutoTimer;
-let spawnTimer, coinTimer, ammoTimer, mysteryTimer;
+let spawnTimer, coinTimer, ammoTimer, mysteryTimer, enemyTimer;
 let popups = []; // [{text, x, y, alpha, timer, color}]
 let clouds = [], stars = [], bgParticles = [];
 let currentLevel = 1;
@@ -176,20 +176,25 @@ function createAmmoCrate() {
 
 // ── MYSTERY BOX ──────────────────────────────────────────
 const MYSTERY_PRIZES = [
-  { id:'coins5',  label:'+5 🪙',   color:'#FFD700', weight:30 },
-  { id:'coins15', label:'+15 🪙',  color:'#FFC200', weight:18 },
-  { id:'coins30', label:'+30 🪙',  color:'#FF9900', weight:8  },
-  { id:'ammo3',   label:'+3 💥',   color:'#ff7043', weight:20 },
-  { id:'ammo5',   label:'+5 💥',   color:'#ff5722', weight:10 },
-  { id:'shield',  label:'SHIELD!', color:'#4CAF50', weight:8  },
-  { id:'invincible', label:'⚡ INVINCIBLE', color:'#E040FB', weight:4 },
-  { id:'speedup', label:'⚡ SPEED!',color:'#00BCD4', weight:8  },
+  { id:'coins5',   label:'+5 🪙',    color:'#FFD700', weight:28 },
+  { id:'coins15',  label:'+15 🪙',   color:'#FFC200', weight:16 },
+  { id:'coins30',  label:'+30 🪙',   color:'#FF9900', weight:8  },
+  { id:'coins100', label:'+100 🪙',  color:'#ff4444', weight:2  },
+  { id:'ammo3',    label:'+3 💥',    color:'#ff7043', weight:18 },
+  { id:'ammo5',    label:'+5 💥',    color:'#ff5722', weight:9  },
+  { id:'shield',   label:'SHIELD!',  color:'#4CAF50', weight:7  },
+  { id:'invincible',label:'⚡ INVINCIBLE', color:'#E040FB', weight:4 },
+  { id:'speedup',  label:'⚡ SPEED!',color:'#00BCD4', weight:7  },
+  { id:'vehicle',  label:'FREE PLANE!', color:'#FFD700', weight:1 },
 ];
 function pickPrize() {
-  const total = MYSTERY_PRIZES.reduce((s, p) => s + p.weight, 0);
+  // Vehicle prize only if player doesn't own all vehicles up to id 6
+  const unowned = VEHICLES.filter(v => v.id >= 1 && v.id <= 6 && !Save.data.ownedVehicles.includes(v.id));
+  const pool = MYSTERY_PRIZES.filter(p => p.id !== 'vehicle' || unowned.length > 0);
+  const total = pool.reduce((s, p) => s + p.weight, 0);
   let r = Math.random() * total;
-  for (const p of MYSTERY_PRIZES) { r -= p.weight; if (r <= 0) return p; }
-  return MYSTERY_PRIZES[0];
+  for (const p of pool) { r -= p.weight; if (r <= 0) return p; }
+  return pool[0];
 }
 function createMysteryBox() {
   const y = H * 0.18 + Math.random() * H * 0.62;
@@ -215,9 +220,89 @@ function applyPrize(prize) {
   } else if (prize.id === 'speedup') {
     speed *= 1.25;
     spawnParticles(player.x, player.y, '#00BCD4', 10);
+  } else if (prize.id === 'vehicle') {
+    const unowned = VEHICLES.filter(v => v.id >= 1 && v.id <= 6 && !Save.data.ownedVehicles.includes(v.id));
+    if (unowned.length > 0) {
+      const gift = unowned[Math.floor(Math.random() * unowned.length)];
+      Save.data.ownedVehicles.push(gift.id);
+      Save.save();
+      spawnParticles(player.x, player.y, '#FFD700', 24);
+      prize = { ...prize, label: gift.emoji + ' FREE ' + gift.name + '!' };
+    }
   }
   Snd.play('mystery');
-  popups.push({ text: prize.label, x: player.x, y: player.y - 30, alpha: 1, timer: 1.6, color: prize.color });
+  popups.push({ text: prize.label, x: player.x, y: player.y - 30, alpha: 1, timer: 2.2, color: prize.color });
+}
+
+// ── ENEMIES ──────────────────────────────────────────────
+function createEnemy() {
+  const y = H * 0.15 + Math.random() * H * 0.65;
+  const lvl = currentLevel;
+  // Higher levels = more health, faster shooting
+  return { x: W + 60, y, vy: 0, shootTimer: 2 + Math.random() * 2, hp: lvl >= 45 ? 2 : 1, anim: 0 };
+}
+function updateEnemies(dt) {
+  // Spawn
+  if (currentLevel >= 25) {
+    enemyTimer -= dt;
+    if (enemyTimer <= 0) {
+      enemies.push(createEnemy());
+      const minInterval = Math.max(4, 12 - (currentLevel - 25) * 0.2);
+      enemyTimer = minInterval + Math.random() * 4;
+    }
+  }
+
+  // Update enemies
+  enemies = enemies.filter(en => {
+    en.x -= speed * 0.6;
+    en.anim += dt * 4;
+    // Slight homing toward player y
+    const dy = player.y - en.y;
+    en.vy += Math.sign(dy) * 40 * dt;
+    en.vy = Math.max(-60, Math.min(60, en.vy));
+    en.y += en.vy * dt;
+
+    // Shoot at player
+    en.shootTimer -= dt;
+    if (en.shootTimer <= 0) {
+      const angle = Math.atan2(player.y - en.y, player.x - en.x);
+      const spd = 280 + currentLevel * 2;
+      enemyBullets.push({ x: en.x - 10, y: en.y, vx: Math.cos(angle) * spd, vy: Math.sin(angle) * spd, r: 5 });
+      en.shootTimer = 1.8 + Math.random() * 1.5;
+    }
+
+    // Player cannon bullets destroy enemy
+    bullets = bullets.filter(b => {
+      const dx = b.x - en.x, dy = b.y - en.y;
+      if (Math.sqrt(dx*dx+dy*dy) < 20) {
+        en.hp--;
+        spawnParticles(b.x, b.y, '#ff5722', 6);
+        return false;
+      }
+      return true;
+    });
+    if (en.hp <= 0) {
+      spawnParticles(en.x, en.y, '#ff5722', 14);
+      sessionCoins += 3; // bonus coins for kill
+      popups.push({ text:'+3 🪙', x:en.x, y:en.y-20, alpha:1, timer:1.2, color:'#FFD700' });
+      return false;
+    }
+    return en.x > -60;
+  });
+
+  // Enemy bullets hit player
+  enemyBullets = enemyBullets.filter(b => {
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    if (player.invincible <= 0) {
+      const dx = player.x - b.x, dy = player.y - b.y;
+      if (Math.sqrt(dx*dx+dy*dy) < b.r + 18) {
+        handleHit();
+        return false;
+      }
+    }
+    return b.x > -20 && b.x < W + 20 && b.y > -20 && b.y < H + 20;
+  });
 }
 
 // ── COIN ─────────────────────────────────────────────────
@@ -314,9 +399,10 @@ function initGame(levelNum) {
 
   distance = 0; sessionCoins = 0;
   obstacles = []; coins = []; ammoPickups = []; particles = []; bullets = []; mysteryBoxes = [];
-  popups = [];
+  enemies = []; enemyBullets = []; popups = [];
   spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
   mysteryTimer = 15 + Math.random() * 10;
+  enemyTimer = currentLevel >= 25 ? 8 + Math.random() * 6 : 99999;
   shootCooldown = 0; shootAutoTimer = 3;
   isHolding = false;
 
@@ -539,6 +625,9 @@ function update(dt) {
     }
     return c.x > -20;
   });
+
+  // ── ENEMIES ──
+  updateEnemies(dt);
 
   // ── MYSTERY BOXES ──
   mysteryBoxes = mysteryBoxes.filter(mb => {
@@ -920,6 +1009,41 @@ function drawPopups() {
   });
 }
 
+// ── DRAW ENEMY ───────────────────────────────────────────
+function drawEnemy(en) {
+  ctx.save();
+  ctx.translate(en.x, en.y);
+  ctx.scale(-1, 1); // faces left
+  // Glow
+  const g = ctx.createRadialGradient(0,0,0,0,0,28);
+  g.addColorStop(0,'rgba(255,50,50,0.3)'); g.addColorStop(1,'rgba(255,50,50,0)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,28,0,Math.PI*2); ctx.fill();
+  // Body (red enemy plane)
+  ctx.fillStyle='#b71c1c';
+  ctx.beginPath(); ctx.moveTo(28,0); ctx.lineTo(-18,-10); ctx.lineTo(-8,0); ctx.lineTo(-18,10); ctx.closePath(); ctx.fill();
+  // Wing
+  ctx.fillStyle='#c62828';
+  ctx.beginPath(); ctx.moveTo(4,0); ctx.lineTo(-16,-22); ctx.lineTo(-14,-8); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(4,0); ctx.lineTo(-16,22); ctx.lineTo(-14,8); ctx.closePath(); ctx.fill();
+  // Cockpit
+  ctx.fillStyle='rgba(255,200,0,0.8)'; ctx.beginPath(); ctx.ellipse(10,0,6,3,0,0,Math.PI*2); ctx.fill();
+  // HP indicator
+  if (en.hp >= 2) {
+    ctx.fillStyle='#4CAF50'; ctx.fillRect(-8,-18,en.hp*7,4);
+  }
+  ctx.restore();
+}
+function drawEnemyBullets() {
+  enemyBullets.forEach(b => {
+    ctx.save();
+    const g = ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r*2.5);
+    g.addColorStop(0,'rgba(255,80,0,1)'); g.addColorStop(1,'rgba(255,0,0,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r*2.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ff6600'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  });
+}
+
 // ── DRAW BULLET ──────────────────────────────────────────
 function drawBullet(b) {
   ctx.save();
@@ -1059,11 +1183,13 @@ function draw(t) {
     ctx.beginPath(); ctx.arc(pt.x, pt.y, (1 - i/player.trail.length)*8, 0, Math.PI*2); ctx.fill();
   });
 
-  // Coins, ammo, mystery boxes, bullets, obstacles
+  // Coins, ammo, mystery boxes, bullets, enemies, obstacles
   coins.forEach(c => drawCoin(c, t));
   ammoPickups.forEach(ac => drawAmmoCrate(ac));
   mysteryBoxes.forEach(mb => drawMysteryBox(mb));
   bullets.forEach(b => drawBullet(b));
+  enemies.forEach(en => drawEnemy(en));
+  drawEnemyBullets();
   obstacles.forEach(o => drawObstacle(o));
   drawPopups();
 
