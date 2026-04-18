@@ -32,7 +32,7 @@ function generateLevels() {
       biome:        Math.min(6, Math.floor(idx / 10)),
       goal:         Math.round(250 + Math.pow(t, 0.55) * 3750), // 250 → 4000 m
       speed:        3 + t * 6,                                   // 3 → 9 px/frame
-      gapFraction:  0.42 - t * 0.20,                             // 0.42 → 0.22 H
+      gapFraction:  0.42 - t * 0.15,                             // 0.42 → 0.27 H (min gap softer)
       spawnInterval:Math.max(0.65, 2.0 - t * 1.35),              // 2.0 → 0.65 s
       fanChance:    i < 10 ? 0 : Math.min(0.25, (i - 10) * 0.018),
       birdChance:   i < 20 ? 0 : Math.min(0.25, (i - 20) * 0.015),
@@ -61,7 +61,7 @@ const UPGRADES = [
   { id:'control', name:'Better Control', icon:'🎯', desc:'Smoother joystick response',      maxLevel:5, costs:[60,120,220,400,750]  },
   { id:'magnet',  name:'Coin Magnet',    icon:'🧲', desc:'Attract nearby coins',            maxLevel:4, costs:[100,200,400,800]     },
   { id:'shield',  name:'Shield',         icon:'🛡', desc:'Extra hit before crashing',       maxLevel:3, costs:[150,350,700]         },
-  { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Unlocks ammo pickups & shooting', maxLevel:3, costs:[300,600,1200]        },
+  { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Unlocks ammo pickups & shooting', maxLevel:3, costs:[150,300,600]         },
 ];
 
 // ── LANGUAGES ────────────────────────────────────────────
@@ -243,6 +243,7 @@ const Save = {
     ownedVehicles: [0],
     upgrades: { speed:0, control:0, magnet:0, shield:0, cannon:0 },
     currentLevel: 1, tutorialDone: false,
+    levelBests: {}, prestige: 0,
   },
   data: null,
   fresh() { return JSON.parse(JSON.stringify(this.defaults)); },
@@ -284,6 +285,8 @@ const Save = {
     if (!this.data.currentLevel || this.data.currentLevel < 1) this.data.currentLevel = 1;
     if (!this.data.bestLevel) this.data.bestLevel = 1;
     if (this.data.tutorialDone === undefined) this.data.tutorialDone = false;
+    if (!this.data.levelBests) this.data.levelBests = {};
+    if (this.data.prestige === undefined) this.data.prestige = 0;
     // Re-save to populate all storage mechanisms in case one was missing
     this.save();
   },
@@ -299,6 +302,9 @@ let shieldHits, shootCooldown, shootAutoTimer;
 let spawnTimer, coinTimer, ammoTimer, mysteryTimer, enemyTimer;
 let popups = []; // [{text, x, y, alpha, timer, color}]
 let clouds = [], stars = [], bgParticles = [];
+let coinCombo = 0, comboTimer = 0;
+let screenShake = 0;
+let lastLightningTime = 0;
 let currentLevel = 1;
 let levelData = LEVELS[0];
 let currentBiome = 0;
@@ -417,7 +423,7 @@ function updateEnemies(dt) {
     enemyTimer -= dt;
     if (enemyTimer <= 0) {
       enemies.push(createEnemy());
-      const minInterval = Math.max(4, 12 - (currentLevel - 25) * 0.2);
+      const minInterval = Math.max(6, 12 - (currentLevel - 25) * 0.15);
       enemyTimer = minInterval + Math.random() * 4;
     }
   }
@@ -518,7 +524,11 @@ function shoot() {
   } else {
     bullets.push({ x: player.x + 26, y: player.y, vx: bulletVx, vy: 0, r: 6 });
   }
-  spawnParticles(player.x + 20, player.y, '#ff9800', 3);
+  spawnParticles(player.x + 20, player.y, '#ff9800', 14);
+  for (let i = 0; i < 8; i++) {
+    const a = (Math.random() - 0.5) * Math.PI * 0.5;
+    particles.push({ x: player.x + 24, y: player.y, vx: Math.cos(a) * (10 + Math.random() * 8), vy: Math.sin(a) * (4 + Math.random() * 4), life: 1, color: i % 2 === 0 ? '#FFD700' : '#FF6B35', r: 3 + Math.random() * 3 });
+  }
   updateShootBtn();
 }
 
@@ -562,6 +572,7 @@ function initGame(levelNum) {
   distance = 0; sessionCoins = 0;
   obstacles = []; coins = []; ammoPickups = []; particles = []; bullets = []; mysteryBoxes = [];
   enemies = []; enemyBullets = []; popups = [];
+  coinCombo = 0; comboTimer = 0; screenShake = 0; lastLightningTime = 0;
   spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
   mysteryTimer = 15 + Math.random() * 10;
   enemyTimer = currentLevel >= 25 ? 8 + Math.random() * 6 : 99999;
@@ -646,6 +657,8 @@ function update(dt) {
 
   if (player.invincible > 0) player.invincible -= dt;
   if (shootCooldown > 0) shootCooldown -= dt;
+  if (screenShake > 0) screenShake = Math.max(0, screenShake - dt * 6);
+  if (comboTimer > 0) { comboTimer -= dt; if (comboTimer <= 0) coinCombo = 0; }
 
   // Auto-fire level 3 cannon
   if (upg.cannon >= 3 && ammo > 0) {
@@ -755,7 +768,7 @@ function update(dt) {
     if (Math.sqrt(dx * dx + dy * dy) < 28) {
       ac.collected = true;
       const cap = maxAmmo();
-      const gain = Save.data.upgrades.cannon >= 2 ? 3 : 2;
+      const gain = Save.data.upgrades.cannon >= 2 ? 5 : 4;
       ammo = Math.min(cap, ammo + gain);
       spawnParticles(ac.x, ac.y, '#ffcc02', 6);
       updateShootBtn();
@@ -782,10 +795,16 @@ function update(dt) {
     if (d < c.r + 22) {
       c.collected = true;
       const v = c.val || 1;
-      sessionCoins += v;
+      coinCombo++;
+      comboTimer = 3.0;
+      const bonus = Math.floor(coinCombo / 3);
+      const earned = v + bonus;
+      sessionCoins += earned;
       spawnParticles(c.x, c.y, '#FFD700', 5);
       Snd.play('coin');
-      popups.push({ text: '+' + v, x: c.x, y: c.y - 18, alpha: 1, timer: 0.9, color: '#FFD700' });
+      const popText = coinCombo >= 3 ? '+' + earned + ' ×' + coinCombo + '!' : '+' + earned;
+      const popColor = coinCombo >= 5 ? '#FF6B35' : coinCombo >= 3 ? '#FFC200' : '#FFD700';
+      popups.push({ text: popText, x: c.x, y: c.y - 18, alpha: 1, timer: 0.9, color: popColor });
       return false;
     }
     return c.x > -20;
@@ -871,6 +890,7 @@ function update(dt) {
 }
 
 function handleHit() {
+  coinCombo = 0; comboTimer = 0;
   if (shieldHits > 0) {
     shieldHits--; player.invincible = 1.5;
     spawnParticles(player.x, player.y, '#4CAF50', 10);
@@ -911,10 +931,11 @@ function checkLandingTouch() {
   if (Math.abs(dy) < 36) {
     // Start slide animation
     landing.sliding = true;
-    landing.slideSpeed = speed + 2; // initial slide speed
+    landing.slideSpeed = speed + 2;
     player.vy = 0;
+    screenShake = 0.5;
     Snd.play('land');
-    spawnParticles(player.x, player.y, '#FFD700', 16);
+    spawnParticles(player.x, player.y, '#FFD700', 20);
   }
 }
 
@@ -927,9 +948,10 @@ function updateSlide(dt) {
   player.vy = 0;
   // Slide forward (plane moves right, decelerating)
   player.x += landing.slideSpeed * dt * 30;
-  landing.slideSpeed *= 0.88; // decelerate
+  landing.slideSpeed *= 0.92; // decelerate (smoother, longer slide)
   // Emit dust particles while sliding
-  if (Math.random() < 0.4) spawnParticles(player.x - 10, player.y + 12, '#ccccaa', 2);
+  if (Math.random() < 0.5) spawnParticles(player.x - 10, player.y + 12, '#ccccaa', 3);
+  if (screenShake > 0.05) screenShake *= 0.95;
   // Done when nearly stopped
   if (landing.slideSpeed < 0.5) {
     landing.sliding = false;
@@ -1326,9 +1348,11 @@ function drawBackground(t) {
     }
   }
 
-  // Lightning flash (Storm)
-  if (b.rain && Math.random() < 0.003) {
-    ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.fillRect(0,0,W,H);
+  // Lightning flash (Storm) — time-gated, max once per 2.5s
+  const nowMs = Date.now();
+  if (b.rain && Math.random() < 0.003 && nowMs - lastLightningTime > 2500) {
+    lastLightningTime = nowMs;
+    ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.fillRect(0,0,W,H);
   }
 
   // Clouds
@@ -1356,6 +1380,10 @@ function drawBackground(t) {
 // ── MAIN DRAW ────────────────────────────────────────────
 function draw(t) {
   ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  if (screenShake > 0.02) {
+    ctx.translate((Math.random() - 0.5) * screenShake * 10, (Math.random() - 0.5) * screenShake * 10);
+  }
   drawBackground(t);
 
   // Landing runway (behind everything else, above bg)
@@ -1386,7 +1414,7 @@ function draw(t) {
   }
 
   // Player — tilt from vertical velocity
-  const tilt = Math.max(-0.45, Math.min(0.45, player.vy / 300));
+  const tilt = Math.max(-0.70, Math.min(0.70, player.vy / 280));
   drawVehicle(ctx, player.x, player.y, player.vehicle, tilt);
 
   // Particles
@@ -1436,6 +1464,25 @@ function draw(t) {
     ctx.restore();
   }
 
+  // Combo indicator
+  if (coinCombo >= 2 && comboTimer > 0) {
+    const ca = Math.min(1, comboTimer * 1.5);
+    const scale = 1 + Math.min(0.5, coinCombo * 0.05);
+    const comboColor = coinCombo >= 10 ? '#FF4444' : coinCombo >= 5 ? '#FF6B35' : '#FFD700';
+    ctx.save();
+    ctx.globalAlpha = ca;
+    ctx.translate(player.x, player.y - 55);
+    ctx.scale(scale, scale);
+    const fs = Math.min(26, 14 + coinCombo * 1.2);
+    ctx.font = `bold ${fs}px Arial`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 5;
+    ctx.strokeText('COMBO ×' + coinCombo, 0, 0);
+    ctx.fillStyle = comboColor;
+    ctx.fillText('COMBO ×' + coinCombo, 0, 0);
+    ctx.restore();
+  }
+
   // Progress bar at very top
   if (levelData) {
     const pct = Math.min(1, distance / levelData.goal);
@@ -1444,6 +1491,8 @@ function draw(t) {
     barGrd.addColorStop(0,'#4CAF50'); barGrd.addColorStop(1,'#8BC34A');
     ctx.fillStyle = barGrd; ctx.fillRect(0, 0, W * pct, 4);
   }
+
+  ctx.restore(); // end screen shake
 }
 
 function hexToRgb(hex) {
@@ -1472,7 +1521,9 @@ function showMenu() {
   document.getElementById('shoot-btn').classList.add('hidden');
   document.getElementById('menu-coins').textContent = Save.data.coins;
   document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
-  document.getElementById('menu-best').textContent = t('best') + ' ' + Save.data.bestLevel;
+  const prestige = Save.data.prestige || 0;
+  const stars = prestige > 0 ? '⭐'.repeat(Math.min(prestige, 5)) + ' ' : '';
+  document.getElementById('menu-best').textContent = stars + t('best') + ' ' + Save.data.bestLevel;
   showScreen('screen-menu');
   drawMenuVehicle();
 }
@@ -1519,21 +1570,52 @@ function showLevelComplete() {
   // Advance level
   Save.data.coins += sessionCoins;
   if (!Save.data.tutorialDone) { Save.data.tutorialDone = true; }
-  const nextLevel = Math.min(70, currentLevel + 1);
-  Save.data.currentLevel = nextLevel;
+  const isLast = currentLevel >= 70;
+  if (isLast) {
+    // PRESTIGE — reset to level 1, keep everything, earn a star
+    Save.data.prestige = (Save.data.prestige || 0) + 1;
+    Save.data.currentLevel = 1;
+  } else {
+    Save.data.currentLevel = currentLevel + 1;
+  }
   if (currentLevel > Save.data.bestLevel) Save.data.bestLevel = currentLevel;
+
+  // Personal best per level
+  const distM = Math.floor(distance);
+  if (!Save.data.levelBests) Save.data.levelBests = {};
+  const prevBest = Save.data.levelBests[currentLevel] || 0;
+  const isNewPB = distM > prevBest;
+  if (isNewPB) Save.data.levelBests[currentLevel] = distM;
+
   Save.save();
 
   document.getElementById('lc-level').textContent = currentLevel;
-  document.getElementById('lc-distance').textContent = Math.floor(distance) + 'm';
+  document.getElementById('lc-distance').textContent = distM + 'm';
   document.getElementById('lc-coins').textContent = '+' + sessionCoins;
-  document.getElementById('nextLevelBtn').textContent = currentLevel >= 70 ? t('playAgain') : t('levelsTitle') + ' ' + nextLevel + ' ›';
+
+  // Bravo line — show PB or prestige or well done
+  const bravoEl = document.getElementById('lc-bravo');
+  if (isLast) {
+    bravoEl.textContent = '⭐ PRESTIGE ' + Save.data.prestige + ' UNLOCKED! ⭐';
+  } else if (isNewPB) {
+    bravoEl.textContent = '🏆 NEW BEST: ' + distM + 'm!';
+  } else {
+    bravoEl.textContent = t('wellDone');
+  }
+
+  document.getElementById('nextLevelBtn').textContent = isLast
+    ? '⭐ ASCEND (RESTART) ›'
+    : t('levelsTitle') + ' ' + (currentLevel + 1) + ' ›';
 
   // If entering new biome, show banner text on complete screen
+  const nextLevel = isLast ? 1 : currentLevel + 1;
   const newBiome = LEVELS[nextLevel - 1]?.biome;
   const bioLabel = document.getElementById('lc-biome');
-  if (nextLevel % 10 === 1 && nextLevel <= 70 && newBiome !== currentBiome) {
-    bioLabel.textContent = '→ Entering ' + BIOMES[newBiome].name + ' Zone';
+  if (!isLast && nextLevel % 10 === 1 && newBiome !== currentBiome) {
+    bioLabel.textContent = '→ ' + BIOMES[newBiome].name.toUpperCase() + ' ZONE — coins worth ' + COIN_VALUES[newBiome] + '× each!';
+    bioLabel.classList.remove('hidden');
+  } else if (isLast) {
+    bioLabel.textContent = '🌟 You completed all 70 levels! Starting prestige run...';
     bioLabel.classList.remove('hidden');
   } else {
     bioLabel.classList.add('hidden');
@@ -1578,10 +1660,12 @@ function renderLevelSelect() {
       const active  = lv.id === current;
       const locked  = lv.id > current;
 
+      const pb = Save.data.levelBests && Save.data.levelBests[lv.id];
+      const pbStr = pb ? ` title="Level ${lv.id} — Best: ${pb}m"` : ` title="Level ${lv.id}"`;
       if (done) {
-        return `<div class="lv-bubble done" onclick="startLevelFromSelect(${lv.id})" title="Level ${lv.id}">✓</div>`;
+        return `<div class="lv-bubble done"${pbStr} onclick="startLevelFromSelect(${lv.id})">✓${pb ? '<span class="lv-pb">'+pb+'m</span>' : ''}</div>`;
       } else if (active) {
-        return `<div class="lv-bubble current" onclick="startLevelFromSelect(${lv.id})" title="Level ${lv.id} — CURRENT">${lv.id}</div>`;
+        return `<div class="lv-bubble current"${pbStr} onclick="startLevelFromSelect(${lv.id})">${lv.id}</div>`;
       } else {
         return `<div class="lv-bubble locked" title="Level ${lv.id} — Locked">🔒</div>`;
       }
