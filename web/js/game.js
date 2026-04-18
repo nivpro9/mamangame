@@ -267,7 +267,7 @@ function initGame(levelNum) {
 
   // Tutorial hints (first time on level 1)
   if (!Save.data.tutorialDone && currentLevel === 1) {
-    tutHints.push({ text: 'Push joystick UP to fly!', x: W * 0.5, y: H * 0.5 - 60, alpha: 1, timer: 4 });
+    tutHints.push({ text: 'HOLD screen to fly UP!', x: W * 0.5, y: H * 0.5 - 60, alpha: 1, timer: 4 });
     tutPhase = 0;
   }
 
