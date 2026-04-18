@@ -573,6 +573,9 @@ let levelData = LEVELS[0];
 let currentBiome = 0;
 let biomeBanner = { text: '', timer: 0 };
 
+// Session ID — incremented on every new game to cancel stale delayed callbacks
+let gameSession = 0;
+
 // Landing state
 let landing = null; // null | { runway:{x,y,w,type}, phase:'approach'|'touch'|'done', timer }
 
@@ -1212,7 +1215,8 @@ function handleHit() {
   player.alive = false;
   spawnParticles(player.x, player.y, VEHICLES[Save.data.activeVehicle].color, 16);
   Snd.play('crash');
-  setTimeout(showGameOver, 800);
+  const _crashSession = gameSession;
+  setTimeout(() => { if (gameSession === _crashSession) showGameOver(); }, 800);
 }
 
 function updateHUD() {
@@ -1268,7 +1272,8 @@ function updateSlide(dt) {
   if (landing.slideSpeed < 0.5) {
     landing.sliding = false;
     player.alive = false;
-    setTimeout(showLevelComplete, 300);
+    const _slideSession = gameSession;
+    setTimeout(() => { if (gameSession === _slideSession) showLevelComplete(); }, 300);
   }
 }
 
@@ -1855,7 +1860,7 @@ function loop(ts) {
   lastTime = ts;
   update(dt);
   draw(ts / 1000);
-  if (player.alive || landing) frameId = requestAnimationFrame(loop);
+  if (player.alive || landing || particles.length > 0) frameId = requestAnimationFrame(loop);
 }
 
 // ── SCREENS ──────────────────────────────────────────────
@@ -1888,10 +1893,12 @@ function startGame() {
 }
 
 function beginLevel(lvlNum) {
+  gameSession++; // invalidate any pending showGameOver / showLevelComplete callbacks
+  if (frameId) { cancelAnimationFrame(frameId); frameId = null; }
   gameState = 'playing';
   showScreen('screen-game');
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  canvas.width = canvas.offsetWidth || window.innerWidth;
+  canvas.height = canvas.offsetHeight || window.innerHeight;
   W = canvas.width; H = canvas.height;
   initGame(lvlNum);
   Snd.startMusic();
