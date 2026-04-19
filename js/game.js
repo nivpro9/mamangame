@@ -70,7 +70,6 @@ const VEHICLES = [
 
 // ── UPGRADES ─────────────────────────────────────────────
 const UPGRADES = [
-  { id:'speed',   name:'Engine Boost',   icon:'⚡', desc:'Increases base speed',           maxLevel:5, costs:[80,150,280,500,900]  },
   { id:'control', name:'Better Control', icon:'🎯', desc:'Smoother joystick response',      maxLevel:5, costs:[60,120,220,400,750]  },
   { id:'magnet',  name:'Coin Magnet',    icon:'🧲', desc:'Attract nearby coins',            maxLevel:4, costs:[100,200,400,800]     },
   { id:'shield',  name:'Shield',         icon:'🛡', desc:'Extra hit before crashing',       maxLevel:3, costs:[400,800,1500]        },
@@ -516,14 +515,14 @@ const Save = {
   defaults: {
     coins: 0, bestLevel: 1, activeVehicle: 0,
     ownedVehicles: [0],
-    upgrades: { speed:0, control:0, magnet:0, shield:0, cannon:0 },
+    upgrades: { control:0, magnet:0, shield:0, cannon:0 },
     currentLevel: 1, tutorialDone: false,
     levelBests: {}, prestige: 0,
     dataVersion: 2,
     lastSpin: 0, spinShields: 0, spinAmmo: 0,
     spinSpeed: 0, spinDoubleCoins: 0,
     lastLogin: 0, loginStreak: 0,
-    diamonds: 0, gameCount: 0,
+    gameCount: 0,
   },
   data: null,
   fresh() { return JSON.parse(JSON.stringify(this.defaults)); },
@@ -559,7 +558,7 @@ const Save = {
     try { this.data = raw ? JSON.parse(raw) : null; } catch { this.data = null; }
     if (!this.data) this.data = this.fresh();
     // Field safety
-    if (!this.data.upgrades) this.data.upgrades = { speed:0,control:0,magnet:0,shield:0,cannon:0 };
+    if (!this.data.upgrades) this.data.upgrades = { control:0,magnet:0,shield:0,cannon:0 };
     if (this.data.upgrades.cannon === undefined) this.data.upgrades.cannon = 0;
     if (!this.data.currentLevel || this.data.currentLevel < 1) this.data.currentLevel = 1;
     if (!this.data.ownedVehicles || !this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
@@ -584,7 +583,6 @@ const Save = {
     if (this.data.spinDoubleCoins === undefined) this.data.spinDoubleCoins = 0;
     if (this.data.lastLogin === undefined) this.data.lastLogin = 0;
     if (this.data.loginStreak === undefined) this.data.loginStreak = 0;
-    if (this.data.diamonds === undefined) this.data.diamonds = 0;
     if (this.data.gameCount === undefined) this.data.gameCount = 0;
     // Re-save to populate all storage mechanisms in case one was missing
     this.save();
@@ -594,12 +592,11 @@ const Save = {
 // ── GAME STATE ───────────────────────────────────────────
 let canvas, ctx, W, H;
 let gameState = 'menu'; // menu | playing | landing | levelcomplete | dead | shop
-let player, obstacles, coins, ammoPickups, shieldPickups, particles, bullets, mysteryBoxes, enemies, enemyBullets, balloons;
-let balloonTimer = 0;
+let player, obstacles, coins, ammoPickups, shieldPickups, particles, bullets, enemies, enemyBullets;
 let distance, speed, sessionCoins, ammo;
 let frameId, lastTime;
 let shieldHits, shootCooldown, shootAutoTimer;
-let spawnTimer, coinTimer, ammoTimer, mysteryTimer, enemyTimer, shieldPickupTimer;
+let spawnTimer, coinTimer, ammoTimer, enemyTimer, shieldPickupTimer;
 let popups = []; // [{text, x, y, alpha, timer, color}]
 let clouds = [], stars = [], bgParticles = [];
 let coinCombo = 0, comboTimer = 0;
@@ -711,83 +708,6 @@ function createShieldPickup() {
   return { x: W + 40, y: H * 0.15 + Math.random() * H * 0.70, collected: false, anim: Math.random() * Math.PI * 2 };
 }
 
-// ── MYSTERY BOX ──────────────────────────────────────────
-const MYSTERY_PRIZES = [
-  { id:'coins5',   label:'+5 🪙',    color:'#FFD700', weight:28 },
-  { id:'coins15',  label:'+15 🪙',   color:'#FFC200', weight:16 },
-  { id:'coins30',  label:'+30 🪙',   color:'#FF9900', weight:8  },
-  { id:'coins100', label:'+100 🪙',  color:'#ff4444', weight:2  },
-  { id:'ammo3',    label:'+3 💥',    color:'#ff7043', weight:18 },
-  { id:'ammo5',    label:'+5 💥',    color:'#ff5722', weight:9  },
-  { id:'shield',   label:'SHIELD!',  color:'#4CAF50', weight:7  },
-  { id:'invincible',label:'⚡ INVINCIBLE', color:'#E040FB', weight:4 },
-  { id:'speedup',  label:'⚡ SPEED!',color:'#00BCD4', weight:7  },
-  { id:'vehicle',  label:'FREE PLANE!', color:'#FFD700', weight:1 },
-  { id:'diamonds1', label:'+1 💎', color:'#90CAF9', weight:8 },
-  { id:'diamonds3', label:'+3 💎', color:'#64B5F6', weight:3 },
-];
-function pickPrize() {
-  // Vehicle prize only if player doesn't own all vehicles up to id 6
-  const unowned = VEHICLES.filter(v => v.id >= 1 && v.id <= 6 && !Save.data.ownedVehicles.includes(v.id));
-  const pool = MYSTERY_PRIZES.filter(p => p.id !== 'vehicle' || unowned.length > 0);
-  const total = pool.reduce((s, p) => s + p.weight, 0);
-  let r = Math.random() * total;
-  for (const p of pool) { r -= p.weight; if (r <= 0) return p; }
-  return pool[0];
-}
-function createMysteryBox() {
-  const y = H * 0.18 + Math.random() * H * 0.62;
-  return { x: W + 40, y, anim: Math.random() * Math.PI * 2, bob: 0, collected: false };
-}
-
-// ── BALLOON TARGETS ───────────────────────────────────────
-const BALLOON_COLORS = ['#FF4444','#FF9800','#FFD700','#4CAF50','#2196F3','#E040FB','#00BCD4'];
-function createBalloon() {
-  const color = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
-  return { x: W + 40, y: H * 0.15 + Math.random() * H * 0.6, color, anim: Math.random() * Math.PI * 2, r: 18, coins: 3 + Math.floor(currentLevel / 10) };
-}
-function applyPrize(prize) {
-  if (prize.id.startsWith('coins')) {
-    const n = parseInt(prize.id.replace('coins',''));
-    sessionCoins += n;
-    spawnParticles(player.x, player.y, '#FFD700', 12);
-  } else if (prize.id.startsWith('ammo')) {
-    const n = parseInt(prize.id.replace('ammo',''));
-    const cap = maxAmmo();
-    if (cap > 0) ammo = Math.min(cap, ammo + n);
-    spawnParticles(player.x, player.y, '#ff7043', 8);
-    updateShootBtn();
-  } else if (prize.id === 'shield') {
-    shieldHits = Math.min(shieldHits + 1, 5);
-    spawnParticles(player.x, player.y, '#4CAF50', 12);
-  } else if (prize.id === 'invincible') {
-    player.invincible = 4;
-    spawnParticles(player.x, player.y, '#E040FB', 16);
-  } else if (prize.id === 'speedup') {
-    speed *= 1.25;
-    speedBoostEffect = 1.2; // trigger speed lines visual for 1.2 seconds
-    spawnParticles(player.x, player.y, '#00BCD4', 24);
-    Snd.play('speedup');
-    popups.push({ text: '⚡ SPEED BOOST!', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 2.0, color: '#00E5FF' });
-    return; // skip the generic 'mystery' sound below
-  } else if (prize.id === 'vehicle') {
-    const unowned = VEHICLES.filter(v => v.id >= 1 && v.id <= 6 && !Save.data.ownedVehicles.includes(v.id));
-    if (unowned.length > 0) {
-      const gift = unowned[Math.floor(Math.random() * unowned.length)];
-      Save.data.ownedVehicles.push(gift.id);
-      Save.save();
-      spawnParticles(player.x, player.y, '#FFD700', 24);
-      prize = { ...prize, label: gift.emoji + ' FREE ' + gift.name + '!' };
-    }
-  } else if (prize.id.startsWith('diamonds')) {
-    const n = parseInt(prize.id.replace('diamonds', ''));
-    Save.data.diamonds = (Save.data.diamonds || 0) + n;
-    Save.save();
-    spawnParticles(player.x, player.y, '#90CAF9', 16);
-  }
-  Snd.play('mystery');
-  popups.push({ text: prize.label, x: player.x, y: player.y - 30, alpha: 1, timer: 2.2, color: prize.color });
-}
 
 // ── BOSS ─────────────────────────────────────────────────
 function createBoss() {
@@ -1173,12 +1093,10 @@ function initGame(levelNum) {
   boss = null;
   reviveCount = 0;
   distance = 0; sessionCoins = 0;
-  obstacles = []; coins = []; ammoPickups = []; shieldPickups = []; particles = []; bullets = []; mysteryBoxes = [];
-  enemies = []; enemyBullets = []; balloons = []; popups = [];
-  balloonTimer = 6 + Math.random() * 4;
+  obstacles = []; coins = []; ammoPickups = []; shieldPickups = []; particles = []; bullets = [];
+  enemies = []; enemyBullets = []; popups = [];
   coinCombo = 0; comboTimer = 0; screenShake = 0; lastLightningTime = 0; speedBoostEffect = 0;
   spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
-  mysteryTimer = 15 + Math.random() * 10;
   enemyTimer = currentLevel >= 25 ? 8 + Math.random() * 6 : 99999;
   shieldPickupTimer = currentLevel >= 30 ? 18 + Math.random() * 12 : 99999;
   shootCooldown = 0; shootAutoTimer = 3;
@@ -1192,7 +1110,7 @@ function initGame(levelNum) {
   if (Save.data.spinShields > 0) { shieldHits += Save.data.spinShields; Save.data.spinShields = 0; Save.save(); }
 
   // Base speed
-  speed = levelData.speed * VEHICLES[Save.data.activeVehicle].speed * (1 + upg.speed * 0.12);
+  speed = levelData.speed * VEHICLES[Save.data.activeVehicle].speed;
 
   // ── SPIN BONUSES ──
   // TURBO: +65% speed for the whole level
@@ -1286,7 +1204,7 @@ function update(dt) {
   const veh = VEHICLES[Save.data.activeVehicle];
   const turboCap = window._turboActive ? 1.65 : 1.0;
   speed = Math.min(
-    levelData.speed * veh.speed * (1 + upg.speed * 0.12) * turboCap + distance * 0.0002,
+    levelData.speed * veh.speed * turboCap + distance * 0.0002,
     levelData.speed * 1.4 * turboCap
   );
 
@@ -1378,23 +1296,6 @@ function update(dt) {
     if (ammoTimer <= 0) {
       ammoPickups.push(createAmmoCrate());
       ammoTimer = 12 + Math.random() * 8;
-    }
-  }
-
-  // Mystery box spawn (every 15–25s)
-  mysteryTimer -= dt;
-  if (mysteryTimer <= 0) {
-    mysteryBoxes.push(createMysteryBox());
-    mysteryTimer = 15 + Math.random() * 10;
-  }
-
-  // Balloon targets spawn (levels 3+, every 6–12s)
-  if (currentLevel >= 3 && Save.data.upgrades.cannon > 0) {
-    balloonTimer -= dt;
-    if (balloonTimer <= 0) {
-      balloons.push(createBalloon());
-      if (Math.random() < 0.3) balloons.push(createBalloon()); // occasionally 2 at once
-      balloonTimer = 6 + Math.random() * 6;
     }
   }
 
@@ -1524,43 +1425,6 @@ function update(dt) {
 
   // ── BOSS ──
   if (boss) updateBoss(dt);
-
-  // ── MYSTERY BOXES ──
-  mysteryBoxes = mysteryBoxes.filter(mb => {
-    if (mb.collected) return false;
-    mb.x -= speed * 0.5;
-    mb.anim += dt * 3;
-    mb.bob = Math.sin(mb.anim) * 6; // floating bob
-    const dx = player.x - mb.x, dy = player.y - mb.y;
-    if (Math.sqrt(dx*dx + dy*dy) < 38) {
-      mb.collected = true;
-      applyPrize(pickPrize());
-      return false;
-    }
-    return mb.x > -50;
-  });
-
-  // ── BALLOONS ──
-  balloons = balloons.filter(b => {
-    b.x -= speed * 0.45;
-    b.anim += dt * 1.5;
-    // Check bullet hit
-    let hit = false;
-    bullets = bullets.filter(bul => {
-      if (Math.sqrt((bul.x - b.x) ** 2 + (bul.y - b.y) ** 2) < b.r + 10) {
-        hit = true; return false;
-      }
-      return true;
-    });
-    if (hit) {
-      sessionCoins += b.coins;
-      spawnParticles(b.x, b.y, b.color, 16);
-      Snd.play('coin');
-      popups.push({ text: '+' + b.coins + ' 🪙', x: b.x, y: b.y - 24, alpha: 1, timer: 1.2, color: b.color });
-      return false;
-    }
-    return b.x > -50;
-  });
 
   // Global vy clamp — prevents fan/enemy wind from pushing beyond safe speeds
   player.vy = Math.max(-380, Math.min(380, player.vy));
@@ -2277,74 +2141,6 @@ function drawShieldPickup(sp) {
   ctx.restore();
 }
 
-// ── DRAW MYSTERY BOX ─────────────────────────────────────
-function drawMysteryBox(mb) {
-  ctx.save();
-  ctx.translate(mb.x, mb.y + mb.bob);
-  const t = mb.anim;
-  // Pulsing glow (rainbow)
-  const hue = (t * 60) % 360;
-  const grd = ctx.createRadialGradient(0,0,0,0,0,30);
-  grd.addColorStop(0, `hsla(${hue},100%,60%,0.35)`);
-  grd.addColorStop(1, `hsla(${hue},100%,60%,0)`);
-  ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.fill();
-
-  // Box body
-  ctx.fillStyle = `hsl(${hue},80%,35%)`; ctx.beginPath(); ctx.roundRect(-22,-22,44,44,5); ctx.fill();
-  // Ribbon horizontal
-  ctx.fillStyle = `hsl(${(hue+40)%360},100%,60%)`; ctx.fillRect(-22,-7,44,14);
-  // Ribbon vertical
-  ctx.fillRect(-7,-22,14,44);
-  // Lid
-  ctx.fillStyle = `hsl(${hue},80%,45%)`; ctx.beginPath(); ctx.roundRect(-24,-28,48,10,4); ctx.fill();
-  ctx.fillStyle = `hsl(${(hue+40)%360},100%,60%)`; ctx.fillRect(-7,-28,14,10);
-  // Bow
-  ctx.fillStyle = `hsl(${(hue+40)%360},100%,70%)`;
-  ctx.beginPath(); ctx.ellipse(-10,-28,9,6,Math.PI/4,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(10,-28,9,6,-Math.PI/4,0,Math.PI*2); ctx.fill();
-  // Sparkle
-  const sparkA = t * 2;
-  [0,1,2,3].forEach(i => {
-    const a = sparkA + i * Math.PI/2, r = 22 + Math.sin(t*3+i) * 4;
-    ctx.fillStyle = `hsla(${(hue+i*60)%360},100%,80%,${0.5+0.5*Math.sin(t*4+i)})`;
-    ctx.beginPath(); ctx.arc(Math.cos(a)*r, Math.sin(a)*r, 2.5, 0, Math.PI*2); ctx.fill();
-  });
-  // Question mark
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('?', 0, 1);
-  // Label above box
-  ctx.font = 'bold 9px Arial'; ctx.textBaseline = 'bottom';
-  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('BONUS BOX', 1, -23);
-  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fillText('BONUS BOX', 0, -24);
-  ctx.restore();
-}
-
-// ── DRAW BALLOON ─────────────────────────────────────────
-function drawBalloon(b) {
-  ctx.save();
-  ctx.translate(b.x, b.y + Math.sin(b.anim) * 4);
-  // String
-  ctx.strokeStyle = 'rgba(150,150,150,0.8)'; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(0, b.r); ctx.lineTo(0, b.r + 20); ctx.stroke();
-  // Glow
-  const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, b.r + 8);
-  grd.addColorStop(0, b.color + '55'); grd.addColorStop(1, b.color + '00');
-  ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0, 0, b.r + 8, 0, Math.PI * 2); ctx.fill();
-  // Balloon body
-  ctx.fillStyle = b.color;
-  ctx.beginPath(); ctx.ellipse(0, 0, b.r, b.r * 1.15, 0, 0, Math.PI * 2); ctx.fill();
-  // Shine
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.beginPath(); ctx.ellipse(-b.r * 0.3, -b.r * 0.35, b.r * 0.28, b.r * 0.2, -0.5, 0, Math.PI * 2); ctx.fill();
-  // Knot
-  ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(0, b.r, 3.5, 0, Math.PI * 2); ctx.fill();
-  // Coin label
-  ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = 'bold 10px Arial';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('+' + b.coins + '🪙', 0, 0);
-  ctx.restore();
-}
 
 // ── DRAW POPUP TEXT ───────────────────────────────────────
 function drawPopups() {
@@ -2564,12 +2360,10 @@ function draw(elapsed) {
     ctx.beginPath(); ctx.arc(pt.x, pt.y, (1 - i/player.trail.length)*8, 0, Math.PI*2); ctx.fill();
   });
 
-  // Coins, ammo, shields, mystery boxes, balloons, bullets, enemies, obstacles
+  // Coins, ammo, shields, bullets, enemies, obstacles
   coins.forEach(c => drawCoin(c, elapsed));
   ammoPickups.forEach(ac => drawAmmoCrate(ac));
   shieldPickups.forEach(sp => drawShieldPickup(sp));
-  mysteryBoxes.forEach(mb => drawMysteryBox(mb));
-  balloons.forEach(b => drawBalloon(b));
   bullets.forEach(b => drawBullet(b));
   enemies.forEach(en => drawEnemy(en));
   if (boss) drawBoss();
@@ -2711,7 +2505,6 @@ function showMenu() {
   Snd.stopMusic();
   document.getElementById('shoot-btn').classList.add('hidden');
   document.getElementById('menu-coins').textContent = Save.data.coins;
-  document.getElementById('menu-diamonds').textContent = Save.data.diamonds || 0;
   document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
   showScreen('screen-menu');
   drawMenuVehicle();
@@ -3031,8 +2824,7 @@ function renderShop() {
     const cost  = maxed ? 0 : upg.costs[level];
     const pct   = (level / upg.maxLevel) * 100;
     const lvlLocked = upg.levelReq && Save.data.currentLevel < upg.levelReq;
-    const descExtra = upg.id === 'speed'   && level > 0 ? ` — +${level*12}%` :
-                      upg.id === 'control' && level > 0 ? ` — +${level*15}%` : '';
+    const descExtra = upg.id === 'control' && level > 0 ? ` — +${level*15}%` : '';
     if (lvlLocked) {
       return `<div class="upgrade-row" style="opacity:0.45;pointer-events:none">
         <div class="up-icon">🔒</div>
@@ -3264,17 +3056,6 @@ const Snd = (() => {
         g2.gain.setValueAtTime(0.1, ac.currentTime + 0.2);
         g2.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
         free(o2, g2); o2.start(ac.currentTime + 0.2); o2.stop(ac.currentTime + 0.46);
-      } else if (type === 'mystery') {
-        // magical sparkle arpeggio
-        [523,659,784,1047,1319].forEach((freq, i) => {
-          const o = ac.createOscillator(), g = ac.createGain();
-          o.type = 'sine'; o.frequency.value = freq;
-          o.connect(g); g.connect(ac.destination);
-          const t = ac.currentTime + i * 0.07;
-          g.gain.setValueAtTime(0.18, t);
-          g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-          free(o, g); o.start(t); o.stop(t + 0.26);
-        });
       } else if (type === 'levelcomplete') {
         // Happy fanfare
         const fanfare = [

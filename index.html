@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css?v=24">
+<link rel="stylesheet" href="css/style.css?v=25">
 </head>
 <body>
 
@@ -67,11 +67,9 @@
     <div class="sky-cloud c2"></div>
     <div class="sky-cloud c3"></div>
   </div>
-  <!-- Coins & Diamonds — top left -->
+  <!-- Coins — top left -->
   <div class="menu-coins-corner">
     <span class="coin-dot"></span><span id="menu-coins">0</span>
-    <span style="color:rgba(255,255,255,0.35);margin:0 2px">|</span>
-    <span style="font-size:16px">💎</span><span id="menu-diamonds" style="color:#90CAF9;font-size:18px;font-weight:bold;">0</span>
   </div>
   <!-- Language Selector -->
   <div class="lang-selector" id="langSelector">
@@ -232,7 +230,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=24"></script>
+<script src="js/game.js?v=25"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
