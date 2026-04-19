@@ -519,6 +519,7 @@ const Save = {
     upgrades: { speed:0, control:0, magnet:0, shield:0, cannon:0 },
     currentLevel: 1, tutorialDone: false,
     levelBests: {}, prestige: 0,
+    dataVersion: 2,
     lastSpin: 0, spinShields: 0, spinAmmo: 0,
     spinSpeed: 0, spinDoubleCoins: 0,
     lastLogin: 0, loginStreak: 0,
@@ -561,13 +562,15 @@ const Save = {
     if (this.data.upgrades.cannon === undefined) this.data.upgrades.cannon = 0;
     if (!this.data.currentLevel || this.data.currentLevel < 1) this.data.currentLevel = 1;
     if (!this.data.ownedVehicles || !this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
-    // Migration: strip vehicles that require a higher level than currently reached
-    // (removes vehicles injected by old debug cheat code)
-    this.data.ownedVehicles = this.data.ownedVehicles.filter(vid => {
-      const v = VEHICLES[vid];
-      return v && v.levelReq <= this.data.currentLevel;
-    });
-    if (!this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
+    // One-time migration v2: reset vehicle ownership — old code gave all vehicles for free.
+    // Rebuild ownedVehicles from scratch: only keep vehicles the player can legitimately
+    // own at their current level AND whose cost they could have paid with coins earned.
+    if (!this.data.dataVersion || this.data.dataVersion < 2) {
+      this.data.dataVersion = 2;
+      // Keep only Paper Plane — player must re-earn others through gameplay
+      this.data.ownedVehicles = [0];
+      this.data.activeVehicle = 0;
+    }
     if (!this.data.ownedVehicles.includes(this.data.activeVehicle)) this.data.activeVehicle = 0;
     if (!this.data.bestLevel) this.data.bestLevel = 1;
     if (this.data.tutorialDone === undefined) this.data.tutorialDone = false;
