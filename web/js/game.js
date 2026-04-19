@@ -2854,6 +2854,7 @@ const Snd = (() => {
   let ctx = null;
   let musicGain = null;
   let musicPlaying = false;
+  let musicSession = 0; // incremented on every startMusic — stale loops self-abort
 
   function getCtx() {
     if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -3011,16 +3012,20 @@ const Snd = (() => {
     if (musicPlaying) return;
     try {
       const ac = getCtx();
+      // Resume suspended context (e.g. after page coming back from background)
       if (ac.state === 'suspended') ac.resume();
-      // Clean up previous gain node if any (prevent accumulation across game sessions)
+      // Discard previous gain node — prevents accumulation across sessions
       if (musicGain) { try { musicGain.disconnect(); } catch(_) {} musicGain = null; }
       musicGain = ac.createGain();
       musicGain.gain.value = 0.06;
       musicGain.connect(ac.destination);
       musicPlaying = true;
+      // Stamp this session — any stale scheduleLoop from a previous session will abort
+      const mySession = ++musicSession;
       let t = ac.currentTime + 0.1;
       function scheduleLoop() {
-        if (!musicPlaying) return;
+        // Abort if music was stopped OR a newer startMusic() replaced us
+        if (!musicPlaying || musicSession !== mySession) return;
         if (t < ac.currentTime) t = ac.currentTime + 0.05;
         MELODY.forEach(([freq, dur]) => {
           if (freq > 0) {
@@ -3045,10 +3050,29 @@ const Snd = (() => {
       try { musicGain.disconnect(); } catch(_) {}
       musicGain = null;
     }
+    // Suspend the AudioContext entirely — stops ALL scheduled audio on iOS
+    // (disconnecting musicGain is not enough; scheduled oscillator nodes keep ticking)
+    if (ctx) { try { ctx.suspend(); } catch(_) {} }
   }
 
   return { play, startMusic, stopMusic };
 })();
+
+// ── AUDIO LIFECYCLE — stop when app goes to background ────
+// iOS Safari keeps WebAudio running even after the user switches away,
+// which causes music to bleed into other apps and the notification bar.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    Snd.stopMusic();
+  } else {
+    // Page is visible again — if a game is in progress, restart background music
+    if (gameState === 'playing' || gameState === 'landing' || gameState === 'countdown') {
+      Snd.startMusic();
+    }
+  }
+});
+// pagehide fires on iOS when the user leaves the tab (visibilitychange may not)
+window.addEventListener('pagehide', () => Snd.stopMusic());
 
 // ── INDEXEDDB PERSISTENCE (survives browser clear) ───────
 const IDB = (() => {
