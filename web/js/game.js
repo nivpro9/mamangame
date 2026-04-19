@@ -1030,7 +1030,7 @@ function spawnParticles(x, y, color, n = 8) {
 function shoot() {
   if (gameState !== 'playing' || !player?.alive) return;
   const lvl = Save.data.upgrades.cannon || 0;
-  if (lvl === 0 || ammo <= 0 || shootCooldown > 0 || currentLevel < 5) return;
+  if (lvl === 0 || ammo <= 0 || shootCooldown > 0 || currentLevel < 3) return;
   ammo--;
   const cooldowns = [0, 0.9, 0.55, 0.4];
   shootCooldown = cooldowns[lvl];
@@ -1375,7 +1375,7 @@ function update(dt) {
       if (!Save.data.tutorialDone && tutPhase === 2) {
         tutPhase = 3;
         if (Save.data.upgrades.cannon > 0)
-          tutHints.push({ text: 'Tap the 🔫 button to shoot!', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
+          tutHints.push({ text: 'Double-tap to FIRE! 💥', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
         else
           tutHints.push({ text: 'Great! Buy Cannon in Upgrades to shoot!', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
       }
