@@ -559,8 +559,16 @@ const Save = {
     // Field safety
     if (!this.data.upgrades) this.data.upgrades = { speed:0,control:0,magnet:0,shield:0,cannon:0 };
     if (this.data.upgrades.cannon === undefined) this.data.upgrades.cannon = 0;
-    if (!this.data.ownedVehicles || !this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
     if (!this.data.currentLevel || this.data.currentLevel < 1) this.data.currentLevel = 1;
+    if (!this.data.ownedVehicles || !this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
+    // Migration: strip vehicles that require a higher level than currently reached
+    // (removes vehicles injected by old debug cheat code)
+    this.data.ownedVehicles = this.data.ownedVehicles.filter(vid => {
+      const v = VEHICLES[vid];
+      return v && v.levelReq <= this.data.currentLevel;
+    });
+    if (!this.data.ownedVehicles.includes(0)) this.data.ownedVehicles = [0];
+    if (!this.data.ownedVehicles.includes(this.data.activeVehicle)) this.data.activeVehicle = 0;
     if (!this.data.bestLevel) this.data.bestLevel = 1;
     if (this.data.tutorialDone === undefined) this.data.tutorialDone = false;
     if (!this.data.levelBests) this.data.levelBests = {};
