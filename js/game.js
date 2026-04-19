@@ -601,6 +601,7 @@ let popups = []; // [{text, x, y, alpha, timer, color}]
 let clouds = [], stars = [], bgParticles = [];
 let coinCombo = 0, comboTimer = 0;
 let screenShake = 0;
+let speedBoostEffect = 0; // countdown timer for speed boost visual
 let lastLightningTime = 0;
 let currentLevel = 1;
 let levelData = LEVELS[0];
@@ -710,7 +711,11 @@ function applyPrize(prize) {
     spawnParticles(player.x, player.y, '#E040FB', 16);
   } else if (prize.id === 'speedup') {
     speed *= 1.25;
-    spawnParticles(player.x, player.y, '#00BCD4', 10);
+    speedBoostEffect = 1.2; // trigger speed lines visual for 1.2 seconds
+    spawnParticles(player.x, player.y, '#00BCD4', 24);
+    Snd.play('speedup');
+    popups.push({ text: '⚡ SPEED BOOST!', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 2.0, color: '#00E5FF' });
+    return; // skip the generic 'mystery' sound below
   } else if (prize.id === 'vehicle') {
     const unowned = VEHICLES.filter(v => v.id >= 1 && v.id <= 6 && !Save.data.ownedVehicles.includes(v.id));
     if (unowned.length > 0) {
@@ -1111,7 +1116,7 @@ function initGame(levelNum) {
   obstacles = []; coins = []; ammoPickups = []; shieldPickups = []; particles = []; bullets = []; mysteryBoxes = [];
   enemies = []; enemyBullets = []; balloons = []; popups = [];
   balloonTimer = 6 + Math.random() * 4;
-  coinCombo = 0; comboTimer = 0; screenShake = 0; lastLightningTime = 0;
+  coinCombo = 0; comboTimer = 0; screenShake = 0; lastLightningTime = 0; speedBoostEffect = 0;
   spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
   mysteryTimer = 15 + Math.random() * 10;
   enemyTimer = currentLevel >= 25 ? 8 + Math.random() * 6 : 99999;
@@ -1252,6 +1257,7 @@ function update(dt) {
   if (player.invincible > 0) player.invincible -= dt;
   if (shootCooldown > 0) shootCooldown -= dt;
   if (screenShake > 0) screenShake = Math.max(0, screenShake - dt * 6);
+  if (speedBoostEffect > 0) speedBoostEffect = Math.max(0, speedBoostEffect - dt);
   if (comboTimer > 0) { comboTimer -= dt; if (comboTimer <= 0) coinCombo = 0; }
 
   // Auto-fire level 3 cannon
@@ -2224,18 +2230,18 @@ function drawMysteryBox(mb) {
   ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0,0,30,0,Math.PI*2); ctx.fill();
 
   // Box body
-  ctx.fillStyle = `hsl(${hue},80%,35%)`; ctx.beginPath(); ctx.roundRect(-16,-16,32,32,4); ctx.fill();
+  ctx.fillStyle = `hsl(${hue},80%,35%)`; ctx.beginPath(); ctx.roundRect(-22,-22,44,44,5); ctx.fill();
   // Ribbon horizontal
-  ctx.fillStyle = `hsl(${(hue+40)%360},100%,60%)`; ctx.fillRect(-16,-5,32,10);
+  ctx.fillStyle = `hsl(${(hue+40)%360},100%,60%)`; ctx.fillRect(-22,-7,44,14);
   // Ribbon vertical
-  ctx.fillRect(-5,-16,10,32);
+  ctx.fillRect(-7,-22,14,44);
   // Lid
-  ctx.fillStyle = `hsl(${hue},80%,45%)`; ctx.beginPath(); ctx.roundRect(-18,-20,36,8,3); ctx.fill();
-  ctx.fillStyle = `hsl(${(hue+40)%360},100%,60%)`; ctx.fillRect(-5,-20,10,8);
+  ctx.fillStyle = `hsl(${hue},80%,45%)`; ctx.beginPath(); ctx.roundRect(-24,-28,48,10,4); ctx.fill();
+  ctx.fillStyle = `hsl(${(hue+40)%360},100%,60%)`; ctx.fillRect(-7,-28,14,10);
   // Bow
   ctx.fillStyle = `hsl(${(hue+40)%360},100%,70%)`;
-  ctx.beginPath(); ctx.ellipse(-8,-20,7,5,Math.PI/4,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.ellipse(8,-20,7,5,-Math.PI/4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-10,-28,9,6,Math.PI/4,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(10,-28,9,6,-Math.PI/4,0,Math.PI*2); ctx.fill();
   // Sparkle
   const sparkA = t * 2;
   [0,1,2,3].forEach(i => {
@@ -2431,6 +2437,30 @@ function drawBackground(t) {
   if (b.rain && Math.random() < 0.003 && nowMs - lastLightningTime > 2500) {
     lastLightningTime = nowMs;
     ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.fillRect(0,0,W,H);
+  }
+
+  // ── SPEED BOOST VISUAL ──
+  if (speedBoostEffect > 0) {
+    const prog = speedBoostEffect / 1.2; // 1 → 0
+    ctx.save();
+    // Cyan flash overlay (strong at start, fades out)
+    ctx.fillStyle = `rgba(0,229,255,${prog * 0.18})`;
+    ctx.fillRect(0, 0, W, H);
+    // Speed lines from player outward
+    const numLines = 18;
+    for (let i = 0; i < numLines; i++) {
+      const angle = (i / numLines) * Math.PI * 2;
+      const len = (60 + Math.random() * 80) * prog;
+      const sx = player.x + Math.cos(angle) * 30;
+      const sy = player.y + Math.sin(angle) * 20;
+      ctx.strokeStyle = `rgba(0,229,255,${prog * 0.7})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + Math.cos(angle) * len, sy + Math.sin(angle) * len);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   // Clouds
@@ -3067,6 +3097,23 @@ const Snd = (() => {
           g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
           free(o, g); o.start(t); o.stop(t + 0.31);
         });
+      } else if (type === 'speedup') {
+        // Fast ascending whoosh — short and soft so it doesn't drown music
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(200, ac.currentTime);
+        o.frequency.exponentialRampToValueAtTime(1400, ac.currentTime + 0.25);
+        o.connect(g); g.connect(ac.destination);
+        g.gain.setValueAtTime(0.12, ac.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.28);
+        free(o, g); o.start(); o.stop(ac.currentTime + 0.29);
+        // High sparkle on top
+        const o2 = ac.createOscillator(), g2 = ac.createGain();
+        o2.type = 'sine'; o2.frequency.value = 1760;
+        o2.connect(g2); g2.connect(ac.destination);
+        g2.gain.setValueAtTime(0.1, ac.currentTime + 0.2);
+        g2.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.45);
+        free(o2, g2); o2.start(ac.currentTime + 0.2); o2.stop(ac.currentTime + 0.46);
       } else if (type === 'mystery') {
         // magical sparkle arpeggio
         [523,659,784,1047,1319].forEach((freq, i) => {
