@@ -291,15 +291,29 @@ body {
   border-radius: 16px; padding: 14px 10px; text-align: center; cursor: pointer;
   transition: all .2s;
 }
-.vehicle-card.owned { border-color: rgba(255,255,255,0.3); }
+.vehicle-card.owned  { border-color: rgba(255,255,255,0.3); }
 .vehicle-card.active { border-color: var(--accent); background: rgba(255,107,53,0.15); }
-.vehicle-card.locked { opacity: 0.5; }
+/* coin-locked: can buy but need more coins */
+.vehicle-card.locked { opacity: 0.55; }
+/* level-locked: not yet reachable */
+.vehicle-card.level-locked {
+  opacity: 0.35;
+  filter: grayscale(80%);
+  cursor: not-allowed;
+  border-color: rgba(255,255,255,0.06);
+}
+.vehicle-card.level-locked:active { transform: none; }
 .vehicle-card:active { transform: scale(0.95); }
-.vc-icon { font-size: 32px; margin-bottom: 6px; }
-.vc-name { color: white; font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
-.vc-cost { color: var(--coin); font-size: 12px; }
+.vc-icon  { font-size: 32px; margin-bottom: 6px; }
+.vc-name  { color: white; font-size: 11px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
+.vc-cost  { color: var(--coin); font-size: 12px; }
 .vc-badge { font-size: 10px; margin-top: 4px; }
-.vc-perk { color: rgba(255,255,255,0.55); font-size: 9px; line-height: 1.3; margin-bottom: 4px; padding: 3px 4px; background: rgba(255,255,255,0.06); border-radius: 4px; }
+/* level requirement badge */
+.vc-lvl-req {
+  color: #90A4AE; font-size: 12px; font-weight: bold;
+  margin-top: 4px; letter-spacing: 1px;
+}
+.vc-perk  { color: rgba(255,255,255,0.55); font-size: 9px; line-height: 1.3; margin-bottom: 4px; padding: 3px 4px; background: rgba(255,255,255,0.06); border-radius: 4px; }
 
 .upgrades-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 28px; }
 .upgrade-row {

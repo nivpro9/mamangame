@@ -56,16 +56,16 @@ const LEVELS = generateLevels();
 
 // ── VEHICLES ─────────────────────────────────────────────
 const VEHICLES = [
-  { id:0, name:'Paper Plane',     emoji:'✉️',  cost:0,     speed:1.0,  control:1.0,  color:'#ffffff', landing:'strip',    perk:'Standard all-rounder'                          },
-  { id:1, name:'Upgraded Paper',  emoji:'📄',  cost:135,   speed:1.15, control:1.1,  color:'#e3f2fd', landing:'strip',    perk:'🧲 Coin magnet range +40%'                     },
-  { id:2, name:'Drone',           emoji:'🚁',  cost:360,   speed:0.95, control:1.7,  color:'#90caf9', landing:'helipad',  perk:'🎯 Ultra-precise hover — gravity halved'        },
-  { id:3, name:'Light Plane',     emoji:'🛩️', cost:810,   speed:1.3,  control:1.2,  color:'#4fc3f7', landing:'runway',   perk:'⚡ Aerobatic — tighter turns'                   },
-  { id:4, name:'Propeller Plane', emoji:'✈️',  cost:1620,  speed:1.5,  control:1.15, color:'#ffd54f', landing:'runway',   perk:'💨 Fan gusts reduced by 60%'                   },
-  { id:5, name:'Rocket',          emoji:'🚀',  cost:2880,  speed:2.0,  control:0.85, color:'#ff7043', landing:'pad',      perk:'🔥 Fire trail — hold for speed burst'           },
-  { id:6, name:'Small Airliner',  emoji:'🛫',  cost:4500,  speed:1.7,  control:1.0,  color:'#ce93d8', landing:'airport',  perk:'🪙 Every coin worth +2 bonus'                  },
-  { id:7, name:'Large Airliner',  emoji:'🛬',  cost:7200,  speed:1.9,  control:0.9,  color:'#b39ddb', landing:'airport',  perk:'🛡 Starts each level with +1 free shield'      },
-  { id:8, name:'Stealth Plane',   emoji:'🌑',  cost:10800, speed:2.3,  control:1.2,  color:'#546e7a', landing:'military', perk:'👻 Enemy missiles 50% miss chance'             },
-  { id:9, name:'B-2 Spirit',      emoji:'🛸',  cost:16200, speed:2.6,  control:1.3,  color:'#37474f', landing:'military', perk:'🔫 Auto-fires cannon every 4s (no ammo needed)'},
+  { id:0, name:'Paper Plane',     emoji:'✉️',  cost:0,     levelReq:1,  speed:1.0,  control:1.0,  color:'#ffffff', landing:'strip',    perk:'Standard all-rounder'                          },
+  { id:1, name:'Upgraded Paper',  emoji:'📄',  cost:135,   levelReq:3,  speed:1.15, control:1.1,  color:'#e3f2fd', landing:'strip',    perk:'🧲 Coin magnet range +40%'                     },
+  { id:2, name:'Drone',           emoji:'🚁',  cost:360,   levelReq:7,  speed:0.95, control:1.7,  color:'#90caf9', landing:'helipad',  perk:'🎯 Ultra-precise hover — gravity halved'        },
+  { id:3, name:'Light Plane',     emoji:'🛩️', cost:810,   levelReq:12, speed:1.3,  control:1.2,  color:'#4fc3f7', landing:'runway',   perk:'⚡ Aerobatic — tighter turns'                   },
+  { id:4, name:'Propeller Plane', emoji:'✈️',  cost:1620,  levelReq:18, speed:1.5,  control:1.15, color:'#ffd54f', landing:'runway',   perk:'💨 Fan gusts reduced by 60%'                   },
+  { id:5, name:'Rocket',          emoji:'🚀',  cost:2880,  levelReq:25, speed:2.0,  control:0.85, color:'#ff7043', landing:'pad',      perk:'🔥 Fire trail — hold for speed burst'           },
+  { id:6, name:'Small Airliner',  emoji:'🛫',  cost:4500,  levelReq:32, speed:1.7,  control:1.0,  color:'#ce93d8', landing:'airport',  perk:'🪙 Every coin worth +2 bonus'                  },
+  { id:7, name:'Large Airliner',  emoji:'🛬',  cost:7200,  levelReq:40, speed:1.9,  control:0.9,  color:'#b39ddb', landing:'airport',  perk:'🛡 Starts each level with +1 free shield'      },
+  { id:8, name:'Stealth Plane',   emoji:'🌑',  cost:10800, levelReq:50, speed:2.3,  control:1.2,  color:'#546e7a', landing:'military', perk:'👻 Enemy missiles 50% miss chance'             },
+  { id:9, name:'B-2 Spirit',      emoji:'🛸',  cost:16200, levelReq:60, speed:2.6,  control:1.3,  color:'#37474f', landing:'military', perk:'🔫 Auto-fires cannon every 4s (no ammo needed)'},
 ];
 
 // ── UPGRADES ─────────────────────────────────────────────
@@ -2390,14 +2390,25 @@ function drawMenuVehicle() {
 // ── SHOP ─────────────────────────────────────────────────
 function renderShop() {
   document.getElementById('shop-coins').textContent = Save.data.coins;
+  const curLvl = Save.data.currentLevel;
   document.getElementById('vehicles-grid').innerHTML = VEHICLES.map(v => {
-    const owned = Save.data.ownedVehicles.includes(v.id);
-    const active = Save.data.activeVehicle === v.id;
-    const cls = active ? 'active' : owned ? 'owned' : 'locked';
-    const bottom = active ? `<div class="vc-badge" style="color:#FF6B35">${t('active')||'ACTIVE'}</div>`
-      : owned ? `<div class="vc-badge" style="color:#4CAF50">${t('owned')||'OWNED'}</div>`
-      : `<div class="vc-cost">🪙 ${v.cost}</div>`;
-    return `<div class="vehicle-card ${cls}" onclick="selectVehicle(${v.id})"><div class="vc-icon">${v.emoji}</div><div class="vc-name">${t('vn'+v.id)}</div><div class="vc-perk">${t('vp'+v.id)}</div>${bottom}</div>`;
+    const owned    = Save.data.ownedVehicles.includes(v.id);
+    const active   = Save.data.activeVehicle === v.id;
+    const lvlLocked = !owned && curLvl < v.levelReq; // not yet reached required level
+    const cls = active ? 'active' : owned ? 'owned' : lvlLocked ? 'level-locked' : 'locked';
+    const bottom = active
+      ? `<div class="vc-badge" style="color:#FF6B35">${t('active')||'ACTIVE'}</div>`
+      : owned
+        ? `<div class="vc-badge" style="color:#4CAF50">${t('owned')||'OWNED'}</div>`
+        : lvlLocked
+          ? `<div class="vc-lvl-req">🔒 LVL ${v.levelReq}</div>`
+          : `<div class="vc-cost">🪙 ${v.cost}</div>`;
+    return `<div class="vehicle-card ${cls}" onclick="selectVehicle(${v.id})">
+      <div class="vc-icon">${lvlLocked ? '🔒' : v.emoji}</div>
+      <div class="vc-name">${t('vn'+v.id)}</div>
+      <div class="vc-perk">${lvlLocked ? `Reach level ${v.levelReq} to unlock` : t('vp'+v.id)}</div>
+      ${bottom}
+    </div>`;
   }).join('');
 
   document.getElementById('upgrades-list').innerHTML = UPGRADES.map(upg => {
@@ -2420,14 +2431,19 @@ function renderShop() {
 }
 
 function selectVehicle(id) {
+  const v = VEHICLES[id];
   if (Save.data.ownedVehicles.includes(id)) {
+    // Already owned — just equip
     Save.data.activeVehicle = id; Save.save(); renderShop();
-  } else {
-    const v = VEHICLES[id];
-    if (Save.data.coins >= v.cost) {
-      Save.data.coins -= v.cost; Save.data.ownedVehicles.push(id); Save.data.activeVehicle = id;
-      Save.save(); renderShop(); Snd.play('buy');
-    }
+  } else if (Save.data.currentLevel < v.levelReq) {
+    // Level-locked — show a quick shake/flash on the card (no purchase)
+    return;
+  } else if (Save.data.coins >= v.cost) {
+    // Can afford — buy and equip
+    Save.data.coins -= v.cost;
+    Save.data.ownedVehicles.push(id);
+    Save.data.activeVehicle = id;
+    Save.save(); renderShop(); Snd.play('buy');
   }
 }
 function buyUpgrade(id) {
