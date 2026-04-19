@@ -65,7 +65,7 @@ const VEHICLES = [
   { id:6, name:'Small Airliner',  emoji:'🛫',  cost:4500,  levelReq:32, speed:1.7,  control:1.0,  color:'#ce93d8', landing:'airport',  perk:'🪙 Every coin worth +2 bonus'                  },
   { id:7, name:'Large Airliner',  emoji:'🛬',  cost:7200,  levelReq:40, speed:1.9,  control:0.9,  color:'#b39ddb', landing:'airport',  perk:'🛡 Starts each level with +1 free shield'      },
   { id:8, name:'Stealth Plane',   emoji:'🌑',  cost:10800, levelReq:50, speed:2.3,  control:1.2,  color:'#546e7a', landing:'military', perk:'👻 Enemy missiles 50% miss chance'             },
-  { id:9, name:'B-2 Spirit',      emoji:'🛸',  cost:16200, levelReq:60, speed:2.6,  control:1.3,  color:'#37474f', landing:'military', perk:'🔫 Auto-fires cannon every 4s (no ammo needed)'},
+  { id:9, name:'Super Airflight',      emoji:'🛸',  cost:16200, levelReq:60, speed:2.6,  control:1.3,  color:'#37474f', landing:'military', perk:'🔫 Auto-fires cannon every 4s (no ammo needed)'},
 ];
 
 // ── UPGRADES ─────────────────────────────────────────────
@@ -94,7 +94,7 @@ const LANGS = {
     tut5:'Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!',
     vn0:'Paper Plane', vn1:'Upgraded Paper', vn2:'Drone', vn3:'Light Plane',
     vn4:'Propeller Plane', vn5:'Rocket', vn6:'Small Airliner', vn7:'Large Airliner',
-    vn8:'Stealth Plane', vn9:'B-2 Spirit',
+    vn8:'Stealth Plane', vn9:'Super Airflight',
     vp0:'Standard all-rounder',
     vp1:'🧲 Coin magnet range +40%',
     vp2:'🎯 Ultra-precise hover — gravity halved',
@@ -141,7 +141,7 @@ const LANGS = {
     tut5:'Raggiungi la <b>meta</b> — poi atterra sulla <b>pista</b>!',
     vn0:'Aereo di carta', vn1:'Carta migliorata', vn2:'Drone', vn3:'Aereo leggero',
     vn4:'Aereo a elica', vn5:'Razzo', vn6:'Piccolo aereo', vn7:'Grande aereo',
-    vn8:'Aereo stealth', vn9:'B-2 Spirit',
+    vn8:'Aereo stealth', vn9:'Super Airflight',
     vp0:'Tuttotondo standard',
     vp1:'🧲 Portata calamita +40%',
     vp2:'🎯 Volo ultra-preciso — gravità dimezzata',
@@ -187,7 +187,7 @@ const LANGS = {
     tut5:'Atteignez la <b>distance</b> — puis atterrissez sur la <b>piste</b>!',
     vn0:'Avion en papier', vn1:'Papier amélioré', vn2:'Drone', vn3:'Avion léger',
     vn4:'Avion à hélice', vn5:'Fusée', vn6:'Petit avion', vn7:'Grand avion',
-    vn8:'Avion furtif', vn9:'B-2 Spirit',
+    vn8:'Avion furtif', vn9:'Super Airflight',
     vp0:'Polyvalent standard',
     vp1:'🧲 Portée aimant +40%',
     vp2:'🎯 Vol ultra-précis — gravité réduite de moitié',
@@ -233,7 +233,7 @@ const LANGS = {
     tut5:'Достигните <b>цели</b> — затем приземлитесь на <b>полосу</b>!',
     vn0:'Бумажный самолёт', vn1:'Улучшенный', vn2:'Дрон', vn3:'Лёгкий самолёт',
     vn4:'Пропеллер', vn5:'Ракета', vn6:'Малый лайнер', vn7:'Большой лайнер',
-    vn8:'Стелс', vn9:'B-2 Спирит',
+    vn8:'Стелс', vn9:'Super Airflight',
     vp0:'Стандартный универсал',
     vp1:'🧲 Дальность магнита +40%',
     vp2:'🎯 Ультраточный полёт — гравитация вдвое слабее',
@@ -279,7 +279,7 @@ const LANGS = {
     tut5:'<b>距離目標</b>に到達したら<b>滑走路</b>に着陸しよう!',
     vn0:'紙飛行機', vn1:'改良紙飛行機', vn2:'ドローン', vn3:'軽飛行機',
     vn4:'プロペラ機', vn5:'ロケット', vn6:'小型旅客機', vn7:'大型旅客機',
-    vn8:'ステルス機', vn9:'B-2スピリット',
+    vn8:'ステルス機', vn9:'Super Airflight',
     vp0:'標準オールラウンダー',
     vp1:'🧲 コイン磁石範囲+40%',
     vp2:'🎯 超精密ホバー — 重力半減',
@@ -325,7 +325,7 @@ const LANGS = {
     tut5:'达到<b>距离目标</b> — 然后飞到<b>跑道</b>上降落!',
     vn0:'纸飞机', vn1:'改良纸飞机', vn2:'无人机', vn3:'轻型飞机',
     vn4:'螺旋桨飞机', vn5:'火箭', vn6:'小型客机', vn7:'大型客机',
-    vn8:'隐形飞机', vn9:'B-2幽灵',
+    vn8:'隐形飞机', vn9:'Super Airflight',
     vp0:'标准全能型',
     vp1:'🧲 硬币磁铁范围+40%',
     vp2:'🎯 超精确悬停 — 重力减半',
@@ -371,7 +371,7 @@ const LANGS = {
     tut5:'הגע ל<b>יעד המרחק</b> — ואז נחת על <b>המסלול</b>!',
     vn0:'מטוס נייר', vn1:'נייר משודרג', vn2:'רחפן', vn3:'מטוס קל',
     vn4:'מטוס מדחף', vn5:'טיל', vn6:'מטוס קטן', vn7:'מטוס גדול',
-    vn8:'מטוס סטלת', vn9:'B-2 רוח',
+    vn8:'מטוס סטלת', vn9:'Super Airflight',
     vp0:'כל-יכול סטנדרטי',
     vp1:'🧲 טווח מגנט מטבעות +40%',
     vp2:'🎯 ריחוף על-מדויק — כבידה חצויה',
@@ -417,7 +417,7 @@ const LANGS = {
     tut5:'بلغ <b>هدف المسافة</b> — ثم اهبط على <b>المدرج</b>!',
     vn0:'طائرة ورق', vn1:'ورق محسّن', vn2:'طائرة مسيّرة', vn3:'طائرة خفيفة',
     vn4:'طائرة مروحية', vn5:'صاروخ', vn6:'طائرة صغيرة', vn7:'طائرة كبيرة',
-    vn8:'طائرة شبح', vn9:'B-2 روح',
+    vn8:'طائرة شبح', vn9:'Super Airflight',
     vp0:'متعدد الأغراض',
     vp1:'🧲 نطاق مغناطيس العملات +40%',
     vp2:'🎯 تحليق فائق الدقة — جاذبية منقوصة',
@@ -1233,7 +1233,7 @@ function update(dt) {
     shootAutoTimer -= dt;
     if (shootAutoTimer <= 0) { shoot(); shootAutoTimer = 2.5; }
   } else if (veh.id === 9) {
-    // B-2 Spirit perk: auto-fires every 4s without consuming ammo
+    // Super Airflight perk: auto-fires every 4s without consuming ammo
     shootAutoTimer -= dt;
     if (shootAutoTimer <= 0) {
       const bulletVx = speed + 350;
@@ -1639,7 +1639,7 @@ function drawVehicle(ctx, x, y, v, tilt = 0, scale = 1) {
     ctx.fillStyle='#37474f'; ctx.beginPath(); ctx.moveTo(-24,0); ctx.lineTo(-32,-22); ctx.lineTo(-28,-10); ctx.closePath(); ctx.fill(); ctx.beginPath(); ctx.moveTo(-24,0); ctx.lineTo(-32,22); ctx.lineTo(-28,10); ctx.closePath(); ctx.fill();
     ctx.strokeStyle='rgba(0,255,200,0.3)'; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(36,0); ctx.lineTo(-10,-6); ctx.lineTo(-32,-22); ctx.stroke(); ctx.beginPath(); ctx.moveTo(36,0); ctx.lineTo(-10,6); ctx.lineTo(-32,22); ctx.stroke();
   } else if (id === 9) {
-    // B-2 Spirit — flying wing with iconic W trailing edge
+    // Super Airflight — flying wing with iconic W trailing edge
     // Main wing body (very dark gray)
     ctx.fillStyle = '#1c2526';
     ctx.beginPath();
