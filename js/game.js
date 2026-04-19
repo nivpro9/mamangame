@@ -2611,6 +2611,10 @@ function showReviveScreen() {
   ring.style.strokeDashoffset = '0';
   numEl.textContent = TOTAL;
 
+  // Show continue phase, hide gameover phase
+  document.getElementById('revive-phase-continue').classList.remove('hidden');
+  document.getElementById('revive-phase-gameover').classList.add('hidden');
+
   showScreen('screen-revive');
 
   // Clear any previous timer
@@ -2683,7 +2687,11 @@ function showGameOver() {
   document.getElementById('go-level').textContent = currentLevel;
   document.getElementById('go-distance').textContent = Math.floor(distance) + 'm / ' + levelData.goal + 'm';
   document.getElementById('go-coins').textContent = '+' + sessionCoins;
-  showScreen('screen-gameover');
+  // Switch to phase 2 on the same revive screen (no extra screen transition)
+  document.getElementById('revive-phase-continue').classList.add('hidden');
+  document.getElementById('revive-phase-gameover').classList.remove('hidden');
+  showScreen('screen-revive');
+  applyLang();
 }
 
 function showLevelComplete() {
