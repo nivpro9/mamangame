@@ -73,7 +73,7 @@ const UPGRADES = [
   { id:'speed',   name:'Engine Boost',   icon:'⚡', desc:'Increases base speed',           maxLevel:5, costs:[80,150,280,500,900]  },
   { id:'control', name:'Better Control', icon:'🎯', desc:'Smoother joystick response',      maxLevel:5, costs:[60,120,220,400,750]  },
   { id:'magnet',  name:'Coin Magnet',    icon:'🧲', desc:'Attract nearby coins',            maxLevel:4, costs:[100,200,400,800]     },
-  { id:'shield',  name:'Shield',         icon:'🛡', desc:'Extra hit before crashing',       maxLevel:3, costs:[150,350,700]         },
+  { id:'shield',  name:'Shield',         icon:'🛡', desc:'Extra hit before crashing',       maxLevel:3, costs:[400,800,1500]        },
   { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Unlocks ammo pickups & shooting', maxLevel:3, costs:[150,300,600]         },
 ];
 
@@ -815,9 +815,11 @@ function killBoss() {
       Snd.play('crash');
     }, i * 200);
   }
-  const reward = 30 + bossRef.world * 15;
+  // Boss rewards scale dramatically per world — feel like a real jackpot
+  const bossRewards = [150, 250, 350, 500, 650, 850, 1200];
+  const reward = bossRewards[bossRef.world] || 150;
   sessionCoins += reward;
-  popups.push({ text: '⭐ BOSS DEFEATED! +' + reward + ' 🪙', x: W * 0.5, y: H * 0.4, alpha: 1, timer: 3.5, color: '#FFD700' });
+  popups.push({ text: '🏆 BOSS DEFEATED! +' + reward + ' 🪙', x: W * 0.5, y: H * 0.4, alpha: 1, timer: 3.5, color: '#FFD700' });
   const _s = gameSession;
   setTimeout(() => {
     if (gameSession !== _s) return;
@@ -998,7 +1000,7 @@ function updateEnemies(dt) {
 
 // ── COIN ─────────────────────────────────────────────────
 // Coin value increases each biome (world)
-const COIN_VALUES = [1, 2, 3, 5, 8, 12, 20]; // per biome 0-6
+const COIN_VALUES = [2, 3, 5, 8, 12, 18, 25]; // per biome 0-6 (bumped for better early progression)
 function coinValue() { return COIN_VALUES[Math.min(6, currentBiome)]; }
 
 function spawnCoin() {
@@ -1048,9 +1050,16 @@ function shoot() {
 }
 
 function updateShootBtn() {
-  // Shoot button is hidden — shooting is done via double-tap
   const btn = document.getElementById('shoot-btn');
-  if (btn) btn.classList.add('hidden');
+  if (!btn) return;
+  // Show shoot button only when cannon is unlocked and ammo is available
+  const hasCannon = Save.data.upgrades.cannon > 0;
+  if (hasCannon && ammo > 0 && gameState === 'playing') {
+    btn.classList.remove('hidden');
+    btn.textContent = '🔫 ' + ammo;
+  } else {
+    btn.classList.add('hidden');
+  }
 }
 
 
@@ -1283,7 +1292,7 @@ function update(dt) {
   if (coinTimer <= 0) { spawnCoin(); coinTimer = 2.0 + Math.random() * 2.0; }
 
   // Ammo crate spawn (only if cannon unlocked AND level 5+)
-  if (upg.cannon > 0 && currentLevel >= 5) {
+  if (upg.cannon > 0 && currentLevel >= 3) { // ammo crates from level 3 (was 5)
     ammoTimer -= dt;
     if (ammoTimer <= 0) {
       ammoPickups.push(createAmmoCrate());
@@ -2253,6 +2262,10 @@ function showLevelComplete() {
   document.getElementById('shoot-btn').classList.add('hidden');
   Snd.play('levelcomplete');
 
+  // Level completion bonus — scales with level (feels rewarding to advance)
+  const levelBonus = currentLevel * 5;
+  sessionCoins += levelBonus;
+
   // Advance level
   Save.data.coins += sessionCoins;
   if (!Save.data.tutorialDone) { Save.data.tutorialDone = true; }
@@ -2277,7 +2290,7 @@ function showLevelComplete() {
 
   document.getElementById('lc-level').textContent = currentLevel;
   document.getElementById('lc-distance').textContent = distM + 'm';
-  document.getElementById('lc-coins').textContent = '+' + sessionCoins;
+  document.getElementById('lc-coins').textContent = '+' + sessionCoins + ' (incl. +' + levelBonus + ' bonus)';
 
   // Bravo line — show PB or prestige or well done
   const bravoEl = document.getElementById('lc-bravo');
@@ -2940,8 +2953,14 @@ function applySpinPrize(prize) {
     // 3 shield hits for next level
     Save.data.spinShields = Math.min(6, (Save.data.spinShields || 0) + 3);
   } else if (prize.id === 'ammo') {
-    // Full ammo magazine for next level
-    Save.data.spinAmmo = 20; // max ammo, applied at level start
+    if (Save.data.upgrades.cannon > 0) {
+      // Full ammo magazine for next level
+      Save.data.spinAmmo = 20;
+    } else {
+      // No cannon yet — give coins instead
+      Save.data.coins += 100;
+      prize.label = '+100 🪙 (buy Cannon first!)';
+    }
   } else if (prize.id === 'speed') {
     // TURBO: +65% speed for the entire next level
     Save.data.spinSpeed = 1;
