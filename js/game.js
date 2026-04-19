@@ -591,7 +591,8 @@ const Save = {
 // ── GAME STATE ───────────────────────────────────────────
 let canvas, ctx, W, H;
 let gameState = 'menu'; // menu | playing | landing | levelcomplete | dead | shop
-let player, obstacles, coins, ammoPickups, shieldPickups, particles, bullets, mysteryBoxes, enemies, enemyBullets;
+let player, obstacles, coins, ammoPickups, shieldPickups, particles, bullets, mysteryBoxes, enemies, enemyBullets, balloons;
+let balloonTimer = 0;
 let distance, speed, sessionCoins, ammo;
 let frameId, lastTime;
 let shieldHits, shootCooldown, shootAutoTimer;
@@ -682,6 +683,13 @@ function pickPrize() {
 function createMysteryBox() {
   const y = H * 0.18 + Math.random() * H * 0.62;
   return { x: W + 40, y, anim: Math.random() * Math.PI * 2, bob: 0, collected: false };
+}
+
+// ── BALLOON TARGETS ───────────────────────────────────────
+const BALLOON_COLORS = ['#FF4444','#FF9800','#FFD700','#4CAF50','#2196F3','#E040FB','#00BCD4'];
+function createBalloon() {
+  const color = BALLOON_COLORS[Math.floor(Math.random() * BALLOON_COLORS.length)];
+  return { x: W + 40, y: H * 0.15 + Math.random() * H * 0.6, color, anim: Math.random() * Math.PI * 2, r: 18, coins: 3 + Math.floor(currentLevel / 10) };
 }
 function applyPrize(prize) {
   if (prize.id.startsWith('coins')) {
@@ -1101,7 +1109,8 @@ function initGame(levelNum) {
   boss = null;
   distance = 0; sessionCoins = 0;
   obstacles = []; coins = []; ammoPickups = []; shieldPickups = []; particles = []; bullets = []; mysteryBoxes = [];
-  enemies = []; enemyBullets = []; popups = [];
+  enemies = []; enemyBullets = []; balloons = []; popups = [];
+  balloonTimer = 6 + Math.random() * 4;
   coinCombo = 0; comboTimer = 0; screenShake = 0; lastLightningTime = 0;
   spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
   mysteryTimer = 15 + Math.random() * 10;
@@ -1313,6 +1322,16 @@ function update(dt) {
     mysteryTimer = 15 + Math.random() * 10;
   }
 
+  // Balloon targets spawn (levels 3+, every 6–12s)
+  if (currentLevel >= 3 && Save.data.upgrades.cannon > 0) {
+    balloonTimer -= dt;
+    if (balloonTimer <= 0) {
+      balloons.push(createBalloon());
+      if (Math.random() < 0.3) balloons.push(createBalloon()); // occasionally 2 at once
+      balloonTimer = 6 + Math.random() * 6;
+    }
+  }
+
   // Shield pickup spawn (levels 30+, every 18–30s)
   if (currentLevel >= 30) {
     shieldPickupTimer -= dt;
@@ -1453,6 +1472,28 @@ function update(dt) {
       return false;
     }
     return mb.x > -50;
+  });
+
+  // ── BALLOONS ──
+  balloons = balloons.filter(b => {
+    b.x -= speed * 0.45;
+    b.anim += dt * 1.5;
+    // Check bullet hit
+    let hit = false;
+    bullets = bullets.filter(bul => {
+      if (Math.sqrt((bul.x - b.x) ** 2 + (bul.y - b.y) ** 2) < b.r + 10) {
+        hit = true; return false;
+      }
+      return true;
+    });
+    if (hit) {
+      sessionCoins += b.coins;
+      spawnParticles(b.x, b.y, b.color, 16);
+      Snd.play('coin');
+      popups.push({ text: '+' + b.coins + ' 🪙', x: b.x, y: b.y - 24, alpha: 1, timer: 1.2, color: b.color });
+      return false;
+    }
+    return b.x > -50;
   });
 
   // Global vy clamp — prevents fan/enemy wind from pushing beyond safe speeds
@@ -2206,6 +2247,36 @@ function drawMysteryBox(mb) {
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
   ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('?', 0, 1);
+  // Label above box
+  ctx.font = 'bold 9px Arial'; ctx.textBaseline = 'bottom';
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillText('BONUS BOX', 1, -23);
+  ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fillText('BONUS BOX', 0, -24);
+  ctx.restore();
+}
+
+// ── DRAW BALLOON ─────────────────────────────────────────
+function drawBalloon(b) {
+  ctx.save();
+  ctx.translate(b.x, b.y + Math.sin(b.anim) * 4);
+  // String
+  ctx.strokeStyle = 'rgba(150,150,150,0.8)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(0, b.r); ctx.lineTo(0, b.r + 20); ctx.stroke();
+  // Glow
+  const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, b.r + 8);
+  grd.addColorStop(0, b.color + '55'); grd.addColorStop(1, b.color + '00');
+  ctx.fillStyle = grd; ctx.beginPath(); ctx.arc(0, 0, b.r + 8, 0, Math.PI * 2); ctx.fill();
+  // Balloon body
+  ctx.fillStyle = b.color;
+  ctx.beginPath(); ctx.ellipse(0, 0, b.r, b.r * 1.15, 0, 0, Math.PI * 2); ctx.fill();
+  // Shine
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.beginPath(); ctx.ellipse(-b.r * 0.3, -b.r * 0.35, b.r * 0.28, b.r * 0.2, -0.5, 0, Math.PI * 2); ctx.fill();
+  // Knot
+  ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(0, b.r, 3.5, 0, Math.PI * 2); ctx.fill();
+  // Coin label
+  ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.font = 'bold 10px Arial';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('+' + b.coins + '🪙', 0, 0);
   ctx.restore();
 }
 
@@ -2403,11 +2474,12 @@ function draw(elapsed) {
     ctx.beginPath(); ctx.arc(pt.x, pt.y, (1 - i/player.trail.length)*8, 0, Math.PI*2); ctx.fill();
   });
 
-  // Coins, ammo, shields, mystery boxes, bullets, enemies, obstacles
+  // Coins, ammo, shields, mystery boxes, balloons, bullets, enemies, obstacles
   coins.forEach(c => drawCoin(c, elapsed));
   ammoPickups.forEach(ac => drawAmmoCrate(ac));
   shieldPickups.forEach(sp => drawShieldPickup(sp));
   mysteryBoxes.forEach(mb => drawMysteryBox(mb));
+  balloons.forEach(b => drawBalloon(b));
   bullets.forEach(b => drawBullet(b));
   enemies.forEach(en => drawEnemy(en));
   if (boss) drawBoss();
