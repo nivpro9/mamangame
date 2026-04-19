@@ -635,7 +635,7 @@ function createPlayer() {
 function createPillar() {
   const gap = H * levelData.gapFraction;
   const gapY = H * 0.15 + Math.random() * (H * 0.70);
-  return { type:'pillar', x: W + 40, gapY, gap, w: 52, scored: false };
+  return { type:'pillar', x: W + 40, gapY, gap, w: 52, scored: false, seed: Math.floor(Math.random() * 99991) };
 }
 function createFan() {
   const side = Math.random() < 0.5 ? 'top' : 'bottom';
@@ -1718,7 +1718,7 @@ function drawObstacle(obs) {
   if (obs.type === 'pillar') {
     const topH = obs.gapY - obs.gap / 2;
     const botY = obs.gapY + obs.gap / 2;
-    _drawWallForBiome(obs.x, obs.w, topH, botY);
+    _drawWallForBiome(obs.x, obs.w, topH, botY, obs.seed || 0);
   } else if (obs.type === 'fan') {
     obs.angle += 0.08;
     ctx.save(); ctx.translate(obs.x, obs.y);
@@ -1746,23 +1746,22 @@ function drawObstacle(obs) {
 }
 
 // ── BIOME WALL DRAWING ────────────────────────────────────
-function _drawWallForBiome(cx, w, topH, botY) {
+function _drawWallForBiome(cx, w, topH, botY, seed) {
   switch (currentBiome) {
-    case 0: _wallCloud(cx, w, topH, botY);      break;
-    case 1: _wallBuilding(cx, w, topH, botY);   break;
-    case 2: _wallNeon(cx, w, topH, botY);       break;
-    case 3: _wallStormCloud(cx, w, topH, botY); break;
-    case 4: _wallIce(cx, w, topH, botY);        break;
-    case 5: _wallRock(cx, w, topH, botY);       break;
-    case 6: _wallAsteroid(cx, w, topH, botY);   break;
-    default: _wallCloud(cx, w, topH, botY);
+    case 0: _wallCloud(cx, w, topH, botY, seed);      break;
+    case 1: _wallBuilding(cx, w, topH, botY);         break;
+    case 2: _wallNeon(cx, w, topH, botY);             break;
+    case 3: _wallStormCloud(cx, w, topH, botY, seed); break;
+    case 4: _wallIce(cx, w, topH, botY);              break;
+    case 5: _wallRock(cx, w, topH, botY);             break;
+    case 6: _wallAsteroid(cx, w, topH, botY);         break;
+    default: _wallCloud(cx, w, topH, botY, seed);
   }
 }
 
 // Biome 0 — Sky: fluffy white cloud banks
-function _wallCloud(cx, w, topH, botY) {
+function _wallCloud(cx, w, topH, botY, seed) {
   const x0 = cx - w / 2;
-  const seed = (cx * 7) | 0;
   const step = 18;
   // Top wall — light blue cloud body
   ctx.fillStyle = '#d6eeff';
@@ -1887,9 +1886,8 @@ function _wallNeon(cx, w, topH, botY) {
 }
 
 // Biome 3 — Storm: dark churning cloud masses with lightning
-function _wallStormCloud(cx, w, topH, botY) {
+function _wallStormCloud(cx, w, topH, botY, seed) {
   const x0 = cx - w / 2;
-  const seed = (cx * 9) | 0;
   const step = 14;
   // Dark base
   ctx.fillStyle = '#18182a';
