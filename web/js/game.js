@@ -1000,7 +1000,7 @@ function updateEnemies(dt) {
 
 // ── COIN ─────────────────────────────────────────────────
 // Coin value increases each biome (world)
-const COIN_VALUES = [2, 3, 5, 8, 12, 18, 25]; // per biome 0-6 (bumped for better early progression)
+const COIN_VALUES = [1, 3, 5, 8, 12, 18, 25]; // per biome 0-6 (Sky=1, rises each world)
 function coinValue() { return COIN_VALUES[Math.min(6, currentBiome)]; }
 
 function spawnCoin() {
