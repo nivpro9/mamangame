@@ -70,6 +70,7 @@
   <!-- Coins — top left -->
   <div class="menu-coins-corner">
     <span class="coin-dot"></span><span id="menu-coins">0</span>
+    &nbsp;<span style="color:#00eaff">💎</span><span id="menu-diamonds" style="color:#00eaff;font-weight:bold">0</span>
   </div>
   <!-- Language Selector -->
   <div class="lang-selector" id="langSelector">
@@ -153,7 +154,7 @@
 <div id="screen-gameover" class="screen">
   <div class="gameover-content">
     <div class="crash-icon">💥</div>
-    <h1 class="go-title" data-i18n="crashed">CRASHED!</h1>
+    <h1 class="go-title" data-i18n="crashed">OOPS! 😅</h1>
     <div class="go-stats">
       <div class="go-stat">
         <div class="go-stat-label" data-i18n="level">LEVEL</div>
@@ -194,6 +195,7 @@
         <div class="lc-stat-value" id="lc-coins">+0</div>
       </div>
     </div>
+    <div id="lc-diamond-row" class="hidden" style="color:#00eaff;font-size:20px;margin:6px 0;font-weight:bold">💎 +1 DIAMOND!</div>
     <div id="lc-biome" class="lc-biome hidden"></div>
     <button id="nextLevelBtn" class="btn-play">NEXT LEVEL ›</button>
     <button id="lcShopBtn" class="btn-shop" data-i18n="upgradesBtn">🔧 UPGRADES</button>
@@ -230,7 +232,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=27"></script>
+<script src="js/game.js?v=28"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});

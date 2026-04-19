@@ -82,7 +82,7 @@ const LANGS = {
     play:'PLAY', levelsBtn:'🗺️ LEVELS', upgradesMenu:'⚙️ UPGRADES', upgradesBtn:'🔧 UPGRADES',
     upgradesTitle:'UPGRADES', upgradesSec:'UPGRADES', levelsTitle:'LEVELS',
     level:'LEVEL', distance:'DISTANCE', ammo:'AMMO', coins:'COINS',
-    crashed:'CRASHED!', tryAgain:'TRY AGAIN', menu:'MENU',
+    crashed:'OOPS! 😅', tryAgain:'TRY AGAIN', menu:'MENU',
     levelComplete:'LEVEL COMPLETE!', vehicles:'VEHICLES',
     howToPlay:'HOW TO PLAY', letsFly:"LET'S FLY!", wellDone:'⭐ WELL DONE! ⭐',
     lvl:'LVL', best:'BEST', playAgain:'PLAY AGAIN',
@@ -129,7 +129,7 @@ const LANGS = {
     play:'GIOCA', levelsBtn:'🗺️ LIVELLI', upgradesMenu:'⚙️ MIGLIORIE', upgradesBtn:'🔧 MIGLIORIE',
     upgradesTitle:'MIGLIORIE', upgradesSec:'MIGLIORIE', levelsTitle:'LIVELLI',
     level:'LIVELLO', distance:'DISTANZA', ammo:'MUNIZIONI', coins:'MONETE',
-    crashed:'SCHIANTO!', tryAgain:'RIPROVA', menu:'MENU',
+    crashed:'OPS! 😅', tryAgain:'RIPROVA', menu:'MENU',
     levelComplete:'LIVELLO COMPLETATO!', vehicles:'VEICOLI',
     howToPlay:'COME GIOCARE', letsFly:'VOLIAMO!', wellDone:'⭐ OTTIMO! ⭐',
     lvl:'LIV', best:'RECORD', playAgain:'ANCORA',
@@ -175,7 +175,7 @@ const LANGS = {
     play:'JOUER', levelsBtn:'🗺️ NIVEAUX', upgradesMenu:'⚙️ AMÉLIORATIONS', upgradesBtn:'🔧 AMÉLIORATIONS',
     upgradesTitle:'AMÉLIORATIONS', upgradesSec:'AMÉLIORATIONS', levelsTitle:'NIVEAUX',
     level:'NIVEAU', distance:'DISTANCE', ammo:'MUNITIONS', coins:'PIÈCES',
-    crashed:'CRASH!', tryAgain:'RÉESSAYER', menu:'MENU',
+    crashed:'OUPS! 😅', tryAgain:'RÉESSAYER', menu:'MENU',
     levelComplete:'NIVEAU TERMINÉ!', vehicles:'VÉHICULES',
     howToPlay:'COMMENT JOUER', letsFly:'ON VOLE!', wellDone:'⭐ BRAVO! ⭐',
     lvl:'NIV', best:'RECORD', playAgain:'REJOUER',
@@ -221,7 +221,7 @@ const LANGS = {
     play:'ИГРАТЬ', levelsBtn:'🗺️ УРОВНИ', upgradesMenu:'⚙️ УЛУЧШЕНИЯ', upgradesBtn:'🔧 УЛУЧШЕНИЯ',
     upgradesTitle:'УЛУЧШЕНИЯ', upgradesSec:'УЛУЧШЕНИЯ', levelsTitle:'УРОВНИ',
     level:'УРОВЕНЬ', distance:'ДИСТАНЦИЯ', ammo:'ПАТРОНЫ', coins:'МОНЕТЫ',
-    crashed:'КРУШЕНИЕ!', tryAgain:'ЕЩЁ РАЗ', menu:'МЕНЮ',
+    crashed:'УПС! 😅', tryAgain:'ЕЩЁ РАЗ', menu:'МЕНЮ',
     levelComplete:'УРОВЕНЬ ПРОЙДЕН!', vehicles:'ТРАНСПОРТ',
     howToPlay:'КАК ИГРАТЬ', letsFly:'ПОЛЕТЕЛИ!', wellDone:'⭐ ОТЛИЧНО! ⭐',
     lvl:'УР', best:'РЕКОРД', playAgain:'СНОВА',
@@ -267,7 +267,7 @@ const LANGS = {
     play:'プレイ', levelsBtn:'🗺️ レベル', upgradesMenu:'⚙️ アップグレード', upgradesBtn:'🔧 アップグレード',
     upgradesTitle:'アップグレード', upgradesSec:'アップグレード', levelsTitle:'レベル',
     level:'レベル', distance:'距離', ammo:'弾薬', coins:'コイン',
-    crashed:'クラッシュ!', tryAgain:'もう一度', menu:'メニュー',
+    crashed:'あらら! 😅', tryAgain:'もう一度', menu:'メニュー',
     levelComplete:'レベルクリア!', vehicles:'乗り物',
     howToPlay:'遊び方', letsFly:'飛ぼう!', wellDone:'⭐ すごい! ⭐',
     lvl:'LV', best:'最高', playAgain:'もう一度',
@@ -313,7 +313,7 @@ const LANGS = {
     play:'开始', levelsBtn:'🗺️ 关卡', upgradesMenu:'⚙️ 升级', upgradesBtn:'🔧 升级',
     upgradesTitle:'升级', upgradesSec:'升级', levelsTitle:'关卡',
     level:'关卡', distance:'距离', ammo:'弹药', coins:'金币',
-    crashed:'坠毁!', tryAgain:'再试一次', menu:'菜单',
+    crashed:'哎呀! 😅', tryAgain:'再试一次', menu:'菜单',
     levelComplete:'关卡完成!', vehicles:'飞行器',
     howToPlay:'游戏说明', letsFly:'出发!', wellDone:'⭐ 太棒了! ⭐',
     lvl:'关', best:'最佳', playAgain:'再玩',
@@ -359,7 +359,7 @@ const LANGS = {
     play:'שחק', levelsBtn:'🗺️ שלבים', upgradesMenu:'⚙️ שדרוגים', upgradesBtn:'🔧 שדרוגים',
     upgradesTitle:'שדרוגים', upgradesSec:'שדרוגים', levelsTitle:'שלבים',
     level:'שלב', distance:'מרחק', ammo:'תחמושת', coins:'מטבעות',
-    crashed:'התרסקת!', tryAgain:'נסה שוב', menu:'תפריט',
+    crashed:'אופס! 😅', tryAgain:'נסה שוב', menu:'תפריט',
     levelComplete:'השלב הושלם!', vehicles:'כלי טיס',
     howToPlay:'איך משחקים', letsFly:'יאללה נטוס!', wellDone:'⭐ כל הכבוד! ⭐',
     lvl:'שלב', best:'שיא', playAgain:'שחק שוב',
@@ -405,7 +405,7 @@ const LANGS = {
     play:'العب', levelsBtn:'🗺️ مستويات', upgradesMenu:'⚙️ تحسينات', upgradesBtn:'🔧 تحسينات',
     upgradesTitle:'تحسينات', upgradesSec:'تحسينات', levelsTitle:'مستويات',
     level:'المستوى', distance:'المسافة', ammo:'ذخيرة', coins:'عملات',
-    crashed:'تحطمت!', tryAgain:'حاول مجدداً', menu:'قائمة',
+    crashed:'أوه! 😅', tryAgain:'حاول مجدداً', menu:'قائمة',
     levelComplete:'اكتمل المستوى!', vehicles:'مركبات',
     howToPlay:'كيف تلعب', letsFly:'هيا نطير!', wellDone:'⭐ أحسنت! ⭐',
     lvl:'مستوى', best:'أفضل', playAgain:'العب مجدداً',
@@ -523,6 +523,7 @@ const Save = {
     spinSpeed: 0, spinDoubleCoins: 0,
     lastLogin: 0, loginStreak: 0,
     gameCount: 0,
+    diamonds: 0,
   },
   data: null,
   fresh() { return JSON.parse(JSON.stringify(this.defaults)); },
@@ -584,6 +585,7 @@ const Save = {
     if (this.data.lastLogin === undefined) this.data.lastLogin = 0;
     if (this.data.loginStreak === undefined) this.data.loginStreak = 0;
     if (this.data.gameCount === undefined) this.data.gameCount = 0;
+    if (this.data.diamonds === undefined) this.data.diamonds = 0;
     // Re-save to populate all storage mechanisms in case one was missing
     this.save();
   },
@@ -2549,6 +2551,7 @@ function showMenu() {
   Snd.stopMusic();
   document.getElementById('shoot-btn').classList.add('hidden');
   document.getElementById('menu-coins').textContent = Save.data.coins;
+  document.getElementById('menu-diamonds').textContent = Save.data.diamonds || 0;
   document.getElementById('menu-level').textContent = t('lvl') + ' ' + Save.data.currentLevel;
   showScreen('screen-menu');
   drawMenuVehicle();
@@ -2695,6 +2698,11 @@ function showLevelComplete() {
 
   // Advance level
   Save.data.coins += sessionCoins;
+  // Earn 1 diamond every 5 levels
+  const earnedDiamond = currentLevel % 5 === 0;
+  if (earnedDiamond) {
+    Save.data.diamonds = (Save.data.diamonds || 0) + 1;
+  }
   if (!Save.data.tutorialDone) { Save.data.tutorialDone = true; }
   const isLast = currentLevel >= 70;
   if (isLast) {
@@ -2718,6 +2726,10 @@ function showLevelComplete() {
   document.getElementById('lc-level').textContent = currentLevel;
   document.getElementById('lc-distance').textContent = distM + 'm';
   document.getElementById('lc-coins').textContent = '+' + sessionCoins + ' (incl. +' + levelBonus + ' bonus)';
+  // Diamond row
+  const diamondRow = document.getElementById('lc-diamond-row');
+  if (earnedDiamond) { diamondRow.classList.remove('hidden'); }
+  else { diamondRow.classList.add('hidden'); }
 
   // Bravo line — show PB or prestige or well done
   const bravoEl = document.getElementById('lc-bravo');
