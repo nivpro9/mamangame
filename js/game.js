@@ -1290,15 +1290,6 @@ function update(dt) {
   coinTimer -= dt;
   if (coinTimer <= 0) { spawnCoin(); coinTimer = 2.0 + Math.random() * 2.0; }
 
-  // Ammo crate spawn (only if cannon unlocked AND level 5+)
-  if (upg.cannon > 0 && currentLevel >= 3) { // ammo crates from level 3 (was 5)
-    ammoTimer -= dt;
-    if (ammoTimer <= 0) {
-      ammoPickups.push(createAmmoCrate());
-      ammoTimer = 12 + Math.random() * 8;
-    }
-  }
-
   // Shield pickup spawn (levels 30+, every 18–30s)
   if (currentLevel >= 30) {
     shieldPickupTimer -= dt;
@@ -1351,31 +1342,6 @@ function update(dt) {
     return true;
   });
 
-  // ── UPDATE AMMO PICKUPS ──
-  ammoPickups = ammoPickups.filter(ac => {
-    if (ac.collected) return false;
-    ac.x -= speed; ac.anim += dt * 2;
-    const dx = player.x - ac.x, dy = player.y - ac.y;
-    if (Math.sqrt(dx * dx + dy * dy) < 28) {
-      ac.collected = true;
-      const cap = maxAmmo();
-      const gain = Save.data.upgrades.cannon >= 2 ? 5 : 4;
-      ammo = Math.min(cap, ammo + gain);
-      spawnParticles(ac.x, ac.y, '#ffcc02', 6);
-      updateShootBtn();
-      // Tutorial: ammo collected
-      if (!Save.data.tutorialDone && tutPhase === 2) {
-        tutPhase = 3;
-        if (Save.data.upgrades.cannon > 0)
-          tutHints.push({ text: 'Double-tap to FIRE! 💥', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
-        else
-          tutHints.push({ text: 'Great! Buy Cannon in Upgrades to shoot!', x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
-      }
-      return false;
-    }
-    return ac.x > -30;
-  });
-
   // ── UPDATE SHIELD PICKUPS ──
   shieldPickups = shieldPickups.filter(sp => {
     if (sp.collected) return false;
@@ -1403,17 +1369,14 @@ function update(dt) {
     if (d < c.r + 22) {
       c.collected = true;
       const v = c.val || 1;
-      coinCombo++;
-      comboTimer = 3.0;
-      const bonus = Math.floor(coinCombo / 3);
       const vehicleBonus = veh.id === 6 ? 2 : 0; // Small Airliner perk
       const doubleBonus = window._doubleCoinActive ? 1 : 0; // 2× COINS spin prize
-      const earned = (v + bonus + vehicleBonus) * (1 + doubleBonus);
+      const earned = (v + vehicleBonus) * (1 + doubleBonus);
       sessionCoins += earned;
       spawnParticles(c.x, c.y, window._doubleCoinActive ? '#E040FB' : '#FFD700', 5);
       Snd.play('coin');
-      const popText = coinCombo >= 3 ? '+' + earned + (window._doubleCoinActive ? ' ×2💰' : ' ×' + coinCombo + '!') : '+' + earned + (window._doubleCoinActive ? ' 💰' : '');
-      const popColor = window._doubleCoinActive ? '#E040FB' : coinCombo >= 5 ? '#FF6B35' : coinCombo >= 3 ? '#FFC200' : '#FFD700';
+      const popText = '+' + earned + (window._doubleCoinActive ? ' 💰' : '');
+      const popColor = window._doubleCoinActive ? '#E040FB' : '#FFD700';
       popups.push({ text: popText, x: c.x, y: c.y - 18, alpha: 1, timer: 0.9, color: popColor });
       return false;
     }
@@ -2362,7 +2325,6 @@ function draw(elapsed) {
 
   // Coins, ammo, shields, bullets, enemies, obstacles
   coins.forEach(c => drawCoin(c, elapsed));
-  ammoPickups.forEach(ac => drawAmmoCrate(ac));
   shieldPickups.forEach(sp => drawShieldPickup(sp));
   bullets.forEach(b => drawBullet(b));
   enemies.forEach(en => drawEnemy(en));
@@ -2438,25 +2400,6 @@ function draw(elapsed) {
     ctx.font = '11px Arial'; ctx.textAlign = 'center';
     ctx.fillStyle = `rgba(255,255,255,${pulse * 1.5})`;
     ctx.fillText(t('holdUp'), W * 0.5, H - 18);
-    ctx.restore();
-  }
-
-  // Combo indicator
-  if (coinCombo >= 2 && comboTimer > 0) {
-    const ca = Math.min(1, comboTimer * 1.5);
-    const scale = 1 + Math.min(0.5, coinCombo * 0.05);
-    const comboColor = coinCombo >= 10 ? '#FF4444' : coinCombo >= 5 ? '#FF6B35' : '#FFD700';
-    ctx.save();
-    ctx.globalAlpha = ca;
-    ctx.translate(player.x, player.y - 55);
-    ctx.scale(scale, scale);
-    const fs = Math.min(26, 14 + coinCombo * 1.2);
-    ctx.font = `bold ${fs}px Arial`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.strokeStyle = 'rgba(0,0,0,0.8)'; ctx.lineWidth = 5;
-    ctx.strokeText(t('comboText') + ' ×' + coinCombo, 0, 0);
-    ctx.fillStyle = comboColor;
-    ctx.fillText(t('comboText') + ' ×' + coinCombo, 0, 0);
     ctx.restore();
   }
 
