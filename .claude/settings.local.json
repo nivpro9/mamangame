@@ -3,7 +3,10 @@
     "allow": [
       "WebFetch(domain:www.pwabuilder.com)",
       "Bash(cp -r web/* .)",
-      "Bash(rm -rf web/)"
+      "Bash(rm -rf web/)",
+      "Bash(python3 -c ':*)",
+      "Bash(python -c ':*)",
+      "Bash(powershell -command ':*)"
     ]
   }
 }
