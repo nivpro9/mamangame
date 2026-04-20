@@ -1569,16 +1569,27 @@ function update(dt) {
         }
         spawnParticles(obs.x, obs.y, obs.color, 6);
       }
-      // Player flies into target — counts as a hit
-      if (player.alive && player.invincible <= 0) {
-        const dx = player.x - obs.x, dy = player.y - obs.y;
-        if (Math.sqrt(dx * dx + dy * dy) < obs.r + 14) handleHit();
-      }
+      // Targets are pass-through — shoot them for coins, flying through is safe
       return obs.x > -60;
     } else if (obs.type === 'spikeball') {
       obs.x -= speed * 0.85;
       obs.anim += dt * 2.2;
       obs.y = obs.baseY + Math.sin(obs.anim * obs.vBounce) * 55;
+      // Bullets destroy spike balls
+      let spikeShot = false;
+      bullets = bullets.filter(b => {
+        const dx = b.x - obs.x, dy = b.y - obs.y;
+        if (Math.sqrt(dx*dx+dy*dy) < obs.r + 12) { spikeShot = true; return false; }
+        return true;
+      });
+      if (spikeShot) {
+        spawnParticles(obs.x, obs.y, '#FF5722', 18);
+        screenShake = 0.2;
+        Snd.play('crash');
+        popups.push({ text: '💥 +5 🪙', x: obs.x, y: obs.y - 24, alpha: 1, timer: 1.2, color: '#FF9800' });
+        sessionCoins += 5;
+        return false;
+      }
       // Collision with player
       if (player.alive && !player.invincible) {
         const dx = player.x - obs.x, dy = player.y - obs.y;
