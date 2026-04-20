@@ -1,4 +1,32 @@
 'use strict';
+// ── BATTLE PASS ──────────────────────────────────────────
+const BP_XP_PER_TIER = 400;
+const BP_TIERS = [
+  { type:'coins',    amount:150  },
+  { type:'diamonds', amount:1   },
+  { type:'coins',    amount:250  },
+  { type:'coins',    amount:350  },
+  { type:'diamonds', amount:2   },
+  { type:'coins',    amount:500  },
+  { type:'coins',    amount:650  },
+  { type:'diamonds', amount:3   },
+  { type:'coins',    amount:800  },
+  { type:'coins',    amount:1000 },
+  { type:'diamonds', amount:4   },
+  { type:'coins',    amount:1200 },
+  { type:'coins',    amount:1500 },
+  { type:'diamonds', amount:5   },
+  { type:'coins',    amount:2000 },
+];
+const MISSION_POOL = [
+  { id:'levels', tpl:'Complete {n} level(s)',       goals:[1,2,3],     xp:[60,100,160], coins:[80,150,250] },
+  { id:'coins',  tpl:'Collect {n} coins in 1 run',  goals:[80,150,250],xp:[50,90,140],  coins:[70,130,200] },
+  { id:'dist',   tpl:'Fly {n}m in 1 run',           goals:[200,400,700],xp:[50,90,140], coins:[70,130,200] },
+  { id:'shoot',  tpl:'Shoot {n} obstacle(s)',        goals:[3,6,10],    xp:[70,110,170], coins:[90,160,250] },
+  { id:'boxes',  tpl:'Open {n} surprise box(es)',    goals:[1,2,4],     xp:[60,100,160], coins:[80,150,250] },
+  { id:'ammo',   tpl:'Collect {n} ammo pack(s)',     goals:[3,5,8],     xp:[50,80,130],  coins:[70,110,180] },
+];
+
 // ── VIBRATION UTILITY ─────────────────────────────────────
 const Vibrate = {
   _ok() { return !(Save?.data?.vibrateOn === false); },
@@ -619,6 +647,7 @@ const Save = {
     spinSpeed: 0, spinDoubleCoins: 0,
     lastLogin: 0, loginStreak: 0,
     gameCount: 0,
+    bpXP: 0, bpClaimed: [], missions: [], missionsDate: '',
     diamonds: 0,
     freePlayBest: 0,
     activeSkin: 0,
@@ -695,6 +724,10 @@ const Save = {
     if (!this.data.ownedSkins.includes(0)) this.data.ownedSkins.unshift(0);
     if (this.data.soundOn === undefined) this.data.soundOn = true;
     if (this.data.vibrateOn === undefined) this.data.vibrateOn = true;
+    if (this.data.bpXP === undefined) this.data.bpXP = 0;
+    if (!this.data.bpClaimed) this.data.bpClaimed = [];
+    if (!this.data.missions) this.data.missions = [];
+    if (!this.data.missionsDate) this.data.missionsDate = '';
     // Re-save to populate all storage mechanisms in case one was missing
     this.save();
   },
@@ -1482,6 +1515,7 @@ function update(dt) {
           screenShake = 0.25;
           spawnParticles(obs.x, obs.y, obs.type === 'bird' ? '#8d6e63' : '#78909c', 16);
           popups.push({ text: '+' + reward + ' 🪙', x: obs.x, y: obs.y - 20, alpha: 1, timer: 1.0, color: '#FFD700' });
+          updateMission('shoot', 1);
           Vibrate.buzz(25);
           obstacles.splice(i, 1);
           hit = true; break;
@@ -1581,6 +1615,7 @@ function update(dt) {
           spawnParticles(px, py, '#8D6E63', 14);
           spawnParticles(px, py, '#FF9800', 8);
           screenShake = 0.3;
+          updateMission('shoot', 1);
           Snd.play('crash');
           sessionCoins += 8;
           Vibrate.buzz(35);
@@ -1733,6 +1768,7 @@ function update(dt) {
         ammo = Math.min(ammo + gained, hardMax);
         spawnParticles(ac.x, ac.y, '#00e5ff', 12);
         Snd.play('coin');
+        updateMission('ammo', 1);
         popups.push({ text: tf('ammoPickupText', gained), x: ac.x, y: ac.y - 24, alpha: 1, timer: 1.4, color: '#00e5ff' });
         updateShootBtn();
       } else {
@@ -2759,6 +2795,7 @@ function _openSurpriseBox(x, y) {
     spawnParticles(x, y, '#00E5FF', 32);
     spawnParticles(x, y, '#ffffff', 14);
   }
+  updateMission('boxes', 1);
   Snd.play('coin');
   popups.push({ text: rewardText, x, y: y - 30, alpha: 1, timer: 2.2, color: rewardColor });
 }
@@ -3558,6 +3595,13 @@ function showLevelComplete() {
   // Level completion bonus — scales with level (feels rewarding to advance)
   const levelBonus = currentLevel * 5;
   sessionCoins += levelBonus;
+
+  // Battle Pass — XP for completing a level
+  Save.data.bpXP = (Save.data.bpXP || 0) + 40;
+  // Mission tracking
+  updateMission('levels', 1);
+  updateMission('coins',  sessionCoins,         true); // single-run best
+  updateMission('dist',   Math.floor(distance), true); // single-run best
 
   // Advance level
   Save.data.coins += sessionCoins;
@@ -4403,7 +4447,146 @@ Save._loadIDB = async function() {
 };
 
 // ── DAILY LOGIN GIFT ─────────────────────────────────────
-const DAY_REWARDS = [100, 150, 200, 300, 400, 600, 1000]; // streak day 1–7, then repeats
+const DAY_REWARDS = [25, 35, 50, 70, 100, 150, 250]; // streak day 1–7, then repeats
+
+// ── BATTLE PASS FUNCTIONS ─────────────────────────────────
+function generateMissions() {
+  const shuffled = [...MISSION_POOL].sort(() => Math.random() - 0.5).slice(0, 3);
+  const diff = Save.data.bpXP > 800 ? 1 : 0;
+  return shuffled.map(m => {
+    const d = Math.min(diff, m.goals.length - 1);
+    return { id:m.id, label:m.tpl.replace('{n}', m.goals[d]),
+      goal:m.goals[d], progress:0, xp:m.xp[d], coins:m.coins[d],
+      completed:false, claimed:false };
+  });
+}
+
+function refreshDailyMissions() {
+  const today = new Date().toDateString();
+  if (Save.data.missionsDate === today && (Save.data.missions||[]).length === 3) return;
+  Save.data.missionsDate = today;
+  Save.data.missions = generateMissions();
+  Save.save();
+}
+
+function updateMission(id, value, absolute) {
+  if (!Save.data.missions) return;
+  let changed = false;
+  for (const m of Save.data.missions) {
+    if (m.id !== id || m.completed) continue;
+    m.progress = absolute ? Math.max(m.progress, value) : m.progress + value;
+    if (m.progress >= m.goal) { m.progress = m.goal; m.completed = true; }
+    changed = true;
+  }
+  if (changed) Save.save();
+}
+
+function claimMission(idx) {
+  const m = Save.data.missions && Save.data.missions[idx];
+  if (!m || !m.completed || m.claimed) return;
+  m.claimed = true;
+  Save.data.coins += m.coins;
+  Save.data.bpXP = (Save.data.bpXP || 0) + m.xp;
+  Save.save();
+  renderBP();
+  const ce = document.getElementById('menu-coins');
+  if (ce) ce.textContent = Save.data.coins;
+}
+
+function claimBPTier(tierIdx) {
+  const earned = Math.floor((Save.data.bpXP || 0) / BP_XP_PER_TIER);
+  if (tierIdx >= earned) return;
+  if (!Save.data.bpClaimed) Save.data.bpClaimed = [];
+  if (Save.data.bpClaimed.includes(tierIdx)) return;
+  Save.data.bpClaimed.push(tierIdx);
+  const rw = BP_TIERS[tierIdx];
+  if (rw.type === 'coins') {
+    Save.data.coins += rw.amount;
+    const ce = document.getElementById('menu-coins');
+    if (ce) ce.textContent = Save.data.coins;
+  } else {
+    Save.data.diamonds = (Save.data.diamonds || 0) + rw.amount;
+    const de = document.getElementById('menu-diamonds');
+    if (de) de.textContent = Save.data.diamonds;
+  }
+  Save.save();
+  renderBP();
+}
+
+function showBP() {
+  refreshDailyMissions();
+  document.getElementById('screen-menu').classList.remove('active');
+  document.getElementById('screen-bp').classList.add('active');
+  renderBP();
+}
+
+function closeBP() {
+  document.getElementById('screen-bp').classList.remove('active');
+  document.getElementById('screen-menu').classList.add('active');
+  document.getElementById('menu-coins').textContent = Save.data.coins;
+  document.getElementById('menu-diamonds').textContent = Save.data.diamonds || 0;
+}
+
+function renderBP() {
+  const xp     = Save.data.bpXP || 0;
+  const maxTier = BP_TIERS.length;
+  const tierNum = Math.min(Math.floor(xp / BP_XP_PER_TIER), maxTier);
+  const tierXP  = xp % BP_XP_PER_TIER;
+  const pct     = tierNum >= maxTier ? 100 : Math.round(tierXP / BP_XP_PER_TIER * 100);
+  const claimed = Save.data.bpClaimed || [];
+
+  // XP bar
+  const barEl = document.getElementById('bp-xp-bar');
+  const txtEl = document.getElementById('bp-xp-text');
+  if (barEl) barEl.style.width = pct + '%';
+  if (txtEl) txtEl.textContent = xp + ' XP  \u2014  Tier ' + Math.min(tierNum + 1, maxTier) + ' / ' + maxTier;
+
+  // Tiers
+  const tiersEl = document.getElementById('bp-tiers');
+  if (tiersEl) tiersEl.innerHTML = BP_TIERS.map((t, i) => {
+    const isEarned  = i < tierNum;
+    const isClaimed = claimed.includes(i);
+    const icon = t.type === 'coins'
+      ? '<span class="coin coin-sm" style="width:16px;height:16px;font-size:9px;border-width:1.5px;vertical-align:middle"></span>\u00a0' + t.amount
+      : '\uD83D\uDC8E\u00d7' + t.amount;
+    const isNext = i === tierNum && !isClaimed;
+    return '<div class="bp-tier-card' + (isNext ? ' bp-tier-next' : isClaimed ? ' bp-tier-done' : isEarned ? ' bp-tier-earned' : '') + '">'
+      + '<div class="bp-tier-num">' + (i + 1) + '</div>'
+      + '<div class="bp-tier-reward">' + icon + '</div>'
+      + (isClaimed
+          ? '<div class="bp-tier-check">\u2713</div>'
+          : isEarned
+            ? '<button class="bp-claim-btn bp-tier-claim-btn" onclick="claimBPTier(' + i + ')">CLAIM</button>'
+            : '<div class="bp-tier-lock">\uD83D\uDD12</div>')
+      + '</div>';
+  }).join('');
+
+  // Missions
+  const missEl = document.getElementById('bp-missions');
+  const missions = Save.data.missions || [];
+  if (missEl) missEl.innerHTML = missions.length === 0
+    ? '<div style="color:rgba(255,255,255,0.4);text-align:center;padding:20px">No missions — open tomorrow!</div>'
+    : missions.map((m, i) => {
+      const p = Math.min(100, Math.round(m.progress / m.goal * 100));
+      return '<div class="bp-mission-card' + (m.completed ? ' bp-mc-done' : '') + '">'
+        + '<div class="bp-mc-top">'
+        + '<div class="bp-mc-label">' + m.label + '</div>'
+        + '<div class="bp-mc-rewards">+' + m.coins
+        + ' <span class="coin coin-sm" style="width:12px;height:12px;font-size:7px;border-width:1px;vertical-align:middle"></span>'
+        + '  \u00b7  +' + m.xp + '\u00a0XP</div>'
+        + '</div>'
+        + '<div class="bp-mc-bar-wrap"><div class="bp-mc-bar" style="width:' + p + '%"></div></div>'
+        + '<div class="bp-mc-bot">'
+        + '<span class="bp-mc-prog">' + m.progress + ' / ' + m.goal + '</span>'
+        + (m.claimed
+            ? '<span class="bp-mc-claimed">\u2713 Claimed</span>'
+            : m.completed
+              ? '<button class="bp-claim-btn" onclick="claimMission(' + i + ')">CLAIM!</button>'
+              : '')
+        + '</div>'
+        + '</div>';
+    }).join('');
+}
 
 function checkDailyGift() {
   const now = Date.now();
@@ -4791,6 +4974,7 @@ window.addEventListener('load', () => {
 
   document.getElementById('playBtn').addEventListener('click', startGame);
   document.getElementById('freePlayBtn').addEventListener('click', beginFreePlay);
+  document.getElementById('bpBtn').addEventListener('click', showBP);
   document.getElementById('levelsBtn').addEventListener('click', showLevelSelect);
   document.getElementById('levelsBackBtn').addEventListener('click', showMenu);
   document.getElementById('shopBtn').addEventListener('click', showShop);
