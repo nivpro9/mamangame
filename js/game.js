@@ -86,7 +86,7 @@ const UPGRADES = [
   { id:'control', name:'Better Control', icon:'🎯', desc:'Smoother joystick response',      maxLevel:5, costs:[60,120,220,400,750]  },
   { id:'magnet',  name:'Coin Magnet',    icon:'🧲', desc:'Attract nearby coins',            maxLevel:4, costs:[100,200,400,800]     },
   { id:'shield',  name:'Shield',         icon:'🛡', desc:'Extra hit before crashing',       maxLevel:3, costs:[400,800,1500]        },
-  { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Unlocks ammo pickups & shooting', maxLevel:3, costs:[150,300,600], levelReq:3 },
+  { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Unlocks ammo pickups & shooting', maxLevel:3, costs:[150,300,600] },
 ];
 
 // ── LANGUAGES ────────────────────────────────────────────
@@ -101,7 +101,7 @@ const LANGS = {
     lvl:'LVL', best:'BEST', playAgain:'PLAY AGAIN',
     tut1:'<b>Hold</b> the screen to fly up — <b>release</b> to fall down',
     tut2:"Fly through the <b>gaps</b> in the pillars — don't crash!",
-    tut3:'Collect <b>ammo boxes</b> to charge your cannon (buy Cannon in Upgrades)',
+    tut3:'Collect <b>ammo boxes</b> to charge your cannon — then double-tap to fire!',
     tut4:'Grab <b>coins</b> to spend on vehicles and upgrades',
     tut5:'Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!',
     vn0:'Paper Plane', vn1:'Upgraded Paper', vn2:'Drone', vn3:'Light Plane',
@@ -142,6 +142,7 @@ const LANGS = {
     ammoPickupText:'+{0} ammo!',
     surpriseBox:'Surprise Box',
     cannonTutHint:'Collect ammo boxes for your cannon!',
+    extraSpins:'Extra spins today',
   }},
   it: { name:'Italiano', flag:'🇮🇹', dir:'ltr', t:{
     play:'GIOCA', levelsBtn:'🗺️ LIVELLI', upgradesMenu:'⚙️ MIGLIORIE', upgradesBtn:'🔧 MIGLIORIE',
@@ -153,7 +154,7 @@ const LANGS = {
     lvl:'LIV', best:'RECORD', playAgain:'ANCORA',
     tut1:'<b>Tieni premuto</b> per salire — <b>rilascia</b> per scendere',
     tut2:'Vola attraverso i <b>varchi</b> nei pilastri — non schiantarti!',
-    tut3:'Raccogli <b>munizioni</b> per il cannone (acquista in Migliorie)',
+    tut3:'Raccogli <b>munizioni</b> per il cannone — poi tocca due volte per sparare!',
     tut4:'Prendi le <b>monete</b> per veicoli e migliorie',
     tut5:'Raggiungi la <b>meta</b> — poi atterra sulla <b>pista</b>!',
     vn0:'Aereo di carta', vn1:'Carta migliorata', vn2:'Drone', vn3:'Aereo leggero',
@@ -194,6 +195,7 @@ const LANGS = {
     surpriseBox:'Scatola Sorpresa',
     cannonTutHint:'Raccogli munizioni per il cannone!',
     active:'ATTIVO', owned:'ACQUISTATO',
+    extraSpins:'Giri extra oggi',
   }},
   fr: { name:'Français', flag:'🇫🇷', dir:'ltr', t:{
     play:'JOUER', levelsBtn:'🗺️ NIVEAUX', upgradesMenu:'⚙️ AMÉLIORATIONS', upgradesBtn:'🔧 AMÉLIORATIONS',
@@ -205,7 +207,7 @@ const LANGS = {
     lvl:'NIV', best:'RECORD', playAgain:'REJOUER',
     tut1:"<b>Maintenez</b> l'écran pour monter — <b>relâchez</b> pour descendre",
     tut2:'Volez à travers les <b>espaces</b> dans les piliers — sans crasher!',
-    tut3:"Collectez des <b>munitions</b> pour le canon (acheter dans Améliorations)",
+    tut3:"Collectez des <b>munitions</b> pour le canon — puis double-tapez pour tirer!",
     tut4:'Prenez les <b>pièces</b> pour les véhicules et améliorations',
     tut5:'Atteignez la <b>distance</b> — puis atterrissez sur la <b>piste</b>!',
     vn0:'Avion en papier', vn1:'Papier amélioré', vn2:'Drone', vn3:'Avion léger',
@@ -246,6 +248,7 @@ const LANGS = {
     surpriseBox:'Boîte Surprise',
     cannonTutHint:'Collectez des munitions pour le canon!',
     active:'ACTIF', owned:'ACQUIS',
+    extraSpins:"Tours extra aujourd'hui",
   }},
   ru: { name:'Русский', flag:'🇷🇺', dir:'ltr', t:{
     play:'ИГРАТЬ', levelsBtn:'🗺️ УРОВНИ', upgradesMenu:'⚙️ УЛУЧШЕНИЯ', upgradesBtn:'🔧 УЛУЧШЕНИЯ',
@@ -257,7 +260,7 @@ const LANGS = {
     lvl:'УР', best:'РЕКОРД', playAgain:'СНОВА',
     tut1:'<b>Удерживайте</b> экран для подъёма — <b>отпустите</b> для снижения',
     tut2:'Летите сквозь <b>промежутки</b> в столбах — не врезайтесь!',
-    tut3:'Собирайте <b>патроны</b> для пушки (купите в Улучшениях)',
+    tut3:'Собирайте <b>патроны</b> для пушки — затем двойное касание для выстрела!',
     tut4:'Берите <b>монеты</b> для транспорта и улучшений',
     tut5:'Достигните <b>цели</b> — затем приземлитесь на <b>полосу</b>!',
     vn0:'Бумажный самолёт', vn1:'Улучшенный', vn2:'Дрон', vn3:'Лёгкий самолёт',
@@ -298,6 +301,7 @@ const LANGS = {
     surpriseBox:'Сюрприз-ящик',
     cannonTutHint:'Собирайте патроны для пушки!',
     active:'АКТИВНО', owned:'КУПЛЕНО',
+    extraSpins:'Доп. вращения сегодня',
   }},
   ja: { name:'日本語', flag:'🇯🇵', dir:'ltr', t:{
     play:'プレイ', levelsBtn:'🗺️ レベル', upgradesMenu:'⚙️ アップグレード', upgradesBtn:'🔧 アップグレード',
@@ -309,7 +313,7 @@ const LANGS = {
     lvl:'LV', best:'最高', playAgain:'もう一度',
     tut1:'<b>押し続ける</b>と上昇 — <b>離す</b>と下降',
     tut2:'柱の<b>隙間</b>を飛び抜けよう — ぶつからないように!',
-    tut3:'<b>弾薬箱</b>を集めて大砲を充填（アップグレードで購入）',
+    tut3:'<b>弾薬箱</b>を集めて大砲を充填 — ダブルタップで発射!',
     tut4:'<b>コイン</b>を集めて乗り物やアップグレードに使おう',
     tut5:'<b>距離目標</b>に到達したら<b>滑走路</b>に着陸しよう!',
     vn0:'紙飛行機', vn1:'改良紙飛行機', vn2:'ドローン', vn3:'軽飛行機',
@@ -350,6 +354,7 @@ const LANGS = {
     surpriseBox:'サプライズボックス',
     cannonTutHint:'弾薬箱を集めよう!',
     active:'使用中', owned:'購入済',
+    extraSpins:'今日の追加スピン',
   }},
   zh: { name:'中文', flag:'🇨🇳', dir:'ltr', t:{
     play:'开始', levelsBtn:'🗺️ 关卡', upgradesMenu:'⚙️ 升级', upgradesBtn:'🔧 升级',
@@ -361,7 +366,7 @@ const LANGS = {
     lvl:'关', best:'最佳', playAgain:'再玩',
     tut1:'<b>按住</b>屏幕上升 — <b>松开</b>下降',
     tut2:'飞过柱子间的<b>间隙</b> — 不要撞上!',
-    tut3:'收集<b>弹药箱</b>为大炮充能（在升级中购买大炮）',
+    tut3:'收集<b>弹药箱</b>为大炮充能 — 双击屏幕开火!',
     tut4:'收集<b>金币</b>购买飞行器和升级',
     tut5:'达到<b>距离目标</b> — 然后飞到<b>跑道</b>上降落!',
     vn0:'纸飞机', vn1:'改良纸飞机', vn2:'无人机', vn3:'轻型飞机',
@@ -402,6 +407,7 @@ const LANGS = {
     surpriseBox:'惊喜盒子',
     cannonTutHint:'收集弹药箱为大炮充能!',
     active:'使用中', owned:'已购买',
+    extraSpins:'今日额外旋转',
   }},
   he: { name:'עברית', flag:'🇮🇱', dir:'rtl', t:{
     play:'שחק', levelsBtn:'🗺️ שלבים', upgradesMenu:'⚙️ שדרוגים', upgradesBtn:'🔧 שדרוגים',
@@ -413,7 +419,7 @@ const LANGS = {
     lvl:'שלב', best:'שיא', playAgain:'שחק שוב',
     tut1:'<b>לחץ</b> על המסך לעלות — <b>שחרר</b> לרדת',
     tut2:'טוס דרך <b>הפרצות</b> בעמודים — אל תתרסק!',
-    tut3:'אסוף <b>קופסאות תחמושת</b> לטעינת התותח (קנה תותח בשדרוגים)',
+    tut3:'אסוף <b>קופסאות תחמושת</b> לטעינת התותח — הקש פעמיים לירייה!',
     tut4:'אסוף <b>מטבעות</b> לקניית כלי טיס ושדרוגים',
     tut5:'הגע ל<b>יעד המרחק</b> — ואז נחת על <b>המסלול</b>!',
     vn0:'מטוס נייר', vn1:'נייר משודרג', vn2:'רחפן', vn3:'מטוס קל',
@@ -454,6 +460,7 @@ const LANGS = {
     surpriseBox:'קופסאת הפתעה',
     cannonTutHint:'אסוף קופסאות תחמושת לתותח!',
     active:'פעיל', owned:'נרכש',
+    extraSpins:'ספינים נוספים היום',
   }},
   ar: { name:'العربية', flag:'🇸🇦', dir:'rtl', t:{
     play:'العب', levelsBtn:'🗺️ مستويات', upgradesMenu:'⚙️ تحسينات', upgradesBtn:'🔧 تحسينات',
@@ -465,7 +472,7 @@ const LANGS = {
     lvl:'مستوى', best:'أفضل', playAgain:'العب مجدداً',
     tut1:'<b>اضغط مطولاً</b> للصعود — <b>أطلق</b> للنزول',
     tut2:'حلق عبر <b>الفجوات</b> في الأعمدة — لا تتحطم!',
-    tut3:'اجمع <b>صناديق الذخيرة</b> لشحن المدفع (اشتره من التحسينات)',
+    tut3:'اجمع <b>صناديق الذخيرة</b> لشحن المدفع — انقر مرتين للإطلاق!',
     tut4:'اجمع <b>العملات</b> للإنفاق على المركبات والتحسينات',
     tut5:'بلغ <b>هدف المسافة</b> — ثم اهبط على <b>المدرج</b>!',
     vn0:'طائرة ورق', vn1:'ورق محسّن', vn2:'طائرة مسيّرة', vn3:'طائرة خفيفة',
@@ -506,6 +513,7 @@ const LANGS = {
     surpriseBox:'صندوق المفاجأة',
     cannonTutHint:'اجمع صناديق الذخيرة للمدفع!',
     active:'نشط', owned:'مكتسب',
+    extraSpins:'دورات إضافية اليوم',
   }},
 };
 
@@ -585,7 +593,7 @@ const Save = {
     currentLevel: 1, tutorialDone: false,
     levelBests: {}, prestige: 0,
     dataVersion: 2,
-    lastSpin: 0, spinShields: 0, spinAmmo: 0,
+    lastSpin: 0, spinShields: 0, spinAmmo: 0, boughtAmmo: 0,
     spinSpeed: 0, spinDoubleCoins: 0,
     lastLogin: 0, loginStreak: 0,
     gameCount: 0,
@@ -649,6 +657,7 @@ const Save = {
     if (this.data.lastSpin === undefined) this.data.lastSpin = 0;
     if (this.data.spinShields === undefined) this.data.spinShields = 0;
     if (this.data.spinAmmo === undefined) this.data.spinAmmo = 0;
+    if (this.data.boughtAmmo === undefined) this.data.boughtAmmo = 0;
     if (this.data.spinSpeed === undefined) this.data.spinSpeed = 0;
     if (this.data.spinDoubleCoins === undefined) this.data.spinDoubleCoins = 0;
     if (this.data.lastLogin === undefined) this.data.lastLogin = 0;
@@ -809,7 +818,7 @@ function createShieldPickup() {
 // ── BOSS ─────────────────────────────────────────────────
 function createBoss() {
   const worldIdx = Math.floor((currentLevel - 1) / 10);
-  const hp = 15 + worldIdx * 12; // 15,27,39,51,63,75,87
+  const hp = 10 + worldIdx * 8; // 10,18,26,34,42,50,58  (reduced ~33% from before)
   return {
     x: W * 1.15, y: H * 0.5,
     vy: 0, hp, maxHp: hp,
@@ -1243,6 +1252,12 @@ function initGame(levelNum) {
     Save.data.spinAmmo = 0;
     Save.save();
   }
+  // Apply ammo purchased on death/level-complete screens
+  if (Save.data.boughtAmmo > 0 && cap > 0) {
+    ammo = Math.min(ammo + Save.data.boughtAmmo, cap);
+    Save.data.boughtAmmo = 0;
+    Save.save();
+  }
 
   player = createPlayer();
   landing = null;
@@ -1271,8 +1286,8 @@ function initGame(levelNum) {
     biomeBanner.color = null;
   }
 
-  // ── AMMO TIP: show double-tap hint only when cannon is unlocked and ammo available ──
-  if (cap > 0 && ammo > 0) {
+  // ── AMMO TIP: show double-tap hint only when cannon is unlocked and ammo available, not in free play ──
+  if (cap > 0 && ammo > 0 && !isFreePlay) {
     tutHints.push({ text: '💥 Double-tap to FIRE!', x: W * 0.5, y: H * 0.72, alpha: 1, timer: 3.5, color: '#FF5722' });
   }
 
@@ -1313,7 +1328,7 @@ function update(dt) {
 
   // ── PHYSICS: hold screen = fly up, release = fall ──
   const ctrl      = veh.control * (1 + upg.control * 0.15);
-  const gravity   = veh.id === 2 ? 260 : 520; // Drone perk: gravity halved
+  const gravity   = veh.id === 2 ? 175 : 520; // Drone perk: gravity reduced to 1/3
   const uplift    = 700;
   const maxFall   = 320;
   const maxRise   = -260 * Math.min(ctrl, 1.8);
@@ -1333,7 +1348,7 @@ function update(dt) {
 
   // Trail
   player.trail.unshift({ x: player.x, y: player.y });
-  if (player.trail.length > 12) player.trail.pop();
+  if (player.trail.length > 24) player.trail.pop();
 
   if (player.invincible > 0) player.invincible -= dt;
   if (shootCooldown > 0) shootCooldown -= dt;
@@ -1399,8 +1414,8 @@ function update(dt) {
   coinTimer -= dt;
   if (coinTimer <= 0) { spawnCoin(); coinTimer = 2.0 + Math.random() * 2.0; }
 
-  // ── SHOOT TARGETS spawn (level 3+ with cannon, not in free play) ──
-  if (Save.data.upgrades.cannon > 0 && currentLevel >= 3 && !isFreePlay) {
+  // ── SHOOT TARGETS spawn (with cannon, not in free play) ──
+  if (Save.data.upgrades.cannon > 0 && !isFreePlay) {
     targetTimer -= dt;
     if (targetTimer <= 0) {
       obstacles.push(createTarget());
@@ -1527,6 +1542,11 @@ function update(dt) {
           return false;
         }
         spawnParticles(obs.x, obs.y, obs.color, 6);
+      }
+      // Player flies into target — counts as a hit
+      if (player.alive && player.invincible <= 0) {
+        const dx = player.x - obs.x, dy = player.y - obs.y;
+        if (Math.sqrt(dx * dx + dy * dy) < obs.r + 14) handleHit();
       }
       return obs.x > -60;
     } else if (obs.type === 'spikeball') {
@@ -2320,9 +2340,9 @@ function drawTrail() {
   if (skinId === 0) {
     // Default: plain white fade
     trail.forEach((pt, i) => {
-      const alpha = (1 - i / len) * 0.35;
+      const alpha = (1 - i / len) * 0.5;
       ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, (1 - i / len) * 8, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, (1 - i / len) * 11, 0, Math.PI * 2); ctx.fill();
     });
     return;
   }
@@ -2352,17 +2372,17 @@ function drawTrail() {
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
       const col  = colors[i % colors.length];
-      ctx.save(); ctx.globalAlpha = frac * 0.8;
+      ctx.save(); ctx.globalAlpha = frac * 0.92;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 9, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 13, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   } else if (skinId === 3) {
     // Sunray: warm glow with radial gradient
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
-      if (frac < 0.05) return;
-      const r  = frac * 12;
+      if (frac < 0.04) return;
+      const r  = frac * 17;
       const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
       grd.addColorStop(0, `rgba(255,220,50,${frac * 0.7})`);
       grd.addColorStop(1, 'rgba(255,100,0,0)');
@@ -2373,11 +2393,11 @@ function drawTrail() {
     // Ice: pale blue crystalline dots
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
-      ctx.save(); ctx.globalAlpha = frac * 0.75;
-      const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, frac * 10);
+      ctx.save(); ctx.globalAlpha = frac * 0.88;
+      const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, frac * 14);
       grd.addColorStop(0, '#FFFFFF'); grd.addColorStop(0.4, '#B3E5FC'); grd.addColorStop(1, 'rgba(0,200,255,0)');
       ctx.fillStyle = grd;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 10, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 14, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   } else if (skinId === 5) {
@@ -2404,7 +2424,7 @@ function drawTrail() {
     // Fire: gradient from yellow (near) to red (far), bigger near player
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
-      const r    = frac * 14;
+      const r    = frac * 19;
       if (r < 1) return;
       const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
       grd.addColorStop(0, `rgba(255,230,50,${frac * 0.9})`);
@@ -2418,10 +2438,10 @@ function drawTrail() {
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
       const col  = colors[i % colors.length];
-      const yOff = Math.sin(i * 0.8 + now * 4) * 6;
-      ctx.save(); ctx.globalAlpha = frac * 0.8;
+      const yOff = Math.sin(i * 0.8 + now * 4) * 8;
+      ctx.save(); ctx.globalAlpha = frac * 0.92;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y + yOff, frac * 8, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y + yOff, frac * 12, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   } else if (skinId === 8) {
@@ -2430,10 +2450,10 @@ function drawTrail() {
       const frac = 1 - i / len;
       const col  = colors[i % colors.length];
       ctx.save();
-      ctx.shadowColor = col; ctx.shadowBlur = 12;
-      ctx.globalAlpha = frac * 0.9;
+      ctx.shadowColor = col; ctx.shadowBlur = 18;
+      ctx.globalAlpha = frac * 0.95;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 7, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 11, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   }
@@ -3330,23 +3350,25 @@ function lcBuyAmmo() {
   const AMMO_COST = 50;
   const cap = maxAmmo();
   if (cap <= 0) return; // no cannon
-  if (ammo >= cap) {
-    popups.push({ text: t('ammoFull'), x: W * 0.5, y: H * 0.5, alpha: 1, timer: 1.2, color: '#FF6B35' });
+  const pending = (Save.data.boughtAmmo || 0);
+  if (ammo + pending >= cap) {
+    const countEl = document.getElementById('lc-ammo-count');
+    if (countEl) countEl.textContent = t('ammoFull');
     return;
   }
-  const totalCoins = Save.data.coins; // sessionCoins already saved at level complete
-  if (totalCoins < AMMO_COST) {
+  if (Save.data.coins < AMMO_COST) {
     // Flash the cost button red briefly
     const btn = document.querySelector('.lc-ammo-btn');
     if (btn) { btn.style.background = '#c62828'; setTimeout(() => { btn.style.background = ''; }, 400); }
     return;
   }
   Save.data.coins -= AMMO_COST;
-  ammo = Math.min(ammo + 1, cap);
+  Save.data.boughtAmmo = pending + 1;
   Save.save();
-  document.getElementById('lc-ammo-count').textContent = ammo;
-  // Refresh coin display
-  document.getElementById('lc-coins').textContent = '+' + sessionCoins + ' (incl. +' + (currentLevel * 5) + ' bonus)';
+  document.getElementById('lc-ammo-count').textContent = ammo + Save.data.boughtAmmo + ' (next level)';
+  // Refresh coin display in shop header
+  const shopCoinsEl = document.getElementById('shop-coins');
+  if (shopCoinsEl) shopCoinsEl.textContent = Save.data.coins;
 }
 
 function showShop() {
@@ -3418,6 +3440,11 @@ function startLevelFromSelect(lvlId) {
 
 // ── TUTORIAL MODAL ────────────────────────────────────────
 function showTutorialModal() {
+  // Hide cannon step if cannon not yet unlocked
+  const cannonStep = document.querySelector('.tut-step-cannon');
+  if (cannonStep) {
+    cannonStep.style.display = (Save.data && Save.data.upgrades && Save.data.upgrades.cannon > 0) ? '' : 'none';
+  }
   document.getElementById('tutorial-modal').classList.remove('hidden');
 }
 function closeTutorialModal() {
@@ -4274,11 +4301,15 @@ window.addEventListener('load', () => {
   if (deathBuyAmmoBtn) deathBuyAmmoBtn.addEventListener('click', () => {
     const COST = 50, cap = maxAmmo();
     if (cap <= 0 || Save.data.coins < COST) return;
-    if (ammo >= cap) { document.getElementById('death-ammo-count').textContent = 'FULL'; return; }
+    const pending = (Save.data.boughtAmmo || 0);
+    if (ammo + pending >= cap) {
+      document.getElementById('death-ammo-count').textContent = t('ammoFull');
+      return;
+    }
     Save.data.coins -= COST;
-    ammo = Math.min(ammo + 1, cap);
+    Save.data.boughtAmmo = pending + 1;
     Save.save();
-    document.getElementById('death-ammo-count').textContent = ammo;
+    document.getElementById('death-ammo-count').textContent = ammo + Save.data.boughtAmmo + ' (next game)';
   });
 
   window.addEventListener('resize', () => {

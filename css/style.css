@@ -150,6 +150,18 @@ body {
 }
 .btn-play:active { transform: scale(0.96) translateY(2px); box-shadow: 0 2px 0 #c03000; }
 
+/* ── MY FLIGHT (Free Play) button — softer, distinct from PLAY ── */
+.btn-free-play {
+  background: linear-gradient(135deg, #1565C0, #283593);
+  color: white; border: 2px solid rgba(255,255,255,0.25); border-radius: 16px;
+  font-size: 18px; font-weight: bold; letter-spacing: 2px;
+  padding: 13px 32px; cursor: pointer; width: 100%; max-width: 320px;
+  box-shadow: 0 4px 0 #0d2b7a, 0 6px 16px rgba(21,101,192,0.4);
+  transition: transform .1s;
+}
+.btn-free-play:active { transform: scale(0.96) translateY(2px); box-shadow: 0 2px 0 #0d2b7a; }
+.fp-best-badge { font-size: 11px; opacity: 0.82; margin-left: 4px; }
+
 .btn-shop {
   background: rgba(255,255,255,0.22); color: white;
   border: 1.5px solid rgba(255,255,255,0.4); border-radius: 16px;

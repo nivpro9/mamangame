@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css?v=25">
+<link rel="stylesheet" href="css/style.css?v=26">
 </head>
 <body>
 
@@ -28,7 +28,7 @@
     <button id="spin-btn-go" class="btn-play" style="font-size:20px;padding:14px 50px;max-width:220px" onclick="doSpin(false)">🎰 SPIN!</button>
     <!-- Extra ad spins: 3 per day -->
     <div id="spin-ad-slots" class="spin-ad-slots">
-      <div class="spin-ad-label">Extra spins today</div>
+      <div class="spin-ad-label" data-i18n="extraSpins">Extra spins today</div>
       <div class="spin-ad-row">
         <button class="spin-ad-btn" id="spin-ad-1" onclick="doAdSpin()">▶ Ad spin</button>
         <button class="spin-ad-btn" id="spin-ad-2" onclick="doAdSpin()">▶ Ad spin</button>
@@ -52,9 +52,9 @@
         <span class="tut-step-icon">🟩</span>
         <span data-i18n-html="tut2">Fly through the <b>gaps</b> in the pillars — don't crash!</span>
       </div>
-      <div class="tut-step">
+      <div class="tut-step tut-step-cannon">
         <span class="tut-step-icon">📦</span>
-        <span data-i18n-html="tut3">Collect <b>ammo boxes</b> to charge your cannon (buy Cannon in Upgrades)</span>
+        <span data-i18n-html="tut3">Collect <b>ammo boxes</b> to charge your cannon — then double-tap to fire!</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">🪙</span>
@@ -98,7 +98,7 @@
     <div class="stats-row">
       <div class="stat"><span id="menu-level">LVL 1</span></div>
     </div>
-    <button id="freePlayBtn" class="btn-play" style="background:linear-gradient(135deg,#7b1fa2,#ab47bc);margin-bottom:8px">✈️ MY FLIGHT <span id="fp-best-badge" style="font-size:11px;opacity:0.85"></span></button>
+    <button id="freePlayBtn" class="btn-free-play">✈️ MY FLIGHT <span id="fp-best-badge" class="fp-best-badge"></span></button>
     <button id="playBtn" class="btn-play" data-i18n="play">PLAY</button>
     <button id="levelsBtn" class="btn-levels" data-i18n="levelsBtn">🗺️ LEVELS</button>
     <button id="shopBtn" class="btn-upgrades" data-i18n="upgradesMenu">⚙️ UPGRADES</button>
@@ -263,7 +263,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=37"></script>
+<script src="js/game.js?v=38"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
