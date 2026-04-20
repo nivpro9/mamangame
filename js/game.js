@@ -5,35 +5,35 @@
 
 // ── BOSS LEVELS (last level of every world) ──────────────
 const BOSS_LEVELS = new Set([10, 20, 30, 40, 50, 60, 70]);
-const BOSS_NAMES  = ['GUARDIAN','FIRE DEMON','SHADOW LORD','STEEL TITAN','ICE GIANT','SAND BEAST','VOID EMPEROR'];
+const BOSS_NAMES  = ['GUARDIAN','FOREST SPIRIT','CANDY DEMON','BLOOM TITAN','ICE GIANT','JUNGLE BEAST','VOID EMPEROR'];
 const BOSS_COLORS = [
-  ['#4CAF50','#1B5E20'], // Sky
-  ['#FF5722','#BF360C'], // Sunset
-  ['#7C4DFF','#311B92'], // Night
-  ['#607D8B','#263238'], // Storm
-  ['#00BCD4','#006064'], // Arctic
-  ['#FF9800','#E65100'], // Canyon
-  ['#E040FB','#4A148C'], // Space
+  ['#4CAF50','#1B5E20'], // Sky     – green
+  ['#2E7D32','#1B4A1B'], // Forest  – dark green
+  ['#E040FB','#6A1B9A'], // Candy   – purple
+  ['#F06292','#880E4F'], // Flowers – pink
+  ['#00BCD4','#006064'], // Ice     – cyan
+  ['#FF6F00','#BF360C'], // Fruits  – orange
+  ['#E040FB','#4A148C'], // Space   – deep purple
 ];
 
 // ── BIOMES (one per 10 levels) ──────────────────────────
 const BIOMES = [
-  { name:'Sky',    sky:['#3a8fc2','#87CEEB','#c8e9f9'], cloud:'255,255,255', stars:false, rain:false, snow:false, nebula:false },
-  { name:'Sunset', sky:['#6a1a00','#c04a20','#f09040'], cloud:'255,170,110', stars:false, rain:false, snow:false, nebula:false },
-  { name:'Night',  sky:['#04041e','#0d0d38','#181852'], cloud:'180,180,255', stars:true,  rain:false, snow:false, nebula:false },
-  { name:'Storm',  sky:['#0e0e1a','#1a2030','#28303e'], cloud:'110,120,145', stars:false, rain:true,  snow:false, nebula:false },
-  { name:'Arctic', sky:['#9cd4ef','#cce8f8','#eef6ff'], cloud:'255,255,255', stars:false, rain:false, snow:true,  nebula:false },
-  { name:'Canyon', sky:['#3d1200','#8a3e10','#cc7020'], cloud:'210,160,110', stars:false, rain:false, snow:false, nebula:false },
-  { name:'Space',  sky:['#000000','#020012','#06002a'], cloud:'120,80,200',  stars:true,  rain:false, snow:false, nebula:true  },
+  { name:'Sky',     sky:['#3a8fc2','#87CEEB','#c8e9f9'], cloud:'255,255,255', stars:false, rain:false, snow:false, nebula:false },
+  { name:'Forest',  sky:['#0d2e10','#1a5c1e','#2e9030'], cloud:'140,200,140', stars:false, rain:false, snow:false, nebula:false },
+  { name:'Candy',   sky:['#3a0058','#8a10a8','#d050e8'], cloud:'255,160,255', stars:true,  rain:false, snow:false, nebula:false },
+  { name:'Flowers', sky:['#2a0820','#8a2068','#e870b0'], cloud:'255,200,230', stars:false, rain:false, snow:false, nebula:false },
+  { name:'Ice',     sky:['#9cd4ef','#cce8f8','#eef6ff'], cloud:'255,255,255', stars:false, rain:false, snow:true,  nebula:false },
+  { name:'Fruits',  sky:['#0a2800','#1a6010','#3ab828'], cloud:'180,240,120', stars:false, rain:false, snow:false, nebula:false },
+  { name:'Space',   sky:['#000000','#020012','#06002a'], cloud:'120,80,200',  stars:true,  rain:false, snow:false, nebula:true  },
 ];
 const PILLAR_COLS = [
-  ['#3a6e35','#4d9030'], // Sky
-  ['#7a3a10','#a05530'], // Sunset
-  ['#1a206a','#28308a'], // Night
-  ['#283540','#364858'], // Storm
-  ['#4890c8','#60a8e0'], // Arctic
-  ['#602800','#8a3e14'], // Canyon
-  ['#0a083a','#18147a'], // Space
+  ['#3a6e35','#4d9030'], // Sky     – green
+  ['#4a2008','#7a3c14'], // Forest  – brown bark
+  ['#8a1090','#c038c0'], // Candy   – purple/pink
+  ['#7a1058','#c040a0'], // Flowers – deep rose
+  ['#4890c8','#60a8e0'], // Ice     – blue
+  ['#5a8010','#8ab030'], // Fruits  – tropical green
+  ['#0a083a','#18147a'], // Space   – dark blue
 ];
 
 // ── 70 LEVELS ────────────────────────────────────────────
@@ -124,7 +124,7 @@ const LANGS = {
     ud_magnet:'Attract nearby coins',
     ud_shield:'Extra hit before crashing',
     ud_cannon:'Unlocks ammo pickups & shooting',
-    bm0:'Sky', bm1:'Sunset', bm2:'Night', bm3:'Storm', bm4:'Arctic', bm5:'Canyon', bm6:'Space',
+    bm0:'Sky', bm1:'Forest', bm2:'Candy', bm3:'Flowers', bm4:'Ice', bm5:'Fruits', bm6:'Space',
     holdUp:'HOLD TO FLY UP',
     comboText:'COMBO',
     newBest:'🏆 NEW BEST',
@@ -179,7 +179,7 @@ const LANGS = {
     ud_magnet:'Attira le monete vicine',
     ud_shield:'Colpo extra prima di schiantarsi',
     ud_cannon:'Sblocca munizioni e sparo',
-    bm0:'Cielo', bm1:'Tramonto', bm2:'Notte', bm3:'Tempesta', bm4:'Artico', bm5:'Canyon', bm6:'Spazio',
+    bm0:'Cielo', bm1:'Foresta', bm2:'Caramelle', bm3:'Fiori', bm4:'Ghiaccio', bm5:'Frutti', bm6:'Spazio',
     holdUp:'TIENI PER SALIRE',
     comboText:'COMBO',
     newBest:'🏆 NUOVO RECORD',
@@ -234,7 +234,7 @@ const LANGS = {
     ud_magnet:'Attire les pièces proches',
     ud_shield:'Un coup supplémentaire avant le crash',
     ud_cannon:'Débloque munitions et tir',
-    bm0:'Ciel', bm1:'Coucher de soleil', bm2:'Nuit', bm3:'Tempête', bm4:'Arctique', bm5:'Canyon', bm6:'Espace',
+    bm0:'Ciel', bm1:'Forêt', bm2:'Bonbons', bm3:'Fleurs', bm4:'Glace', bm5:'Fruits', bm6:'Espace',
     holdUp:'MAINTENIR POUR MONTER',
     comboText:'COMBO',
     newBest:'🏆 NOUVEAU RECORD',
@@ -289,7 +289,7 @@ const LANGS = {
     ud_magnet:'Притягивает близкие монеты',
     ud_shield:'Дополнительный удар перед гибелью',
     ud_cannon:'Открывает подбор боеприпасов и стрельбу',
-    bm0:'Небо', bm1:'Закат', bm2:'Ночь', bm3:'Буря', bm4:'Арктика', bm5:'Каньон', bm6:'Космос',
+    bm0:'Небо', bm1:'Лес', bm2:'Конфеты', bm3:'Цветы', bm4:'Лёд', bm5:'Фрукты', bm6:'Космос',
     holdUp:'УДЕРЖИ ДЛЯ ПОДЪЁМА',
     comboText:'КОМБО',
     newBest:'🏆 НОВЫЙ РЕКОРД',
@@ -344,7 +344,7 @@ const LANGS = {
     ud_magnet:'近くのコインを引き寄せる',
     ud_shield:'クラッシュ前に追加ヒット',
     ud_cannon:'弾薬収集と射撃を解放',
-    bm0:'空', bm1:'夕暮れ', bm2:'夜', bm3:'嵐', bm4:'北極', bm5:'峡谷', bm6:'宇宙',
+    bm0:'空', bm1:'森', bm2:'お菓子', bm3:'お花', bm4:'氷原', bm5:'フルーツ', bm6:'宇宙',
     holdUp:'長押しで上昇',
     comboText:'コンボ',
     newBest:'🏆 ベスト更新',
@@ -399,7 +399,7 @@ const LANGS = {
     ud_magnet:'吸引附近硬币',
     ud_shield:'坠毁前额外一次撞击',
     ud_cannon:'解锁弹药拾取和射击',
-    bm0:'天空', bm1:'夕阳', bm2:'夜晚', bm3:'风暴', bm4:'北极', bm5:'峡谷', bm6:'太空',
+    bm0:'天空', bm1:'森林', bm2:'糖果', bm3:'花朵', bm4:'冰雪', bm5:'水果', bm6:'太空',
     holdUp:'长按上飞',
     comboText:'连击',
     newBest:'🏆 新纪录',
@@ -454,7 +454,7 @@ const LANGS = {
     ud_magnet:'מושך מטבעות קרובים',
     ud_shield:'מכה נוספת לפני התרסקות',
     ud_cannon:'פותח תחמושת וירייה',
-    bm0:'שמיים', bm1:'שקיעה', bm2:'לילה', bm3:'סערה', bm4:'ארקטי', bm5:'קניון', bm6:'חלל',
+    bm0:'שמיים', bm1:'יער', bm2:'סוכריות', bm3:'פרחים', bm4:'קרח', bm5:'פירות', bm6:'חלל',
     holdUp:'לחץ ממושך לעלות',
     comboText:'קומבו',
     newBest:'🏆 שיא חדש',
@@ -509,7 +509,7 @@ const LANGS = {
     ud_magnet:'يجذب العملات القريبة',
     ud_shield:'ضربة إضافية قبل الانهيار',
     ud_cannon:'يفتح التقاط الذخيرة والتصويب',
-    bm0:'السماء', bm1:'الغروب', bm2:'الليل', bm3:'العاصفة', bm4:'القطب', bm5:'الوادي', bm6:'الفضاء',
+    bm0:'السماء', bm1:'الغابة', bm2:'الحلوى', bm3:'الزهور', bm4:'الجليد', bm5:'الفواكه', bm6:'الفضاء',
     holdUp:'اضغط مطولاً للصعود',
     comboText:'سلسلة',
     newBest:'🏆 رقم قياسي جديد',
@@ -2381,12 +2381,7 @@ function drawTrail() {
   const now    = performance.now() * 0.001;
 
   if (skinId === 0) {
-    // Default: plain white fade
-    trail.forEach((pt, i) => {
-      const alpha = (1 - i / len) * 0.5;
-      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, (1 - i / len) * 11, 0, Math.PI * 2); ctx.fill();
-    });
+    // Default: no trail — buy a skin in the shop for effects
     return;
   }
 
@@ -2940,6 +2935,67 @@ function drawBackground(t) {
       ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 3, p.y + p.len); ctx.stroke();
     }
   });
+
+  // ── Biome decorative ground strip ──────────────────────
+  const gStrip = H * 0.06;
+  const groundConfigs = [
+    { fill:'#3a7a20', accent:'#4CAF50' },  // Sky
+    { fill:'#1a4a10', accent:'#2e7d18' },  // Forest
+    { fill:'#6a0080', accent:'#d050e0' },  // Candy
+    { fill:'#7a1060', accent:'#e870b0' },  // Flowers
+    { fill:'#6ab4d8', accent:'#90d0f0' },  // Ice
+    { fill:'#1a6010', accent:'#5ab820' },  // Fruits
+    { fill:'#08083a', accent:'#1a1880' },  // Space
+  ];
+  const gc = groundConfigs[currentBiome] || groundConfigs[0];
+  // Top ground strip
+  ctx.fillStyle = gc.fill + '88'; // semi-transparent
+  ctx.fillRect(0, 0, W, gStrip * 0.35);
+  // Bottom ground strip
+  ctx.fillStyle = gc.fill + 'aa';
+  ctx.fillRect(0, H - gStrip, W, gStrip);
+  // Ground accent line
+  ctx.strokeStyle = gc.accent + '66';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(0, H - gStrip); ctx.lineTo(W, H - gStrip); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, gStrip * 0.35); ctx.lineTo(W, gStrip * 0.35); ctx.stroke();
+
+  // Forest: silhouette tree tops on ground strip
+  if (currentBiome === 1) {
+    ctx.fillStyle = 'rgba(10,40,10,0.5)';
+    for (let tx = -30; tx < W + 30; tx += 55) {
+      const ty = H - gStrip - (20 + Math.sin(tx * 0.08) * 12);
+      ctx.beginPath(); ctx.arc(tx + (t * 15) % 55, ty, 22, Math.PI, 0); ctx.fill();
+    }
+  }
+  // Candy: colorful dots along ground
+  if (currentBiome === 2) {
+    const candyCols = ['#FF80AB','#EA80FC','#82B1FF','#FFFF82','#80FFEA'];
+    for (let cx = 0; cx < W; cx += 28) {
+      ctx.fillStyle = candyCols[Math.floor(cx / 28) % candyCols.length] + '55';
+      ctx.beginPath(); ctx.arc(cx + (t * 20) % 28, H - gStrip * 0.5, 5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // Flowers: flower shapes on ground
+  if (currentBiome === 3) {
+    for (let fx = 10; fx < W; fx += 42) {
+      const fy = H - gStrip * 0.55;
+      const fc = ['#FF80AB','#F48FB1','#FCE4EC'][Math.floor(fx / 42) % 3] + '66';
+      ctx.fillStyle = fc;
+      for (let p = 0; p < 5; p++) {
+        const a = p * Math.PI * 2 / 5 + t * 0.4;
+        ctx.beginPath(); ctx.arc(fx + Math.cos(a) * 6, fy + Math.sin(a) * 6, 4, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+  // Fruits: scattered fruit dots
+  if (currentBiome === 5) {
+    const fruitCols = ['#FF5722','#FF9800','#FFEB3B','#66BB6A','#EC407A'];
+    for (let frx = 15; frx < W; frx += 50) {
+      ctx.fillStyle = fruitCols[Math.floor(frx / 50) % fruitCols.length] + '66';
+      ctx.beginPath(); ctx.arc(frx + Math.sin(frx * 0.1 + t) * 5, H - gStrip * 0.6, 7, 0, Math.PI * 2); ctx.fill();
+    }
+  }
 }
 
 // ── MAIN DRAW ────────────────────────────────────────────
@@ -3421,14 +3477,14 @@ function showShop() {
 }
 
 // ── LEVEL SELECT ──────────────────────────────────────────
-const WORLD_EMOJIS  = ['☀️','🌅','🌙','⛈️','🏔️','🏜️','🚀'];
+const WORLD_EMOJIS  = ['☀️','🌲','🍬','🌸','❄️','🍎','🚀'];
 const WORLD_COLORS  = [
   'rgba(58,143,194,0.55)',  // Sky
-  'rgba(192,74,32,0.55)',   // Sunset
-  'rgba(13,13,56,0.75)',    // Night
-  'rgba(26,32,48,0.75)',    // Storm
-  'rgba(156,212,239,0.4)',  // Arctic
-  'rgba(138,62,16,0.6)',    // Canyon
+  'rgba(26,92,30,0.70)',    // Forest
+  'rgba(138,16,168,0.70)',  // Candy
+  'rgba(138,32,104,0.70)',  // Flowers
+  'rgba(156,212,239,0.4)',  // Ice
+  'rgba(26,96,16,0.65)',    // Fruits
   'rgba(6,0,42,0.85)',      // Space
 ];
 
