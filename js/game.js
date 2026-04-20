@@ -143,6 +143,8 @@ const LANGS = {
     surpriseBox:'Surprise Box',
     cannonTutHint:'Collect ammo boxes for your cannon!',
     extraSpins:'Extra spins today',
+    tut_box:'Collect <b>surprise boxes</b> for coins, shields and diamonds!',
+    tutDemoNote:'👇 Try it yourself in the demo below!',
   }},
   it: { name:'Italiano', flag:'🇮🇹', dir:'ltr', t:{
     play:'GIOCA', levelsBtn:'🗺️ LIVELLI', upgradesMenu:'⚙️ MIGLIORIE', upgradesBtn:'🔧 MIGLIORIE',
@@ -196,6 +198,8 @@ const LANGS = {
     cannonTutHint:'Raccogli munizioni per il cannone!',
     active:'ATTIVO', owned:'ACQUISTATO',
     extraSpins:'Giri extra oggi',
+    tut_box:'Raccogli <b>scatole sorpresa</b> per monete, scudi e diamanti!',
+    tutDemoNote:'👇 Provalo tu stesso nella demo!',
   }},
   fr: { name:'Français', flag:'🇫🇷', dir:'ltr', t:{
     play:'JOUER', levelsBtn:'🗺️ NIVEAUX', upgradesMenu:'⚙️ AMÉLIORATIONS', upgradesBtn:'🔧 AMÉLIORATIONS',
@@ -249,6 +253,8 @@ const LANGS = {
     cannonTutHint:'Collectez des munitions pour le canon!',
     active:'ACTIF', owned:'ACQUIS',
     extraSpins:"Tours extra aujourd'hui",
+    tut_box:'Collectez des <b>boîtes surprises</b> pour des pièces, boucliers et diamants!',
+    tutDemoNote:'👇 Essayez-le vous-même dans la démo!',
   }},
   ru: { name:'Русский', flag:'🇷🇺', dir:'ltr', t:{
     play:'ИГРАТЬ', levelsBtn:'🗺️ УРОВНИ', upgradesMenu:'⚙️ УЛУЧШЕНИЯ', upgradesBtn:'🔧 УЛУЧШЕНИЯ',
@@ -302,6 +308,8 @@ const LANGS = {
     cannonTutHint:'Собирайте патроны для пушки!',
     active:'АКТИВНО', owned:'КУПЛЕНО',
     extraSpins:'Доп. вращения сегодня',
+    tut_box:'Собирайте <b>сюрприз-ящики</b> — монеты, щиты и бриллианты!',
+    tutDemoNote:'👇 Попробуйте сами в демо!',
   }},
   ja: { name:'日本語', flag:'🇯🇵', dir:'ltr', t:{
     play:'プレイ', levelsBtn:'🗺️ レベル', upgradesMenu:'⚙️ アップグレード', upgradesBtn:'🔧 アップグレード',
@@ -355,6 +363,8 @@ const LANGS = {
     cannonTutHint:'弾薬箱を集めよう!',
     active:'使用中', owned:'購入済',
     extraSpins:'今日の追加スピン',
+    tut_box:'<b>サプライズボックス</b>を集めよう — コイン、シールド、ダイヤ!',
+    tutDemoNote:'👇 デモで試してみよう!',
   }},
   zh: { name:'中文', flag:'🇨🇳', dir:'ltr', t:{
     play:'开始', levelsBtn:'🗺️ 关卡', upgradesMenu:'⚙️ 升级', upgradesBtn:'🔧 升级',
@@ -408,6 +418,8 @@ const LANGS = {
     cannonTutHint:'收集弹药箱为大炮充能!',
     active:'使用中', owned:'已购买',
     extraSpins:'今日额外旋转',
+    tut_box:'收集<b>惊喜盒子</b>获得硬币、护盾和钻石!',
+    tutDemoNote:'👇 在演示中亲自尝试!',
   }},
   he: { name:'עברית', flag:'🇮🇱', dir:'rtl', t:{
     play:'שחק', levelsBtn:'🗺️ שלבים', upgradesMenu:'⚙️ שדרוגים', upgradesBtn:'🔧 שדרוגים',
@@ -461,6 +473,8 @@ const LANGS = {
     cannonTutHint:'אסוף קופסאות תחמושת לתותח!',
     active:'פעיל', owned:'נרכש',
     extraSpins:'ספינים נוספים היום',
+    tut_box:'אסוף <b>קופסאות הפתעה</b> — מטבעות, מגנים ויהלומים!',
+    tutDemoNote:'👇 נסה בעצמך בהדגמה!',
   }},
   ar: { name:'العربية', flag:'🇸🇦', dir:'rtl', t:{
     play:'العب', levelsBtn:'🗺️ مستويات', upgradesMenu:'⚙️ تحسينات', upgradesBtn:'🔧 تحسينات',
@@ -514,6 +528,8 @@ const LANGS = {
     cannonTutHint:'اجمع صناديق الذخيرة للمدفع!',
     active:'نشط', owned:'مكتسب',
     extraSpins:'دورات إضافية اليوم',
+    tut_box:'اجمع <b>صناديق المفاجأة</b> للحصول على عملات ودروع وماسات!',
+    tutDemoNote:'👇 جرّبها بنفسك في العرض التوضيحي!',
   }},
 };
 
@@ -672,6 +688,14 @@ const Save = {
     this.save();
   },
 };
+
+// ── TUTORIAL MINI-GAME STATE ─────────────────────────────
+let isTutorialMode = false;
+let tutorialStep   = -1;   // -1=off, 0=hold, 1=gap, 2=coin, 3=box, 4=done
+let tutorialTimer  = 0;
+let tutHoldAcc     = 0;    // accumulated hold-time in step 0
+let tutorialTarget = null; // reference to the scripted object for current step
+const TUT_STEP_TIMEOUT = [6, 7, 8, 9]; // max seconds per step before auto-advance
 
 // ── GAME STATE ───────────────────────────────────────────
 let canvas, ctx, W, H;
@@ -1303,6 +1327,8 @@ function initGame(levelNum) {
 
 // ── UPDATE ───────────────────────────────────────────────
 function update(dt) {
+  updateTutorial(dt); // runs before physics — manages scripted spawns
+
   // Slide animation runs even after player.alive = false
   if (landing && landing.sliding) { updateSlide(dt); return; }
 
@@ -1438,7 +1464,7 @@ function update(dt) {
     ammoTimer -= dt;
     if (ammoTimer <= 0) {
       ammoPickups.push({ x: W + 30, y: H * 0.15 + Math.random() * H * 0.7, anim: 0 });
-      ammoTimer = 12 + Math.random() * 8;
+      ammoTimer = 8 + Math.random() * 7;
     }
   }
 
@@ -1723,7 +1749,7 @@ function update(dt) {
   }
 
   // ── GOAL REACHED: boss level → spawn boss, normal → spawn runway (levels mode only) ──
-  if (!isFreePlay && !landing && !boss && distance >= levelData.goal) {
+  if (!isFreePlay && !isTutorialMode && !landing && !boss && distance >= levelData.goal) {
     spawnTimer = 999; // stop obstacles
     if (BOSS_LEVELS.has(currentLevel)) {
       // Spawn the boss — refill ammo to max so player can fight
@@ -1749,6 +1775,12 @@ function update(dt) {
 }
 
 function handleHit() {
+  if (isTutorialMode) {
+    // Tutorial: invincible — just flash briefly
+    player.invincible = 0.6;
+    spawnParticles(player.x, player.y, '#FF5722', 6);
+    return;
+  }
   coinCombo = 0; comboTimer = 0;
   if (shieldHits > 0) {
     shieldHits--; player.invincible = 1.5;
@@ -2518,7 +2550,7 @@ function _openSurpriseBox(x, y) {
     sessionCoins += c;
     rewardText = '+' + c + ' 🪙!'; rewardColor = '#FF6B35';
     spawnParticles(x, y, '#FF6B35', 22);
-  } else if (roll < 0.78) {
+  } else if (roll < 0.81) {
     // Ammo refill
     const cap = maxAmmo();
     if (cap > 0) {
@@ -2531,7 +2563,7 @@ function _openSurpriseBox(x, y) {
       rewardText = '+' + c + ' 🪙'; rewardColor = '#FFD700';
     }
     spawnParticles(x, y, '#ffcc02', 16);
-  } else if (roll < 0.90) {
+  } else if (roll < 0.88) {
     // Shield
     shieldHits = Math.min(shieldHits + 1, 5);
     rewardText = '🛡 SHIELD!'; rewardColor = '#4CAF50';
@@ -2997,7 +3029,7 @@ function draw(elapsed) {
   }
 
   // Progress bar at very top
-  if (levelData && !isFreePlay) {
+  if (levelData && !isFreePlay && !isTutorialMode) {
     const pct = Math.min(1, distance / levelData.goal);
     ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0, 0, W, 4);
     const barGrd = ctx.createLinearGradient(0,0,W,0);
@@ -3006,6 +3038,7 @@ function draw(elapsed) {
   }
 
   ctx.restore(); // end screen shake
+  drawTutorialOverlay(); // drawn after shake-restore so it's always stable
 }
 
 function hexToRgb(hex) {
@@ -3024,7 +3057,7 @@ function loop(ts) {
     console.error('[loop error]', e);
     loopOk = false; // stop loop on unhandled error — prevents runaway broken state
   }
-  if (loopOk && player && (player.alive || landing || boss || particles.length > 0)) {
+  if (loopOk && player && (player.alive || landing || boss || particles.length > 0 || isTutorialMode)) {
     frameId = requestAnimationFrame(loop);
   }
 }
@@ -3449,7 +3482,185 @@ function showTutorialModal() {
 }
 function closeTutorialModal() {
   document.getElementById('tutorial-modal').classList.add('hidden');
+  startTutorialGame(); // launch interactive tutorial instead of jumping straight to L1
+}
+
+// ── INTERACTIVE TUTORIAL MINI-GAME ───────────────────────
+function startTutorialGame() {
+  isTutorialMode = true;
+  isFreePlay = false;
+  // Very easy settings: slow, huge gap, no auto-spawning
+  currentLevel = 0;
+  levelData = { id:0, biome:0, goal:99999, speed:2.5, gapFraction:0.54,
+                spawnInterval:9999, fanChance:0, birdChance:0 };
+  currentBiome = 0;
+
+  // Reset all game state
+  boss = null; landing = null;
+  reviveCount = 0; coinReviveUsedThisGame = false;
+  AdManager.resetGame(); _resetFinalizeGuard();
+  distance = 0; sessionCoins = 0;
+  obstacles = []; coins = []; ammoPickups = []; mysteryBoxes = [];
+  shieldPickups = []; particles = []; bullets = []; enemies = []; enemyBullets = [];
+  popups = []; tutHints = [];
+  mysteryBoxTimer = 9999; coinTimer = 9999; ammoTimer = 9999;
+  targetTimer = 9999; enemyTimer = 9999; shieldPickupTimer = 9999; spawnTimer = 9999;
+  coinCombo = 0; comboTimer = 0; screenShake = 0; speedBoostEffect = 0;
+  shootCooldown = 0; shootAutoTimer = 99; isHolding = false;
+
+  shieldHits = 0; ammo = 0;
+  speed = levelData.speed;
+  window._turboActive = false; window._doubleCoinActive = false;
+
+  // Tutorial state
+  tutorialStep = 0; tutorialTimer = 0; tutHoldAcc = 0; tutorialTarget = null;
+
+  player = createPlayer();
+  player.invincible = 999999; // immortal during tutorial
+
+  gameState = 'playing';
+  document.getElementById('tutorial-modal').classList.add('hidden');
+  document.getElementById('tut-skip-btn').classList.remove('hidden');
+  showScreen('screen-game');
+  document.getElementById('shoot-btn').classList.add('hidden');
+  updateHUD();
+  applyLang();
+  if (frameId) cancelAnimationFrame(frameId);
+  lastTime = null;
+  frameId = requestAnimationFrame(loop);
+}
+
+function skipTutorial() {
+  _finishTutorial();
+}
+
+function _advanceTutorialStep() {
+  tutorialStep++;
+  tutorialTimer = 0;
+  tutorialTarget = null;
+  // Skip cannon step if cannon not unlocked
+  if (tutorialStep === 4) _finishTutorial(); // done after box step
+}
+
+function _finishTutorial() {
+  isTutorialMode = false;
+  tutorialStep = -1;
+  document.getElementById('tut-skip-btn').classList.add('hidden');
+  Save.data.tutorialDone = true;
+  Save.save();
   beginLevel(1);
+}
+
+function updateTutorial(dt) {
+  if (!isTutorialMode || tutorialStep < 0) return;
+  tutorialTimer += dt;
+  const timeout = TUT_STEP_TIMEOUT[tutorialStep] || 8;
+
+  switch (tutorialStep) {
+    case 0: // Hold to fly
+      if (isHolding) tutHoldAcc += dt;
+      if (tutHoldAcc >= 1.5 || tutorialTimer > timeout) _advanceTutorialStep();
+      break;
+
+    case 1: // Fly through gap — spawn scripted pillar on first tick
+      if (!tutorialTarget) {
+        const gap = H * 0.52;
+        const gapY = H * 0.5;
+        tutorialTarget = { type:'pillar', x: W * 0.72, gapY, gap, w:52, scored:false, seed:42, tutorialPillar:true };
+        obstacles.push(tutorialTarget);
+      }
+      // Advance when pillar has passed the player
+      if (tutorialTarget.x < player.x - 80 || tutorialTimer > timeout) _advanceTutorialStep();
+      break;
+
+    case 2: // Collect coin — spawn one large coin
+      if (!tutorialTarget) {
+        tutorialTarget = { x: player.x + W * 0.45, y: H * 0.5, r: 18, val: 25, anim: 0, tutorialCoin: true };
+        coins.push(tutorialTarget);
+      }
+      // Collected when removed from array or timeout
+      if (!coins.includes(tutorialTarget) || tutorialTimer > timeout) _advanceTutorialStep();
+      break;
+
+    case 3: // Collect surprise box
+      if (!tutorialTarget) {
+        tutorialTarget = { x: player.x + W * 0.45, y: H * 0.5, anim: 0, rattle: 0, tutorialBox: true };
+        mysteryBoxes.push(tutorialTarget);
+      }
+      if (!mysteryBoxes.includes(tutorialTarget) || tutorialTimer > timeout) _advanceTutorialStep();
+      break;
+  }
+}
+
+function drawTutorialOverlay() {
+  if (!isTutorialMode || tutorialStep < 0) return;
+  ctx.save();
+
+  // ── Step indicator dots (top center) ──
+  const steps = 4, dotR = 7, dotSpacing = 22;
+  const dotsX = W / 2 - ((steps - 1) / 2) * dotSpacing;
+  for (let i = 0; i < steps; i++) {
+    ctx.beginPath();
+    ctx.arc(dotsX + i * dotSpacing, 18, dotR, 0, Math.PI * 2);
+    ctx.fillStyle = i < tutorialStep ? '#FFD700' : i === tutorialStep ? '#FF6B35' : 'rgba(255,255,255,0.25)';
+    ctx.fill();
+    if (i < tutorialStep) {
+      ctx.fillStyle = '#000'; ctx.font = 'bold 9px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('✓', dotsX + i * dotSpacing, 18);
+    }
+  }
+
+  // ── Instruction box (bottom) ──
+  const boxH = 76, boxM = 14, boxR = 18;
+  ctx.fillStyle = 'rgba(5,10,30,0.82)';
+  ctx.beginPath(); ctx.roundRect(boxM, H - boxH - boxM, W - boxM * 2, boxH, boxR); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+  ctx.lineWidth = 1.5; ctx.stroke();
+
+  const stepTitles = [
+    '✋  ' + t('holdUp'),
+    '🟩  ' + t('tut2').replace(/<[^>]+>/g, ''),
+    '🪙  ' + t('tut4').replace(/<[^>]+>/g, ''),
+    '🎁  ' + t('surpriseBox') + ' — ' + t('tut4').replace(/<[^>]+>/g, '').split(' ').slice(-3).join(' '),
+  ];
+  const title = stepTitles[tutorialStep] || '';
+  ctx.fillStyle = '#FFD700';
+  ctx.font = 'bold 15px Arial Rounded MT Bold, Arial';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(title, W / 2, H - boxH - boxM + 26);
+
+  // Progress bar inside box
+  const pbW = W - boxM * 2 - 40, pbH = 5;
+  const pbX = boxM + 20, pbY = H - boxM - 22;
+  const timeout = TUT_STEP_TIMEOUT[tutorialStep] || 8;
+  const prog = Math.min(1, tutorialTimer / timeout);
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.beginPath(); ctx.roundRect(pbX, pbY, pbW, pbH, 3); ctx.fill();
+  ctx.fillStyle = '#4CAF50';
+  ctx.beginPath(); ctx.roundRect(pbX, pbY, pbW * prog, pbH, 3); ctx.fill();
+
+  // ── Pulsing arrow pointing to target ──
+  const pulse = 0.7 + 0.3 * Math.sin(tutorialTimer * 4);
+  ctx.globalAlpha = pulse;
+  ctx.fillStyle = '#FFD700';
+  ctx.font = 'bold 28px Arial';
+
+  if (tutorialStep === 1 && tutorialTarget) {
+    // Arrow pointing to gap in pillar
+    ctx.fillText('→', tutorialTarget.x - 60, tutorialTarget.gapY);
+  } else if (tutorialStep === 2 && tutorialTarget && coins.includes(tutorialTarget)) {
+    // Arrow above coin
+    ctx.fillText('↓', tutorialTarget.x, tutorialTarget.y - 38);
+  } else if (tutorialStep === 3 && tutorialTarget && mysteryBoxes.includes(tutorialTarget)) {
+    ctx.fillText('↓', tutorialTarget.x, tutorialTarget.y - 44);
+  } else if (tutorialStep === 0) {
+    // Big up arrow near player
+    ctx.fillStyle = '#00E5FF';
+    ctx.fillText('↑', player.x + 10, player.y - 48);
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
 }
 
 // ── MENU VEHICLE PREVIEW ──────────────────────────────────

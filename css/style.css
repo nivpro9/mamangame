@@ -46,6 +46,21 @@ body {
   color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.4;
 }
 .tut-step-icon { font-size: 22px; flex-shrink: 0; }
+.tut-demo-note {
+  color: rgba(255,255,255,0.55); font-size: 12px; text-align: center;
+  margin-top: -4px;
+}
+
+/* ── TUTORIAL SKIP BUTTON (overlaid on game canvas) ── */
+.tut-skip-btn {
+  position: absolute; top: 14px; right: 14px; z-index: 30;
+  background: rgba(0,0,0,0.5); color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.22); border-radius: 20px;
+  font-size: 13px; font-weight: bold; padding: 6px 14px;
+  cursor: pointer; letter-spacing: 1px;
+  transition: opacity .2s;
+}
+.tut-skip-btn:active { opacity: 0.6; }
 
 /* ── MENU ── */
 .menu-sky {

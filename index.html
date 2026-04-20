@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css?v=26">
+<link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
 
@@ -52,19 +52,20 @@
         <span class="tut-step-icon">🟩</span>
         <span data-i18n-html="tut2">Fly through the <b>gaps</b> in the pillars — don't crash!</span>
       </div>
-      <div class="tut-step tut-step-cannon">
-        <span class="tut-step-icon">📦</span>
-        <span data-i18n-html="tut3">Collect <b>ammo boxes</b> to charge your cannon — then double-tap to fire!</span>
-      </div>
       <div class="tut-step">
         <span class="tut-step-icon">🪙</span>
         <span data-i18n-html="tut4">Grab <b>coins</b> to spend on vehicles and upgrades</span>
+      </div>
+      <div class="tut-step">
+        <span class="tut-step-icon">🎁</span>
+        <span data-i18n-html="tut_box">Collect <b>surprise boxes</b> for coins, shields and diamonds!</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">🛬</span>
         <span data-i18n-html="tut5">Reach the <b>distance goal</b> — then fly onto the <b>runway</b> to land!</span>
       </div>
     </div>
+    <div class="tut-demo-note" data-i18n="tutDemoNote">👇 Try it yourself in the demo below!</div>
     <button id="tut-start-btn" class="btn-play" data-i18n="letsFly">LET'S FLY!</button>
   </div>
 </div>
@@ -110,6 +111,7 @@
 <div id="screen-game" class="screen">
   <canvas id="gameCanvas"></canvas>
   <button id="shoot-btn" class="shoot-btn hidden">🔫</button>
+  <button id="tut-skip-btn" class="tut-skip-btn hidden" onclick="skipTutorial()">SKIP ›</button>
   <div class="game-hud">
     <div class="hud-left">
       <span class="hud-label" data-i18n="level">LEVEL</span>
@@ -263,7 +265,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=38"></script>
+<script src="js/game.js?v=39"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
