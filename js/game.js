@@ -86,7 +86,7 @@ const UPGRADES = [
   { id:'control', name:'Better Control', icon:'🎯', desc:'Smoother joystick response',      maxLevel:5, costs:[60,120,220,400,750]  },
   { id:'magnet',  name:'Coin Magnet',    icon:'🧲', desc:'Attract nearby coins',            maxLevel:4, costs:[100,200,400,800]     },
   { id:'shield',  name:'Shield',         icon:'🛡', desc:'Extra hit before crashing',       maxLevel:3, costs:[400,800,1500]        },
-  { id:'cannon',  name:'Cannon',         icon:'🔫', desc:'Increases ammo capacity (3→5→8→12)', maxLevel:3, costs:[150,300,600] },
+  { id:'cannon',  name:'Water Gun',       icon:'🔫', desc:'Increases ammo capacity (3→5→8→12→17→24→33)', maxLevel:6, costs:[150,300,600,1200,2500,5000] },
 ];
 
 // ── LANGUAGES ────────────────────────────────────────────
@@ -788,8 +788,8 @@ let tutPhase = 0;  // 0=hint, 1=gap hint, 2=ammo hint, 3=done
 let isHolding = false;
 
 // ── AMMO CAPACITY ─────────────────────────────────────────
-// Base 3 bullets always available; cannon upgrade raises the cap
-function maxAmmo() { return [3, 5, 8, 12][Math.min(3, Save.data.upgrades.cannon)]; }
+// Base 3 bullets always available; cannon upgrade raises the cap (7 tiers)
+function maxAmmo() { return [3, 5, 8, 12, 17, 24, 33][Math.min(6, Save.data.upgrades.cannon)]; }
 
 // ── PLAYER ───────────────────────────────────────────────
 function createPlayer() {
@@ -1157,11 +1157,17 @@ function shoot() {
   const lvl = Save.data.upgrades.cannon || 0;
   if (lvl === 0 || ammo <= 0 || shootCooldown > 0 || currentLevel < 3) return;
   ammo--;
-  const cooldowns = [0, 0.9, 0.55, 0.4];
-  shootCooldown = cooldowns[lvl];
+  // Cooldown per level (0=base,1-6 upgrades) — faster fire rate at higher tiers
+  const cooldowns = [0, 0.90, 0.55, 0.40, 0.30, 0.22, 0.16];
+  shootCooldown = cooldowns[Math.min(lvl, cooldowns.length - 1)];
   const bulletVx = speed + 380;
-  if (lvl >= 3) {
-    // Level 3: double-barrel spread
+  if (lvl >= 5) {
+    // Level 5-6: triple shot (spread + center)
+    bullets.push({ x: player.x + 26, y: player.y - 8, vx: bulletVx, vy: -45, r: 6 });
+    bullets.push({ x: player.x + 26, y: player.y,     vx: bulletVx, vy:   0, r: 6 });
+    bullets.push({ x: player.x + 26, y: player.y + 8, vx: bulletVx, vy:  45, r: 6 });
+  } else if (lvl >= 3) {
+    // Level 3-4: double-barrel spread
     bullets.push({ x: player.x + 26, y: player.y - 5, vx: bulletVx, vy: -30, r: 6 });
     bullets.push({ x: player.x + 26, y: player.y + 5, vx: bulletVx, vy:  30, r: 6 });
   } else {
@@ -1845,13 +1851,15 @@ function updateHUD() {
   }
   document.getElementById('hud-coins').textContent = Save.data.coins + sessionCoins;
 
-  // Ammo display
+  // Ammo display — dots for small caps, number format for large caps
   const cap = maxAmmo();
   let ammoStr = '';
-  if (cap > 0) {
+  if (cap <= 0) {
+    ammoStr = '—';
+  } else if (cap <= 12) {
     for (let i = 0; i < cap; i++) ammoStr += i < ammo ? '●' : '○';
   } else {
-    ammoStr = '—';
+    ammoStr = ammo + '/' + cap;
   }
   document.getElementById('hud-ammo').textContent = ammoStr;
 }
@@ -2538,24 +2546,45 @@ function drawCoin(coin, t) {
   ctx.restore();
 }
 
-// ── DRAW AMMO CRATE ──────────────────────────────────────
+// ── DRAW AMMO CRATE (water gun pickup) ───────────────────
 function drawAmmoCrate(ac) {
   ctx.save(); ctx.translate(ac.x, ac.y);
   const bob = Math.sin(ac.anim) * 3;
   ctx.translate(0, bob);
   // Glow
-  const grd = ctx.createRadialGradient(0,0,0,0,0,22);
-  grd.addColorStop(0,'rgba(255,200,0,0.25)'); grd.addColorStop(1,'rgba(255,200,0,0)');
-  ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(0,0,22,0,Math.PI*2); ctx.fill();
-  // Box
-  ctx.fillStyle='#78909c'; ctx.beginPath(); ctx.roundRect(-11,-9,22,18,3); ctx.fill();
-  ctx.strokeStyle='#ffcc02'; ctx.lineWidth=1.5; ctx.beginPath(); ctx.roundRect(-11,-9,22,18,3); ctx.stroke();
-  // Cross stripe
-  ctx.strokeStyle='#546e7a'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(-11,0); ctx.lineTo(11,0); ctx.stroke();
-  // Bullet icon
-  ctx.fillStyle='#ffcc02';
-  ctx.beginPath(); ctx.ellipse(0,-1,3.5,5,0,0,Math.PI*2); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(-3.5,-1); ctx.lineTo(3.5,-1); ctx.lineTo(0,-7); ctx.closePath(); ctx.fill();
+  const grd = ctx.createRadialGradient(0,0,0,0,0,24);
+  grd.addColorStop(0,'rgba(0,200,255,0.30)'); grd.addColorStop(1,'rgba(0,200,255,0)');
+  ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(0,0,24,0,Math.PI*2); ctx.fill();
+  // Main body block
+  ctx.fillStyle='#00bcd4';
+  ctx.beginPath(); ctx.roundRect(-10,-7,18,12,4); ctx.fill();
+  ctx.strokeStyle='#0097a7'; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.roundRect(-10,-7,18,12,4); ctx.stroke();
+  // Barrel (tube to the right)
+  ctx.fillStyle='#00acc1';
+  ctx.beginPath(); ctx.roundRect(7,-4,10,5,2); ctx.fill();
+  ctx.strokeStyle='#0097a7'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(7,-4,10,5,2); ctx.stroke();
+  // Nozzle tip
+  ctx.fillStyle='#e0f7fa';
+  ctx.beginPath(); ctx.arc(17,-1.5,2.5,0,Math.PI*2); ctx.fill();
+  // Handle / grip
+  ctx.fillStyle='#0097a7';
+  ctx.beginPath(); ctx.roundRect(-5,4,8,8,3); ctx.fill();
+  ctx.strokeStyle='#007c91'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(-5,4,8,8,3); ctx.stroke();
+  // Trigger
+  ctx.fillStyle='#e0f7fa';
+  ctx.beginPath(); ctx.moveTo(1,3); ctx.lineTo(3,7); ctx.lineTo(5,7); ctx.lineTo(4,3); ctx.closePath(); ctx.fill();
+  // Animated water drops
+  const t2 = ac.anim;
+  for (let i = 0; i < 3; i++) {
+    const ox = 20 + ((t2 * 55 + i * 13) % 20);
+    const oy = -1.5 + Math.sin(t2 * 4 + i) * 2;
+    const alpha = 1 - (ox - 20) / 20;
+    ctx.fillStyle = `rgba(0,224,255,${(alpha * 0.85).toFixed(2)})`;
+    ctx.beginPath(); ctx.arc(ox, oy, 2 - i * 0.3, 0, Math.PI*2); ctx.fill();
+  }
   ctx.restore();
 }
 
