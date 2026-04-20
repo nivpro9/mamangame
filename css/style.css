@@ -182,8 +182,8 @@ body {
 
 /* ── SETTINGS TOGGLES ── */
 .settings-row {
-  position: absolute; top: 12px; right: 10px;
-  display: flex; gap: 6px; z-index: 10;
+  position: absolute; top: 70px; right: 12px;
+  display: flex; flex-direction: column; gap: 6px; z-index: 10;
 }
 .settings-toggle-btn {
   display: flex; align-items: center; gap: 4px;

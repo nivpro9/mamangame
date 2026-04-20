@@ -1,10 +1,9 @@
 'use strict';
 // ── VIBRATION UTILITY ─────────────────────────────────────
 const Vibrate = {
-  buzz(ms) {
-    if (!Save?.data?.vibrateOn && Save?.data?.vibrateOn !== undefined) return;
-    try { navigator.vibrate && navigator.vibrate(ms); } catch(e) {}
-  }
+  _ok() { return !(Save?.data?.vibrateOn === false); },
+  buzz(ms)     { if (!this._ok()) return; try { navigator.vibrate && navigator.vibrate(ms); } catch(e) {} },
+  pattern(arr) { if (!this._ok()) return; try { navigator.vibrate && navigator.vibrate(arr); } catch(e) {} },
 };
 // ═══════════════════════════════════════════════════════
 //  PAPER FLIGHT EVOLUTION — complete rewrite with levels
@@ -1314,7 +1313,7 @@ function initGame(levelNum) {
   const cap = maxAmmo();
   // Restore ammo saved from previous game (capped at current max)
   const restoredAmmo = Math.min(Save.data.savedAmmo || 0, cap);
-  ammo = cap > 0 ? Math.max(restoredAmmo, Math.floor(cap * 0.4)) : 0;
+  ammo = cap > 0 ? Math.max(restoredAmmo, 3) : 0; // always start with at least 3 shots
   // FULL AMMO from spin — give maximum regardless of cannon level
   if (Save.data.spinAmmo > 0) {
     ammo = cap > 0 ? cap : 20; // if no cannon, still store so hint shows
@@ -1569,11 +1568,11 @@ function update(dt) {
       let pillarDestroyed = false;
       if (obs.hasWeakPoint) {
         const wpY = obs.weakTop
-          ? (obs.gapY - obs.gap / 2) - 22  // crack near bottom of top pillar
-          : (obs.gapY + obs.gap / 2) + 22; // crack near top of bottom pillar
+          ? (obs.gapY - obs.gap / 2) - 10  // crack at gap edge of top pillar
+          : (obs.gapY + obs.gap / 2) + 10; // crack at gap edge of bottom pillar
         bullets = bullets.filter(b => {
           if (b.x > obs.x - obs.w / 2 - 8 && b.x < obs.x + obs.w / 2 + 8) {
-            if (Math.abs(b.y - wpY) < 24) { pillarDestroyed = true; return false; }
+            if (Math.abs(b.y - wpY) < 30) { pillarDestroyed = true; return false; }
           }
           return true;
         });
@@ -1710,7 +1709,7 @@ function update(dt) {
       spawnParticles(dp.x, dp.y, '#00E5FF', 30);
       spawnParticles(dp.x, dp.y, '#ffffff', 12);
       Snd.play('coin');
-      try { navigator.vibrate && navigator.vibrate([40, 30, 80]); } catch(e) {}
+      Vibrate.pattern([40, 30, 80]);
       const mdEl = document.getElementById('menu-diamonds');
       if (mdEl) mdEl.textContent = Save.data.diamonds;
       popups.push({ text: '💎 +1 DIAMOND!', x: dp.x, y: dp.y - 32, alpha: 1, timer: 2.5, color: '#00E5FF' });
@@ -2132,21 +2131,28 @@ function drawObstacle(obs) {
     _drawWallForBiome(obs.x, obs.w, topH, botY, obs.seed || 0);
     // Draw weak-point glow (pulsing orange crack)
     if (obs.hasWeakPoint) {
-      const wpY = obs.weakTop ? topH - 22 : botY + 22;
+      const wpY = obs.weakTop ? topH - 10 : botY + 10;
       const pulse = 0.55 + 0.45 * Math.sin(performance.now() * 0.005);
       ctx.save();
       ctx.globalAlpha = pulse;
-      const gr = ctx.createRadialGradient(obs.x, wpY, 0, obs.x, wpY, 18);
-      gr.addColorStop(0, 'rgba(255,200,0,0.95)');
-      gr.addColorStop(0.5, 'rgba(255,100,0,0.6)');
+      // Bigger, brighter glow — visible on any biome background
+      const gr = ctx.createRadialGradient(obs.x, wpY, 0, obs.x, wpY, 24);
+      gr.addColorStop(0, 'rgba(255,230,0,1.0)');
+      gr.addColorStop(0.4, 'rgba(255,120,0,0.8)');
       gr.addColorStop(1, 'rgba(255,60,0,0)');
       ctx.fillStyle = gr;
-      ctx.beginPath(); ctx.arc(obs.x, wpY, 18, 0, Math.PI * 2); ctx.fill();
-      // Crack lines
-      ctx.strokeStyle = 'rgba(255,230,50,0.9)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(obs.x, wpY, 24, 0, Math.PI * 2); ctx.fill();
+      // Bright white center flash
+      ctx.globalAlpha = pulse * 0.6;
+      ctx.fillStyle = 'rgba(255,255,200,0.9)';
+      ctx.beginPath(); ctx.arc(obs.x, wpY, 6, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = pulse;
+      // Crack lines (star pattern)
+      ctx.strokeStyle = 'rgba(255,240,80,0.95)'; ctx.lineWidth = 1.8;
       ctx.beginPath();
-      ctx.moveTo(obs.x - 8, wpY - 5); ctx.lineTo(obs.x + 2, wpY); ctx.lineTo(obs.x - 4, wpY + 6);
-      ctx.moveTo(obs.x + 4, wpY - 7); ctx.lineTo(obs.x + 9, wpY + 3);
+      ctx.moveTo(obs.x - 10, wpY - 6); ctx.lineTo(obs.x + 2, wpY); ctx.lineTo(obs.x - 5, wpY + 8);
+      ctx.moveTo(obs.x + 5, wpY - 9); ctx.lineTo(obs.x + 12, wpY + 4);
+      ctx.moveTo(obs.x - 4, wpY - 11); ctx.lineTo(obs.x + 4, wpY + 11);
       ctx.stroke();
       ctx.restore();
     }
@@ -4397,7 +4403,7 @@ Save._loadIDB = async function() {
 };
 
 // ── DAILY LOGIN GIFT ─────────────────────────────────────
-const DAY_REWARDS = [20, 30, 40, 60, 80, 100, 150]; // streak day 1-7, then repeats
+const DAY_REWARDS = [100, 150, 200, 300, 400, 600, 1000]; // streak day 1–7, then repeats
 
 function checkDailyGift() {
   const now = Date.now();
@@ -4420,18 +4426,41 @@ function checkDailyGift() {
 }
 
 function showDailyGiftPopup(streak, coins) {
-  // Reuse spin modal styling with different content
   const overlay = document.createElement('div');
   overlay.className = 'spin-modal';
   overlay.id = 'gift-overlay';
+
+  // 7-day progress calendar
+  const dayInCycle = ((streak - 1) % 7) + 1;
+  const calHtml = DAY_REWARDS.map((r, i) => {
+    const d = i + 1;
+    const isToday = d === dayInCycle;
+    const isPast  = d < dayInCycle;
+    const bg  = isToday ? 'rgba(255,215,0,0.28)' : isPast ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)';
+    const bdr = isToday ? '2px solid #FFD700' : '1.5px solid rgba(255,255,255,0.12)';
+    const lbl = isPast ? '✓' : (isToday ? '+'+r : '+'+r);
+    const col = isToday ? '#FFD700' : isPast ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.35)';
+    const sc  = isToday ? 'transform:scale(1.12);' : '';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:9px;background:${bg};border:${bdr};${sc}">
+      <div style="font-size:9px;color:rgba(255,255,255,0.6);letter-spacing:0.3px">D${d}</div>
+      <div style="font-size:10px;font-weight:bold;color:${col}">${lbl}</div>
+    </div>`;
+  }).join('');
+
   overlay.innerHTML = `
-    <div class="spin-box" style="gap:14px;max-width:300px">
-      <div style="font-size:56px;line-height:1">🎁</div>
+    <div class="spin-box" style="gap:14px;max-width:320px">
+      <div style="font-size:54px;line-height:1">🎁</div>
       <div class="spin-title" style="font-size:18px">DAILY GIFT!</div>
-      <div style="color:rgba(255,255,255,0.7);font-size:13px;letter-spacing:1px">DAY ${streak} STREAK</div>
-      <div style="font-size:36px;font-weight:bold;color:#FFD700;text-shadow:0 0 16px rgba(255,215,0,0.8);display:flex;align-items:center;gap:8px;justify-content:center">+${coins}<span class="coin coin-lg" style="width:34px;height:34px;font-size:16px;border-width:3px"></span></div>
-      <div style="color:rgba(255,255,255,0.5);font-size:11px">Come back tomorrow for more!</div>
-      <button class="btn-play" style="font-size:18px;padding:12px 40px;max-width:200px" onclick="document.getElementById('gift-overlay').remove();document.getElementById('menu-coins').textContent=Save.data.coins;">COLLECT!</button>
+      <div style="color:rgba(255,255,255,0.65);font-size:12px;letter-spacing:1px">DAY ${dayInCycle} — STREAK ${streak}</div>
+      <div style="display:flex;gap:4px;width:100%">${calHtml}</div>
+      <div style="font-size:38px;font-weight:bold;color:#FFD700;text-shadow:0 0 18px rgba(255,215,0,0.85);display:flex;align-items:center;gap:8px;justify-content:center">
+        +${coins}<span class="coin coin-lg" style="width:34px;height:34px;font-size:16px;border-width:3px"></span>
+      </div>
+      <div style="color:rgba(255,255,255,0.45);font-size:11px">Come back tomorrow for more!</div>
+      <button class="btn-play" style="font-size:18px;padding:12px 40px;max-width:200px"
+        onclick="document.getElementById('gift-overlay').remove();document.getElementById('menu-coins').textContent=Save.data.coins;">
+        COLLECT!
+      </button>
     </div>`;
   document.body.appendChild(overlay);
 }
