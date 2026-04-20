@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css?v=28">
+<link rel="stylesheet" href="css/style.css?v=29">
 </head>
 <body>
 
@@ -152,7 +152,7 @@
       <span id="hud-distance">0m</span>
       <span id="hud-goal" class="hud-goal">/ 250m</span>
     </div>
-    <div class="hud-right" style="display:none">
+    <div class="hud-right" id="hud-right" style="display:none">
       <span class="hud-label" data-i18n="ammo">AMMO</span>
       <span id="hud-ammo" class="hud-ammo-dots">—</span>
     </div>
@@ -294,7 +294,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=47"></script>
+<script src="js/game.js?v=48"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});

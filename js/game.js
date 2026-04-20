@@ -1187,15 +1187,31 @@ function updateShootBtn() {
   const btn = document.getElementById('shoot-btn');
   if (!btn) return;
   const hasCannon = !isFreePlay && gameState === 'playing';
-  if (!hasCannon) {
-    btn.classList.add('hidden');
-    return;
-  }
-  // Always visible when cannon is unlocked — dimmed when empty or cooling down
+  if (!hasCannon) { btn.classList.add('hidden'); return; }
   btn.classList.remove('hidden');
+  const ready = ammo > 0 && shootCooldown <= 0;
+  const cap   = maxAmmo();
+  const low   = ammo === 1;
+  const full  = ammo >= cap;
+  // Label: show ammo count
   btn.textContent = '🔫 ' + ammo;
-  btn.style.opacity  = (ammo > 0 && shootCooldown <= 0) ? '1' : '0.35';
-  btn.style.transform = (ammo > 0 && shootCooldown <= 0) ? 'scale(1)' : 'scale(0.92)';
+  // Visual state
+  btn.style.opacity   = ready ? '1' : '0.38';
+  btn.style.transform = ready ? 'scale(1)' : 'scale(0.9)';
+  // Border / glow colour: gold=full, red=low, normal otherwise
+  if (!ready) {
+    btn.style.borderColor = 'rgba(255,90,20,0.4)';
+    btn.style.boxShadow   = 'none';
+  } else if (full) {
+    btn.style.borderColor = '#FFD700';
+    btn.style.boxShadow   = '0 0 14px rgba(255,215,0,0.75), inset 0 1px 0 rgba(255,200,80,0.4)';
+  } else if (low) {
+    btn.style.borderColor = '#FF1744';
+    btn.style.boxShadow   = '0 0 12px rgba(255,23,68,0.8)';
+  } else {
+    btn.style.borderColor = 'rgba(255,90,20,0.95)';
+    btn.style.boxShadow   = '0 4px 20px rgba(255,80,30,0.6), inset 0 1px 0 rgba(255,150,80,0.4)';
+  }
 }
 
 
@@ -1865,21 +1881,26 @@ function updateHUD() {
   }
   document.getElementById('hud-coins').textContent = Save.data.coins + sessionCoins;
 
-  // Ammo display — dots for small caps, number format for large caps
+  // Ammo HUD panel — show only during boss fights (shoot button handles other times)
   const cap = maxAmmo();
+  const hudRight = document.getElementById('hud-right');
   const hudAmmoEl = document.getElementById('hud-ammo');
-  let ammoStr = '';
-  const isFull = ammo >= cap;
-  if (cap <= 0) {
-    ammoStr = '—';
-  } else if (cap <= 12) {
-    for (let i = 0; i < cap; i++) ammoStr += i < ammo ? '●' : '○';
-    if (isFull) ammoStr += ' ★';
-  } else {
-    ammoStr = isFull ? 'MAX ★' : ammo + '/' + cap;
+  const showAmmoHud = !isFreePlay && boss && !boss.dead;
+  if (hudRight) hudRight.style.display = showAmmoHud ? '' : 'none';
+  if (hudAmmoEl && showAmmoHud) {
+    const isFull = ammo >= cap;
+    let ammoStr = '';
+    if (cap <= 0) {
+      ammoStr = '—';
+    } else if (cap <= 12) {
+      for (let i = 0; i < cap; i++) ammoStr += i < ammo ? '●' : '○';
+      if (isFull) ammoStr += ' ★';
+    } else {
+      ammoStr = isFull ? 'MAX ★' : ammo + '/' + cap;
+    }
+    hudAmmoEl.textContent = ammoStr;
+    hudAmmoEl.style.color = isFull ? '#FFD700' : '';
   }
-  hudAmmoEl.textContent = ammoStr;
-  hudAmmoEl.style.color = isFull ? '#FFD700' : '';
 }
 
 // ── LANDING SEQUENCE ─────────────────────────────────────
