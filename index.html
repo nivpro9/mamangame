@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css?v=31">
+<link rel="stylesheet" href="css/style.css?v=32">
 </head>
 <body>
 
@@ -41,12 +41,13 @@
 <!-- TUTORIAL MODAL (first time only) -->
 <div id="tutorial-modal" class="tutorial-modal hidden">
   <div class="tut-box">
+    <button class="tut-close-x" onclick="closeTutorialModal()">✕</button>
     <div class="tut-icon">✈️</div>
     <h2 class="tut-title" data-i18n="howToPlay">HOW TO PLAY</h2>
     <div class="tut-steps">
       <div class="tut-step">
         <span class="tut-step-icon">✋</span>
-        <span data-i18n-html="tut1"><b>Hold</b> the screen to fly up — <b>release</b> to fall down</span>
+        <span data-i18n-html="tut1"><b>Hold</b> the screen to fly up — <b>release</b> to fall down. Don't hit the <b>top or bottom</b>!</span>
       </div>
       <div class="tut-step">
         <span class="tut-step-icon">🟩</span>
@@ -74,7 +75,7 @@
       <div class="tut-section-title">☠️ AVOID THESE</div>
       <div class="tut-step tut-bad">
         <span class="tut-step-icon">🟫</span>
-        <span><b>Pillars</b> — crashing into them ends your flight</span>
+        <span><b>Pillars</b> — crashing ends your flight! Look for a <b>glowing crack 🔥</b> — shoot it to destroy that pillar</span>
       </div>
       <div class="tut-step tut-bad">
         <span class="tut-step-icon">🔴</span>
@@ -299,7 +300,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=50"></script>
+<script src="js/game.js?v=51"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});

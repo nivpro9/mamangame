@@ -813,7 +813,11 @@ function createPlayer() {
 function createPillar() {
   const gap = H * levelData.gapFraction;
   const gapY = H * 0.15 + Math.random() * (H * 0.70);
-  return { type:'pillar', x: W + 40, gapY, gap, w: 52, scored: false, seed: Math.floor(Math.random() * 99991) };
+  // 1-in-3 pillars have a shootable weak point (glowing crack)
+  const hasWeakPoint = Math.random() < 0.33;
+  const weakTop = hasWeakPoint ? (Math.random() < 0.5) : false; // weak point on top or bottom pillar
+  return { type:'pillar', x: W + 40, gapY, gap, w: 52, scored: false, seed: Math.floor(Math.random() * 99991),
+           hasWeakPoint, weakTop };
 }
 function createFan() {
   const side = Math.random() < 0.5 ? 'top' : 'bottom';
@@ -1396,16 +1400,13 @@ function update(dt) {
   const ctrl = veh.control * (1 + upg.control * 0.15);
 
   if (veh.id === 2) {
-    // ── DRONE: gentle hover physics — precise & easy to control ──
+    // ── DRONE: hover physics — lifts when held, drifts down gently when released ──
     if (isHolding) {
-      // Soft, gradual lift — not jerky
-      player.vy = Math.max(player.vy - 460 * ctrl * dt, -210 * ctrl);
+      player.vy = Math.max(player.vy - 480 * ctrl * dt, -220 * ctrl);
     } else {
-      // Very light gravity + strong velocity damping = natural hover tendency
-      player.vy += 90 * dt;
-      player.vy *= Math.pow(0.84, dt * 60); // damp oscillations, drone stabilises quickly
+      // Light gravity — no damping, drone falls naturally but slower than planes
+      player.vy = Math.min(player.vy + 210 * dt, 230);
     }
-    player.vy = Math.min(player.vy, 200); // limit fall speed
   } else {
     // ── NORMAL PLANES ──
     const gravity  = 520;
@@ -1421,9 +1422,14 @@ function update(dt) {
   }
   player.y += player.vy * dt;
 
-  // Clamp to screen
-  player.y = Math.max(player.h * 0.5, Math.min(H - player.h * 0.5, player.y));
-  if (player.y <= player.h * 0.5 || player.y >= H - player.h * 0.5) player.vy *= 0.2; // dampen instead of zero
+  // Hit top or bottom edge = crash (no sliding along walls)
+  if (player.y - player.h * 0.5 <= 0) {
+    player.y = player.h * 0.5; player.vy = 0;
+    if (player.alive && !isTutorialMode) handleHit();
+  } else if (player.y + player.h * 0.5 >= H) {
+    player.y = H - player.h * 0.5; player.vy = 0;
+    if (player.alive && !isTutorialMode) handleHit();
+  }
 
   // Trail — origin at back of plane (left edge) so it streams behind
   player.trail.unshift({ x: player.x - 22, y: player.y + (player.vy * 0.012) });
@@ -1549,24 +1555,29 @@ function update(dt) {
           tutHints.push({ text: t('cannonTutHint'), x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
         }
       }
-      // Bullets can destroy pillars — check if any bullet hits the pillar body
+      // Bullets can only destroy pillars with a weak point — must hit near the glowing crack
       let pillarDestroyed = false;
-      bullets = bullets.filter(b => {
-        if (b.x > obs.x - obs.w / 2 - 6 && b.x < obs.x + obs.w / 2 + 6) {
-          // Hit top wall?
-          if (b.y < obs.gapY - obs.gap / 2) { pillarDestroyed = true; return false; }
-          // Hit bottom wall?
-          if (b.y > obs.gapY + obs.gap / 2) { pillarDestroyed = true; return false; }
+      if (obs.hasWeakPoint) {
+        const wpY = obs.weakTop
+          ? (obs.gapY - obs.gap / 2) - 22  // crack near bottom of top pillar
+          : (obs.gapY + obs.gap / 2) + 22; // crack near top of bottom pillar
+        bullets = bullets.filter(b => {
+          if (b.x > obs.x - obs.w / 2 - 8 && b.x < obs.x + obs.w / 2 + 8) {
+            if (Math.abs(b.y - wpY) < 24) { pillarDestroyed = true; return false; }
+          }
+          return true;
+        });
+        if (pillarDestroyed) {
+          const px = obs.x, py = obs.weakTop ? obs.gapY - obs.gap / 2 : obs.gapY + obs.gap / 2;
+          spawnParticles(px, py, '#8D6E63', 14);
+          spawnParticles(px, py, '#FF9800', 8);
+          screenShake = 0.3;
+          Snd.play('crash');
+          sessionCoins += 8;
+          Vibrate.buzz(35);
+          popups.push({ text: '💥 +8', x: px, y: py - 24, alpha: 1, timer: 1.2, color: '#FF9800' });
+          return false; // remove pillar
         }
-        return true;
-      });
-      if (pillarDestroyed) {
-        spawnParticles(obs.x, obs.gapY - obs.gap / 2, '#8D6E63', 10);
-        spawnParticles(obs.x, obs.gapY + obs.gap / 2, '#8D6E63', 10);
-        screenShake = 0.25;
-        Snd.play('crash');
-        popups.push({ text: '💥 BLASTED!', x: obs.x, y: obs.gapY, alpha: 1, timer: 1.0, color: '#FF9800' });
-        return false; // remove pillar
       }
       if (player.invincible <= 0) {
         const hw = player.w * 0.38, hh = player.h * 0.38;
@@ -2087,6 +2098,26 @@ function drawObstacle(obs) {
     const topH = obs.gapY - obs.gap / 2;
     const botY = obs.gapY + obs.gap / 2;
     _drawWallForBiome(obs.x, obs.w, topH, botY, obs.seed || 0);
+    // Draw weak-point glow (pulsing orange crack)
+    if (obs.hasWeakPoint) {
+      const wpY = obs.weakTop ? topH - 22 : botY + 22;
+      const pulse = 0.55 + 0.45 * Math.sin(performance.now() * 0.005);
+      ctx.save();
+      ctx.globalAlpha = pulse;
+      const gr = ctx.createRadialGradient(obs.x, wpY, 0, obs.x, wpY, 18);
+      gr.addColorStop(0, 'rgba(255,200,0,0.95)');
+      gr.addColorStop(0.5, 'rgba(255,100,0,0.6)');
+      gr.addColorStop(1, 'rgba(255,60,0,0)');
+      ctx.fillStyle = gr;
+      ctx.beginPath(); ctx.arc(obs.x, wpY, 18, 0, Math.PI * 2); ctx.fill();
+      // Crack lines
+      ctx.strokeStyle = 'rgba(255,230,50,0.9)'; ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(obs.x - 8, wpY - 5); ctx.lineTo(obs.x + 2, wpY); ctx.lineTo(obs.x - 4, wpY + 6);
+      ctx.moveTo(obs.x + 4, wpY - 7); ctx.lineTo(obs.x + 9, wpY + 3);
+      ctx.stroke();
+      ctx.restore();
+    }
   } else if (obs.type === 'fan') {
     obs.angle += 0.08;
     ctx.save(); ctx.translate(obs.x, obs.y);

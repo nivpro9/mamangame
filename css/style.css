@@ -26,17 +26,26 @@ body {
 /* ── TUTORIAL MODAL ── */
 .tutorial-modal {
   position: fixed; inset: 0; z-index: 100;
-  background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
+  background: rgba(0,0,0,0.80); backdrop-filter: blur(6px);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 16px; overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .tut-box {
   background: linear-gradient(160deg, #1a1a3e, #16213e);
   border: 1px solid rgba(255,255,255,0.15); border-radius: 24px;
-  padding: 28px 24px; max-width: 360px; width: 100%;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  padding: 24px 20px 24px; max-width: 380px; width: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  position: relative; margin: auto;
 }
+.tut-close-x {
+  position: absolute; top: 14px; right: 14px;
+  background: rgba(255,255,255,0.12); border: none; border-radius: 50%;
+  width: 34px; height: 34px; font-size: 16px; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 1;
+}
+.tut-close-x:active { background: rgba(255,255,255,0.25); }
 .tut-icon { font-size: 52px; }
 .tut-title { color: white; font-size: 22px; letter-spacing: 3px; }
 .tut-steps { display: flex; flex-direction: column; gap: 10px; width: 100%; }
