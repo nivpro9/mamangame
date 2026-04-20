@@ -1486,7 +1486,7 @@ function update(dt) {
     }
   }
 
-  const magnetRange = (60 + upg.magnet * 38) * (veh.id === 1 ? 1.3 : 1.0); // Upgraded Paper perk
+  const magnetRange = (40 + upg.magnet * 22) * (veh.id === 1 ? 1.18 : 1.0); // Upgraded Paper perk
 
   // ── UPDATE OBSTACLES ──
   obstacles = obstacles.filter(obs => {
@@ -1671,7 +1671,7 @@ function update(dt) {
     c.x -= speed;
     const dx = player.x - c.x, dy = player.y - c.y;
     const d = Math.sqrt(dx * dx + dy * dy);
-    if (d < magnetRange) { const pull = 2.5 + (magnetRange - d) / magnetRange * 2; c.x += (dx / d) * pull; c.y += (dy / d) * pull; }
+    if (d < magnetRange) { const pull = 1.4 + (magnetRange - d) / magnetRange * 1.4; c.x += (dx / d) * pull; c.y += (dy / d) * pull; }
     if (d < c.r + 22) {
       c.collected = true;
       const v = c.val || 1;
