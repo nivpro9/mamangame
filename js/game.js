@@ -3305,7 +3305,7 @@ function showReviveScreen() {
 
   // Coin button
   const coinBtn = document.getElementById('revive-coin-btn');
-  document.getElementById('revive-coin-cost').textContent = cost + ' 🪙';
+  document.getElementById('revive-coin-cost').innerHTML = cost + ' <span class="coin coin-sm"></span>';
   coinBtn.disabled = !canCoin;
   coinBtn.style.opacity = canCoin ? '1' : '0.45';
 
@@ -3808,7 +3808,7 @@ function renderShop() {
         ? `<div class="vc-badge" style="color:#4CAF50">${t('owned')||'OWNED'}</div>`
         : lvlLocked
           ? `<div class="vc-lvl-req">🔒 LVL ${v.levelReq}</div>`
-          : `<div class="vc-cost">🪙 ${v.cost}</div>`;
+          : `<div class="vc-cost"><span class='coin coin-sm'></span>${v.cost}</div>`;
     return `<div class="vehicle-card ${cls}" onclick="selectVehicle(${v.id})">
       <div class="vc-icon">${lvlLocked ? '🔒' : v.emoji}</div>
       <div class="vc-name">${t('vn'+v.id)}</div>
@@ -3842,7 +3842,7 @@ function renderShop() {
         <div class="up-desc">${t('ud_'+upg.id)}${descExtra}</div>
         <div class="up-bar"><div class="up-bar-fill" style="width:${pct}%"></div></div>
       </div>
-      ${maxed ? '<div class="up-maxed">MAX</div>' : `<div class="up-cost">🪙 ${cost}</div>`}
+      ${maxed ? '<div class="up-maxed">MAX</div>' : `<div class="up-cost"><span class='coin coin-sm'></span>${cost}</div>`}
     </div>`;
   }).join('');
 
@@ -3851,7 +3851,7 @@ function renderShop() {
     const owned  = Save.data.ownedSkins.includes(sk.id);
     const active = Save.data.activeSkin === sk.id;
     const isDiamond = sk.currency === 'diamonds';
-    const costStr = sk.cost === 0 ? 'FREE' : (isDiamond ? `💎 ${sk.cost}` : `🪙 ${sk.cost}`);
+    const costStr = sk.cost === 0 ? 'FREE' : (isDiamond ? `💎 ${sk.cost}` : `<span class='coin coin-sm'></span>${sk.cost}`);
     const canAfford = sk.cost === 0 || (isDiamond ? (Save.data.diamonds || 0) >= sk.cost : Save.data.coins >= sk.cost);
     const btnLabel = active ? 'ACTIVE' : owned ? 'EQUIP' : costStr;
     const btnStyle = active
@@ -4305,7 +4305,7 @@ function showDailyGiftPopup(streak, coins) {
       <div style="font-size:56px;line-height:1">🎁</div>
       <div class="spin-title" style="font-size:18px">DAILY GIFT!</div>
       <div style="color:rgba(255,255,255,0.7);font-size:13px;letter-spacing:1px">DAY ${streak} STREAK</div>
-      <div style="font-size:36px;font-weight:bold;color:#FFD700;text-shadow:0 0 16px rgba(255,215,0,0.8)">+${coins} 🪙</div>
+      <div style="font-size:36px;font-weight:bold;color:#FFD700;text-shadow:0 0 16px rgba(255,215,0,0.8);display:flex;align-items:center;gap:8px;justify-content:center">+${coins}<span class="coin coin-lg" style="width:34px;height:34px;font-size:16px;border-width:3px"></span></div>
       <div style="color:rgba(255,255,255,0.5);font-size:11px">Come back tomorrow for more!</div>
       <button class="btn-play" style="font-size:18px;padding:12px 40px;max-width:200px" onclick="document.getElementById('gift-overlay').remove();document.getElementById('menu-coins').textContent=Save.data.coins;">COLLECT!</button>
     </div>`;

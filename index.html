@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-<link rel="stylesheet" href="css/style.css?v=30">
+<link rel="stylesheet" href="css/style.css?v=31">
 </head>
 <body>
 
@@ -55,7 +55,7 @@
 
       <div class="tut-section-title">✅ COLLECT THESE</div>
       <div class="tut-step tut-good">
-        <span class="tut-step-icon">🪙</span>
+        <span class="tut-step-icon"><span class="coin coin-lg"></span></span>
         <span><b>Coins</b> — collect them to buy vehicles &amp; upgrades</span>
       </div>
       <div class="tut-step tut-good">
@@ -108,7 +108,7 @@
   </div>
   <!-- Coins — top left -->
   <div class="menu-coins-corner">
-    <span class="coin-dot"></span><span id="menu-coins">0</span>
+    <span class="coin coin-lg"></span><span id="menu-coins">0</span>
     &nbsp;<span style="color:#00eaff">💎</span><span id="menu-diamonds" style="color:#00eaff;font-weight:bold">0</span>
   </div>
   <!-- Language Selector -->
@@ -150,7 +150,7 @@
     <div class="hud-left">
       <span class="hud-label" data-i18n="level">LEVEL</span>
       <span id="hud-level">1</span>
-      <span class="hud-label" style="margin-top:3px">🟡 <span id="hud-coins" style="color:#FFD700;font-weight:bold;">0</span></span>
+      <span class="hud-label" style="margin-top:3px"><span class="coin" style="width:14px;height:14px;font-size:8px;vertical-align:middle"></span> <span id="hud-coins" style="color:#FFD700;font-weight:bold;">0</span></span>
     </div>
     <div class="hud-center">
       <span class="hud-label" data-i18n="distance">DISTANCE</span>
@@ -210,7 +210,7 @@
 
     <!-- Buy ammo row — shown only when cannon unlocked, not free play -->
     <div id="death-ammo-shop" class="death-ammo-shop hidden">
-      <button class="death-ammo-btn" id="death-buy-ammo">🔫 +1 · 50 🪙</button>
+      <button class="death-ammo-btn" id="death-buy-ammo">🔫 +1 · 50 <span class="coin coin-sm"></span></button>
       <span id="death-ammo-count" class="death-ammo-count">0</span>
     </div>
 
@@ -257,7 +257,7 @@
     <!-- Ammo shop row (only visible when cannon is unlocked) -->
     <div id="lc-ammo-shop" class="lc-ammo-shop hidden">
       <span class="lc-ammo-label">💦 Ammo</span>
-      <button class="lc-ammo-btn" onclick="lcBuyAmmo()">🔫 +1 · 50 🪙</button>
+      <button class="lc-ammo-btn" onclick="lcBuyAmmo()">🔫 +1 · 50 <span class="coin coin-sm"></span></button>
       <span id="lc-ammo-count" class="lc-ammo-count">0</span>
     </div>
     <button id="nextLevelBtn" class="btn-play">NEXT LEVEL ›</button>
@@ -283,7 +283,7 @@
   <div class="shop-header">
     <button id="shopBackBtn" class="btn-back">←</button>
     <h1 data-i18n="upgradesTitle">UPGRADES</h1>
-    <div class="shop-coins">🪙 <span id="shop-coins">0</span> &nbsp; 💎 <span id="shop-diamonds">0</span></div>
+    <div class="shop-coins"><span class="coin"></span> <span id="shop-coins">0</span> &nbsp; 💎 <span id="shop-diamonds">0</span></div>
   </div>
   <div class="shop-section">
     <h3 data-i18n="vehicles">VEHICLES</h3>
@@ -299,7 +299,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=49"></script>
+<script src="js/game.js?v=50"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});

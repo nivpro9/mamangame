@@ -124,13 +124,22 @@ body {
 .stats-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .stat { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.25); border-radius: 24px; padding: 8px 16px; backdrop-filter: blur(10px); }
 .stat span { color: white; font-size: 18px; font-weight: bold; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-.coin-dot {
-  display: inline-block; width: 22px; height: 22px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #FFE082, #FFD700 50%, #F9A825);
-  border: 2px solid #F57F17;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4);
-  flex-shrink: 0;
+/* ── COIN ICON — shared across all screens ── */
+.coin, .coin-dot {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #FFE082, #FFD700 55%, #F9A825);
+  border: 2px solid #E65100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.45);
+  flex-shrink: 0; vertical-align: middle;
+  font-size: 10px; font-weight: 900; font-style: normal;
+  color: #7B3000; line-height: 1; text-shadow: none;
+  font-family: Arial, sans-serif;
 }
+.coin::after, .coin-dot::after { content: '$'; }
+/* size variants */
+.coin-sm { width: 15px; height: 15px; font-size: 8px; border-width: 1.5px; }
+.coin-lg { width: 26px; height: 26px; font-size: 13px; border-width: 2.5px; }
 
 /* ── LANGUAGE SELECTOR ── */
 .lang-selector {
