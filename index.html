@@ -25,7 +25,16 @@
       <canvas id="spin-wheel" width="260" height="260"></canvas>
     </div>
     <div id="spin-result" class="spin-result"></div>
-    <button id="spin-btn-go" class="btn-play" style="font-size:20px;padding:14px 50px;max-width:220px" onclick="doSpin()">🎰 SPIN!</button>
+    <button id="spin-btn-go" class="btn-play" style="font-size:20px;padding:14px 50px;max-width:220px" onclick="doSpin(false)">🎰 SPIN!</button>
+    <!-- Extra ad spins: 3 per day -->
+    <div id="spin-ad-slots" class="spin-ad-slots">
+      <div class="spin-ad-label">Extra spins today</div>
+      <div class="spin-ad-row">
+        <button class="spin-ad-btn" id="spin-ad-1" onclick="doAdSpin()">▶ Ad spin</button>
+        <button class="spin-ad-btn" id="spin-ad-2" onclick="doAdSpin()">▶ Ad spin</button>
+        <button class="spin-ad-btn" id="spin-ad-3" onclick="doAdSpin()">▶ Ad spin</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -122,9 +131,12 @@
 <!-- DEATH SCREEN — unified single screen -->
 <div id="screen-revive" class="screen">
   <div class="death-content">
-    <!-- Always visible: title + stats -->
-    <div class="crash-icon">💥</div>
-    <h1 class="go-title" data-i18n="crashed">OOPS! 😅</h1>
+    <!-- Paper-plane silhouette + title -->
+    <svg class="crash-mark" viewBox="0 0 64 64" aria-hidden="true">
+      <path d="M4 32 L60 8 L40 56 L32 38 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M32 38 L60 8" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" opacity="0.5"/>
+    </svg>
+    <h1 class="go-title" data-i18n="crashed">CRASHED!</h1>
     <div class="go-stats">
       <div class="go-stat">
         <div class="go-stat-label" data-i18n="level">LEVEL</div>
@@ -142,30 +154,29 @@
 
     <!-- CONTINUE section: shown while revives are available -->
     <div id="death-continue" class="hidden">
-      <div class="revive-subtitle">CONTINUE?</div>
       <div class="revive-ring-wrap">
-        <svg width="88" height="88" viewBox="0 0 110 110">
-          <circle id="revive-ring-bg" cx="55" cy="55" r="48" fill="none" stroke-width="7"/>
-          <circle id="revive-ring-fill" cx="55" cy="55" r="48" fill="none" stroke-width="7"
+        <svg width="72" height="72" viewBox="0 0 110 110">
+          <circle id="revive-ring-bg" cx="55" cy="55" r="48" fill="none" stroke-width="6"/>
+          <circle id="revive-ring-fill" cx="55" cy="55" r="48" fill="none" stroke-width="6"
             stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="0"/>
         </svg>
-        <div id="revive-countdown-num">8</div>
+        <div id="revive-countdown-num">5</div>
       </div>
       <!-- Coin revive: up to 3x, cost rises 100→200→300 -->
-      <button id="revive-coin-btn" class="btn-revive-coin">💰 Continue — 100 🪙</button>
+      <button id="revive-coin-btn" class="btn-revive-coin"><span data-i18n="continueGame">CONTINUE</span> · <span id="revive-coin-cost">100</span></button>
       <!-- Ad revive: up to 2x, hidden after any coin revive -->
       <div id="revive-ad-section">
-        <div class="revive-or">— or —</div>
-        <button id="revive-ad-btn" class="btn-revive-ad">📺 Watch Ad (2 left)</button>
+        <button id="revive-ad-btn" class="btn-revive-ad"><span data-i18n="watchAd">WATCH AD</span> <span id="revive-ad-count" class="chip">2</span></button>
       </div>
-      <button id="revive-giveup-btn" class="btn-revive-giveup">Give Up</button>
+      <button id="retryBtn" class="btn-revive-newgame" data-i18n="newGame">NEW GAME</button>
+      <button id="goMenuBtn" class="btn-revive-menu" data-i18n="menu">MENU</button>
     </div>
 
-    <!-- ENDED section: shown after countdown/give-up/all revives used -->
+    <!-- ENDED section: shown when revives are exhausted -->
     <div id="death-ended" class="hidden">
-      <button id="retryBtn" class="btn-play" data-i18n="tryAgain">TRY AGAIN</button>
-      <button id="goShopBtn" class="btn-shop" data-i18n="upgradesBtn">🔧 UPGRADES</button>
-      <button id="goMenuBtn" class="btn-menu" data-i18n="menu">MENU</button>
+      <button id="retryBtn2" class="btn-revive-newgame" data-i18n="newGame">NEW GAME</button>
+      <button id="goShopBtn" class="btn-revive-menu" data-i18n="upgradesBtn">UPGRADES</button>
+      <button id="goMenuBtn2" class="btn-revive-menu" data-i18n="menu">MENU</button>
     </div>
   </div>
 </div>
@@ -246,7 +257,7 @@
   </div>
 </div>
 
-<script src="js/game.js?v=33"></script>
+<script src="js/game.js?v=35"></script>
 <script>
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(() => {});

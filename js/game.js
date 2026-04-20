@@ -95,7 +95,7 @@ const LANGS = {
     play:'PLAY', levelsBtn:'🗺️ LEVELS', upgradesMenu:'⚙️ UPGRADES', upgradesBtn:'🔧 UPGRADES',
     upgradesTitle:'UPGRADES', upgradesSec:'UPGRADES', levelsTitle:'LEVELS',
     level:'LEVEL', distance:'DISTANCE', ammo:'AMMO', coins:'COINS',
-    crashed:'OOPS! 😅', tryAgain:'TRY AGAIN', menu:'MENU',
+    crashed:'CRASHED!', tryAgain:'NEW GAME', menu:'MENU', newGame:'NEW GAME', continueGame:'CONTINUE', watchAd:'WATCH AD',
     levelComplete:'LEVEL COMPLETE!', vehicles:'VEHICLES',
     howToPlay:'HOW TO PLAY', letsFly:"LET'S FLY!", wellDone:'⭐ WELL DONE! ⭐',
     lvl:'LVL', best:'BEST', playAgain:'PLAY AGAIN',
@@ -142,7 +142,7 @@ const LANGS = {
     play:'GIOCA', levelsBtn:'🗺️ LIVELLI', upgradesMenu:'⚙️ MIGLIORIE', upgradesBtn:'🔧 MIGLIORIE',
     upgradesTitle:'MIGLIORIE', upgradesSec:'MIGLIORIE', levelsTitle:'LIVELLI',
     level:'LIVELLO', distance:'DISTANZA', ammo:'MUNIZIONI', coins:'MONETE',
-    crashed:'OPS! 😅', tryAgain:'RIPROVA', menu:'MENU',
+    crashed:'SCHIANTO!', tryAgain:'NUOVA PARTITA', menu:'MENU', newGame:'NUOVA PARTITA', continueGame:'CONTINUA', watchAd:'GUARDA ANNUNCIO',
     levelComplete:'LIVELLO COMPLETATO!', vehicles:'VEICOLI',
     howToPlay:'COME GIOCARE', letsFly:'VOLIAMO!', wellDone:'⭐ OTTIMO! ⭐',
     lvl:'LIV', best:'RECORD', playAgain:'ANCORA',
@@ -188,7 +188,7 @@ const LANGS = {
     play:'JOUER', levelsBtn:'🗺️ NIVEAUX', upgradesMenu:'⚙️ AMÉLIORATIONS', upgradesBtn:'🔧 AMÉLIORATIONS',
     upgradesTitle:'AMÉLIORATIONS', upgradesSec:'AMÉLIORATIONS', levelsTitle:'NIVEAUX',
     level:'NIVEAU', distance:'DISTANCE', ammo:'MUNITIONS', coins:'PIÈCES',
-    crashed:'OUPS! 😅', tryAgain:'RÉESSAYER', menu:'MENU',
+    crashed:'CRASH !', tryAgain:'NOUVELLE PARTIE', menu:'MENU', newGame:'NOUVELLE PARTIE', continueGame:'CONTINUER', watchAd:'VOIR PUB',
     levelComplete:'NIVEAU TERMINÉ!', vehicles:'VÉHICULES',
     howToPlay:'COMMENT JOUER', letsFly:'ON VOLE!', wellDone:'⭐ BRAVO! ⭐',
     lvl:'NIV', best:'RECORD', playAgain:'REJOUER',
@@ -234,7 +234,7 @@ const LANGS = {
     play:'ИГРАТЬ', levelsBtn:'🗺️ УРОВНИ', upgradesMenu:'⚙️ УЛУЧШЕНИЯ', upgradesBtn:'🔧 УЛУЧШЕНИЯ',
     upgradesTitle:'УЛУЧШЕНИЯ', upgradesSec:'УЛУЧШЕНИЯ', levelsTitle:'УРОВНИ',
     level:'УРОВЕНЬ', distance:'ДИСТАНЦИЯ', ammo:'ПАТРОНЫ', coins:'МОНЕТЫ',
-    crashed:'УПС! 😅', tryAgain:'ЕЩЁ РАЗ', menu:'МЕНЮ',
+    crashed:'КРУШЕНИЕ!', tryAgain:'НОВАЯ ИГРА', menu:'МЕНЮ', newGame:'НОВАЯ ИГРА', continueGame:'ПРОДОЛЖИТЬ', watchAd:'СМОТРЕТЬ РЕКЛАМУ',
     levelComplete:'УРОВЕНЬ ПРОЙДЕН!', vehicles:'ТРАНСПОРТ',
     howToPlay:'КАК ИГРАТЬ', letsFly:'ПОЛЕТЕЛИ!', wellDone:'⭐ ОТЛИЧНО! ⭐',
     lvl:'УР', best:'РЕКОРД', playAgain:'СНОВА',
@@ -280,7 +280,7 @@ const LANGS = {
     play:'プレイ', levelsBtn:'🗺️ レベル', upgradesMenu:'⚙️ アップグレード', upgradesBtn:'🔧 アップグレード',
     upgradesTitle:'アップグレード', upgradesSec:'アップグレード', levelsTitle:'レベル',
     level:'レベル', distance:'距離', ammo:'弾薬', coins:'コイン',
-    crashed:'あらら! 😅', tryAgain:'もう一度', menu:'メニュー',
+    crashed:'墜落!', tryAgain:'ニューゲーム', menu:'メニュー', newGame:'ニューゲーム', continueGame:'コンティニュー', watchAd:'広告を見る',
     levelComplete:'レベルクリア!', vehicles:'乗り物',
     howToPlay:'遊び方', letsFly:'飛ぼう!', wellDone:'⭐ すごい! ⭐',
     lvl:'LV', best:'最高', playAgain:'もう一度',
@@ -326,7 +326,7 @@ const LANGS = {
     play:'开始', levelsBtn:'🗺️ 关卡', upgradesMenu:'⚙️ 升级', upgradesBtn:'🔧 升级',
     upgradesTitle:'升级', upgradesSec:'升级', levelsTitle:'关卡',
     level:'关卡', distance:'距离', ammo:'弹药', coins:'金币',
-    crashed:'哎呀! 😅', tryAgain:'再试一次', menu:'菜单',
+    crashed:'坠毁!', tryAgain:'新游戏', menu:'菜单', newGame:'新游戏', continueGame:'继续', watchAd:'观看广告',
     levelComplete:'关卡完成!', vehicles:'飞行器',
     howToPlay:'游戏说明', letsFly:'出发!', wellDone:'⭐ 太棒了! ⭐',
     lvl:'关', best:'最佳', playAgain:'再玩',
@@ -372,7 +372,7 @@ const LANGS = {
     play:'שחק', levelsBtn:'🗺️ שלבים', upgradesMenu:'⚙️ שדרוגים', upgradesBtn:'🔧 שדרוגים',
     upgradesTitle:'שדרוגים', upgradesSec:'שדרוגים', levelsTitle:'שלבים',
     level:'שלב', distance:'מרחק', ammo:'תחמושת', coins:'מטבעות',
-    crashed:'אופס! 😅', tryAgain:'נסה שוב', menu:'תפריט',
+    crashed:'התרסקת!', tryAgain:'משחק חדש', menu:'תפריט', newGame:'משחק חדש', continueGame:'המשך', watchAd:'צפה בפרסומת',
     levelComplete:'השלב הושלם!', vehicles:'כלי טיס',
     howToPlay:'איך משחקים', letsFly:'יאללה נטוס!', wellDone:'⭐ כל הכבוד! ⭐',
     lvl:'שלב', best:'שיא', playAgain:'שחק שוב',
@@ -418,7 +418,7 @@ const LANGS = {
     play:'العب', levelsBtn:'🗺️ مستويات', upgradesMenu:'⚙️ تحسينات', upgradesBtn:'🔧 تحسينات',
     upgradesTitle:'تحسينات', upgradesSec:'تحسينات', levelsTitle:'مستويات',
     level:'المستوى', distance:'المسافة', ammo:'ذخيرة', coins:'عملات',
-    crashed:'أوه! 😅', tryAgain:'حاول مجدداً', menu:'قائمة',
+    crashed:'تحطم!', tryAgain:'لعبة جديدة', menu:'قائمة', newGame:'لعبة جديدة', continueGame:'متابعة', watchAd:'مشاهدة إعلان',
     levelComplete:'اكتمل المستوى!', vehicles:'مركبات',
     howToPlay:'كيف تلعب', letsFly:'هيا نطير!', wellDone:'⭐ أحسنت! ⭐',
     lvl:'مستوى', best:'أفضل', playAgain:'العب مجدداً',
@@ -1060,6 +1060,7 @@ function spawnParticles(x, y, color, n = 8) {
 // ── SHOOT ────────────────────────────────────────────────
 function shoot() {
   if (gameState !== 'playing' || !player?.alive) return;
+  if (isFreePlay) return; // no shooting in free play
   const lvl = Save.data.upgrades.cannon || 0;
   if (lvl === 0 || ammo <= 0 || shootCooldown > 0 || currentLevel < 3) return;
   ammo--;
@@ -1086,7 +1087,7 @@ function shoot() {
 function updateShootBtn() {
   const btn = document.getElementById('shoot-btn');
   if (!btn) return;
-  const hasCannon = Save.data.upgrades.cannon > 0 && currentLevel >= 3;
+  const hasCannon = Save.data.upgrades.cannon > 0 && currentLevel >= 3 && !isFreePlay;
   if (!hasCannon || gameState !== 'playing') {
     btn.classList.add('hidden');
     return;
@@ -1333,8 +1334,8 @@ function update(dt) {
   coinTimer -= dt;
   if (coinTimer <= 0) { spawnCoin(); coinTimer = 2.0 + Math.random() * 2.0; }
 
-  // ── SHOOT TARGETS spawn (level 3+ with cannon) ──
-  if (Save.data.upgrades.cannon > 0 && currentLevel >= 3) {
+  // ── SHOOT TARGETS spawn (level 3+ with cannon, not in free play) ──
+  if (Save.data.upgrades.cannon > 0 && currentLevel >= 3 && !isFreePlay) {
     targetTimer -= dt;
     if (targetTimer <= 0) {
       obstacles.push(createTarget());
@@ -1544,13 +1545,18 @@ function update(dt) {
   // ── HUD UPDATE ──
   updateHUD();
 
-  // ── FREE PLAY: scale difficulty and biome dynamically by distance ──
+  // ── FREE PLAY: scale difficulty continuously with distance (no cap) ──
   if (isFreePlay) {
-    const fp_t = Math.min(1, distance / 5000);
-    levelData.speed        = (3 + fp_t * 6) * 0.88;
-    levelData.gapFraction  = (0.42 - fp_t * 0.15) * 1.12;
-    levelData.spawnInterval= Math.max(0.65, (2.0 - fp_t * 1.35) * 1.12);
-    levelData.fanChance    = fp_t * 0.20;
+    // Phase 0-5000m: gentle ramp. Beyond 5000m: keeps getting harder with slower curve
+    const fp_t  = Math.min(1, distance / 5000);          // 0→1 over first 5km
+    const fp_t2 = Math.min(1, Math.max(0, (distance - 5000) / 10000)); // 0→1 from 5k→15km
+    const baseSpeed       = (3 + fp_t * 6) * 0.88;
+    const bonusSpeed      = fp_t2 * 2.5;                 // up to +2.5 speed beyond 5k
+    levelData.speed        = baseSpeed + bonusSpeed;
+    levelData.gapFraction  = Math.max(0.22, (0.42 - fp_t * 0.15) - fp_t2 * 0.05);
+    levelData.spawnInterval= Math.max(0.45, (2.0 - fp_t * 1.35) * 1.12 - fp_t2 * 0.2);
+    levelData.fanChance    = Math.min(0.35, fp_t * 0.20 + fp_t2 * 0.15);
+    levelData.birdChance   = Math.min(0.20, fp_t * 0.08 + fp_t2 * 0.12);
     const newBiome = Math.min(6, Math.floor(distance / 700));
     if (newBiome !== currentBiome) {
       currentBiome = newBiome;
@@ -2769,6 +2775,7 @@ function showMenu() {
   showScreen('screen-menu');
   drawMenuVehicle();
   updateSpinButton();
+  _startSpinCountdown();
 }
 
 function startGame() {
@@ -2865,7 +2872,7 @@ function showReviveScreen() {
 
   // Coin button
   const coinBtn = document.getElementById('revive-coin-btn');
-  coinBtn.textContent = '💰 Continue — ' + cost + ' 🪙';
+  document.getElementById('revive-coin-cost').textContent = cost + ' 🪙';
   coinBtn.disabled = !canCoin;
   coinBtn.style.opacity = canCoin ? '1' : '0.45';
 
@@ -2876,14 +2883,15 @@ function showReviveScreen() {
   } else {
     adSection.classList.remove('hidden');
     const adLeft = AdManager.MAX_AD_REVIVES - AdManager._adRevivesThisGame;
+    const adCountEl = document.getElementById('revive-ad-count');
+    if (adCountEl) adCountEl.textContent = adLeft;
     const adBtn  = document.getElementById('revive-ad-btn');
-    adBtn.textContent = '📺 Watch Ad (' + adLeft + ' left)';
     adBtn.disabled = !canAd;
     adBtn.style.opacity = canAd ? '1' : '0.45';
   }
 
-  // Countdown ring (8 seconds)
-  const TOTAL = 8;
+  // Countdown ring (5 seconds) — expires → auto new game
+  const TOTAL = 5;
   let remaining = TOTAL;
   const circumference = 301.6;
   const ring  = document.getElementById('revive-ring-fill');
@@ -2898,7 +2906,7 @@ function showReviveScreen() {
     ring.style.strokeDashoffset = String(circumference * (1 - remaining / TOTAL));
     if (remaining <= 0) {
       clearInterval(reviveTimer); reviveTimer = null;
-      doActualGameOver();
+      startNewGameFromDeath();
     }
   }, 1000);
 }
@@ -2943,6 +2951,19 @@ function doActualGameOver() {
     AdManager.showInterstitial(() => { endedEl.classList.remove('hidden'); });
   } else {
     endedEl.classList.remove('hidden');
+  }
+}
+
+// Called by countdown expiry or NEW GAME button — finalize then restart
+function startNewGameFromDeath() {
+  if (reviveTimer) { clearInterval(reviveTimer); reviveTimer = null; }
+  _finalizeGameOver();
+  Save.data.gameCount = (Save.data.gameCount || 0) + 1;
+  Save.save();
+  if (Save.data.gameCount % 7 === 0) {
+    AdManager.showInterstitial(() => { isFreePlay ? beginFreePlay() : beginLevel(currentLevel); });
+  } else {
+    isFreePlay ? beginFreePlay() : beginLevel(currentLevel);
   }
 }
 
@@ -3682,8 +3703,34 @@ const SPIN_PRIZES = [
   { id:'vehicle',     label:'✈️ FREE PLANE!', color:'#00BCD4', weight:2  },
 ];
 
-function spinAvailable() {
-  return Date.now() - (Save.data.lastSpin || 0) >= 24 * 3600 * 1000;
+const MAX_AD_SPINS_PER_DAY = 3;
+const DAY_MS = 24 * 3600 * 1000;
+
+function _todayKey() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function freeSpinAvailable() {
+  return Date.now() - (Save.data.lastFreeSpin || Save.data.lastSpin || 0) >= DAY_MS;
+}
+
+function adSpinsRemainingToday() {
+  if (Save.data.adSpinDate !== _todayKey()) return MAX_AD_SPINS_PER_DAY;
+  return MAX_AD_SPINS_PER_DAY - (Save.data.adSpinsToday || 0);
+}
+
+// legacy alias (some old calls may still use this)
+function spinAvailable() { return freeSpinAvailable(); }
+
+let _spinCountdownInterval = null;
+
+function _formatSpinCountdown() {
+  const rem = DAY_MS - (Date.now() - (Save.data.lastFreeSpin || Save.data.lastSpin || 0));
+  if (rem <= 0) return '';
+  const h = Math.floor(rem / 3600000);
+  const m = Math.floor((rem % 3600000) / 60000);
+  const s = Math.floor((rem % 60000) / 1000);
+  return h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`;
 }
 
 function updateSpinButton() {
@@ -3691,18 +3738,25 @@ function updateSpinButton() {
   const badge = document.getElementById('spin-badge');
   const countdown = document.getElementById('spin-countdown');
   if (!btn) return;
-  if (spinAvailable()) {
+  const free = freeSpinAvailable();
+  const adRem = adSpinsRemainingToday();
+  if (free || adRem > 0) {
     btn.classList.remove('spin-unavailable');
     badge.classList.remove('hidden');
-    countdown.textContent = '';
+    countdown.textContent = free ? '' : _formatSpinCountdown();
   } else {
     btn.classList.add('spin-unavailable');
     badge.classList.add('hidden');
-    const rem = 24 * 3600 * 1000 - (Date.now() - (Save.data.lastSpin || 0));
-    const h = Math.floor(rem / 3600000);
-    const m = Math.floor((rem % 3600000) / 60000);
-    countdown.textContent = `${h}h ${m}m`;
+    countdown.textContent = _formatSpinCountdown();
   }
+}
+
+function _startSpinCountdown() {
+  if (_spinCountdownInterval) clearInterval(_spinCountdownInterval);
+  _spinCountdownInterval = setInterval(() => {
+    if (gameState !== 'menu') { clearInterval(_spinCountdownInterval); _spinCountdownInterval = null; return; }
+    updateSpinButton();
+  }, 1000);
 }
 
 function drawSpinWheel() {
@@ -3741,28 +3795,83 @@ function drawSpinWheel() {
 
 let _spinInProgress = false;
 
-function showSpin() {
-  if (!spinAvailable()) return;
-  const modal = document.getElementById('spin-modal');
-  modal.classList.remove('hidden');
-  // Reset wheel rotation
+function _resetSpinWheel() {
   const wheel = document.getElementById('spin-wheel');
   wheel.style.transition = 'none';
   wheel.style.transform = 'rotate(0deg)';
   document.getElementById('spin-result').textContent = '';
-  const goBtn = document.getElementById('spin-btn-go');
-  goBtn.disabled = false;
-  goBtn.textContent = '🎰 SPIN!';
-  goBtn.onclick = doSpin;
   _spinInProgress = false;
   drawSpinWheel();
 }
 
-function closeSpin() {
-  document.getElementById('spin-modal').classList.add('hidden');
+function _updateAdSpinSlots() {
+  const rem = adSpinsRemainingToday();
+  for (let i = 1; i <= MAX_AD_SPINS_PER_DAY; i++) {
+    const btn = document.getElementById('spin-ad-' + i);
+    if (!btn) continue;
+    if (i <= MAX_AD_SPINS_PER_DAY - rem) {
+      // used
+      btn.textContent = '✓';
+      btn.disabled = true;
+      btn.style.opacity = '0.3';
+    } else {
+      btn.textContent = '▶ Ad spin';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
 }
 
-function doSpin() {
+function showSpin() {
+  if (!freeSpinAvailable() && adSpinsRemainingToday() <= 0) return;
+  const modal = document.getElementById('spin-modal');
+  modal.classList.remove('hidden');
+  _resetSpinWheel();
+  const goBtn = document.getElementById('spin-btn-go');
+  if (freeSpinAvailable()) {
+    goBtn.disabled = false;
+    goBtn.textContent = '🎰 SPIN!';
+    goBtn.style.opacity = '1';
+  } else {
+    goBtn.disabled = true;
+    goBtn.textContent = '✓ Used';
+    goBtn.style.opacity = '0.4';
+  }
+  goBtn.onclick = () => doSpin(false);
+  _updateAdSpinSlots();
+}
+
+function closeSpin() {
+  document.getElementById('spin-modal').classList.add('hidden');
+  updateSpinButton();
+}
+
+function doAdSpin() {
+  if (_spinInProgress) return;
+  if (adSpinsRemainingToday() <= 0) return;
+  // Stop free-spin countdown during ad watch
+  AdManager.showRewardedAd(() => {
+    // Record ad spin
+    const today = _todayKey();
+    if (Save.data.adSpinDate !== today) {
+      Save.data.adSpinDate = today;
+      Save.data.adSpinsToday = 0;
+    }
+    Save.data.adSpinsToday = (Save.data.adSpinsToday || 0) + 1;
+    Save.save();
+    _updateAdSpinSlots();
+    // Now run the spin animation
+    _runSpinAnimation(true);
+  });
+}
+
+function doSpin(isAd) {
+  if (_spinInProgress) return;
+  if (!isAd && !freeSpinAvailable()) return;
+  _runSpinAnimation(isAd);
+}
+
+function _runSpinAnimation(isAd) {
   if (_spinInProgress) return;
   _spinInProgress = true;
   // Pick prize
@@ -3772,23 +3881,26 @@ function doSpin() {
     r -= SPIN_PRIZES[i].weight;
     if (r <= 0) { chosen = SPIN_PRIZES[i]; prizeIdx = i; break; }
   }
-  // Calculate target rotation so chosen segment faces the pointer (top)
+  // Calculate target rotation so chosen segment faces pointer (top)
   const segDeg = 360 / SPIN_PRIZES.length;
   const spins = 5 + Math.floor(Math.random() * 3);
   const targetDeg = spins * 360 + (360 - prizeIdx * segDeg - segDeg / 2);
   const wheel = document.getElementById('spin-wheel');
   wheel.style.transition = 'transform 4.2s cubic-bezier(0.17,0.67,0.12,0.99)';
   wheel.style.transform = `rotate(${targetDeg}deg)`;
-  // Disable button during spin
+  // Disable main button during spin
   const goBtn = document.getElementById('spin-btn-go');
   goBtn.disabled = true;
   goBtn.textContent = '⏳';
+  goBtn.style.opacity = '0.5';
   setTimeout(() => {
     applySpinPrize(chosen);
-    Save.data.lastSpin = Date.now();
+    if (!isAd) {
+      Save.data.lastFreeSpin = Date.now();
+      Save.data.lastSpin = Save.data.lastFreeSpin; // keep compat
+    }
     Save.save();
     const resultEl = document.getElementById('spin-result');
-    // Build prize description
     const prizeDesc = {
       speed:       '⚡ TURBO active next level!\n+65% speed for the whole run!',
       shield:      '🛡 3 shields activated!\nYou can take 3 hits!',
@@ -3801,9 +3913,12 @@ function doSpin() {
     resultEl.style.color = chosen.color;
     goBtn.textContent = '✓ CLOSE';
     goBtn.disabled = false;
+    goBtn.style.opacity = '1';
     goBtn.onclick = closeSpin;
     updateSpinButton();
+    _updateAdSpinSlots();
     document.getElementById('menu-coins').textContent = Save.data.coins;
+    _spinInProgress = false;
   }, 4400);
 }
 
@@ -3860,9 +3975,7 @@ window.addEventListener('load', () => {
   document.getElementById('levelsBtn').addEventListener('click', showLevelSelect);
   document.getElementById('levelsBackBtn').addEventListener('click', showMenu);
   document.getElementById('shopBtn').addEventListener('click', showShop);
-  document.getElementById('retryBtn').addEventListener('click', () => isFreePlay ? beginFreePlay() : beginLevel(currentLevel));
   document.getElementById('goShopBtn').addEventListener('click', showShop);
-  document.getElementById('goMenuBtn').addEventListener('click', showMenu);
   document.getElementById('shopBackBtn').addEventListener('click', showMenu);
   document.getElementById('nextLevelBtn').addEventListener('click', () => beginLevel(Save.data.currentLevel));
   document.getElementById('lcShopBtn').addEventListener('click', showShop);
@@ -3879,9 +3992,23 @@ window.addEventListener('load', () => {
     if (reviveTimer) { clearInterval(reviveTimer); reviveTimer = null; }
     AdManager.showRewardedAd(() => doRevive(true));
   });
-  document.getElementById('revive-giveup-btn').addEventListener('click', () => {
+  // NEW GAME buttons (in death-continue and death-ended)
+  document.getElementById('retryBtn').addEventListener('click', startNewGameFromDeath);
+  document.getElementById('retryBtn2').addEventListener('click', startNewGameFromDeath);
+  document.getElementById('goMenuBtn').addEventListener('click', () => {
     if (reviveTimer) { clearInterval(reviveTimer); reviveTimer = null; }
-    doActualGameOver();
+    _finalizeGameOver();
+    showMenu();
+  });
+  document.getElementById('goMenuBtn2').addEventListener('click', () => {
+    _finalizeGameOver();
+    showMenu();
+  });
+  // Legacy giveup removed — kept as no-op guard
+  const giveupBtn = document.getElementById('revive-giveup-btn');
+  if (giveupBtn) giveupBtn.addEventListener('click', () => {
+    if (reviveTimer) { clearInterval(reviveTimer); reviveTimer = null; }
+    startNewGameFromDeath();
   });
 
   window.addEventListener('resize', () => {
