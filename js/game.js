@@ -58,7 +58,7 @@ const LEVELS = generateLevels();
 const VEHICLES = [
   { id:0, name:'Paper Plane',     emoji:'✉️',  cost:0,     levelReq:1,  speed:1.0,  control:1.0,  color:'#ffffff', landing:'strip',    perk:'Standard all-rounder'                          },
   { id:1, name:'Upgraded Paper',  emoji:'📄',  cost:135,   levelReq:3,  speed:1.15, control:1.1,  color:'#e3f2fd', landing:'strip',    perk:'🧲 Coin magnet range +40%'                     },
-  { id:2, name:'Drone',           emoji:'🚁',  cost:360,   levelReq:7,  speed:0.95, control:1.1,  color:'#90caf9', landing:'helipad',  perk:'🎯 Precise hover — gravity halved'              },
+  { id:2, name:'Drone',           emoji:'🚁',  cost:360,   levelReq:7,  speed:0.95, control:1.2,  color:'#90caf9', landing:'helipad',  perk:'🎯 Hover control — glides smoothly, easy to steer' },
   { id:3, name:'Light Plane',     emoji:'🛩️', cost:810,   levelReq:12, speed:1.3,  control:1.2,  color:'#4fc3f7', landing:'runway',   perk:'⚡ Aerobatic — tighter turns'                   },
   { id:4, name:'Propeller Plane', emoji:'✈️',  cost:1620,  levelReq:18, speed:1.5,  control:1.15, color:'#ffd54f', landing:'runway',   perk:'💨 Fan gusts reduced by 60%'                   },
   { id:5, name:'Rocket',          emoji:'🚀',  cost:2880,  levelReq:25, speed:2.0,  control:0.85, color:'#ff7043', landing:'pad',      perk:'🔥 Fire trail — hold for speed burst'           },
@@ -1362,18 +1362,31 @@ function update(dt) {
   );
 
   // ── PHYSICS: hold screen = fly up, release = fall ──
-  const ctrl      = veh.control * (1 + upg.control * 0.15);
-  const gravity   = veh.id === 2 ? 175 : 520; // Drone perk: gravity reduced to 1/3
-  const uplift    = 700;
-  const maxFall   = 320;
-  const maxRise   = -260 * Math.min(ctrl, 1.8);
+  const ctrl = veh.control * (1 + upg.control * 0.15);
 
-  if (isHolding) {
-    player.vy = Math.max(player.vy - uplift * ctrl * dt, maxRise);
+  if (veh.id === 2) {
+    // ── DRONE: gentle hover physics — precise & easy to control ──
+    if (isHolding) {
+      // Soft, gradual lift — not jerky
+      player.vy = Math.max(player.vy - 360 * ctrl * dt, -170 * ctrl);
+    } else {
+      // Very light gravity + strong velocity damping = natural hover tendency
+      player.vy += 90 * dt;
+      player.vy *= Math.pow(0.84, dt * 60); // damp oscillations, drone stabilises quickly
+    }
+    player.vy = Math.min(player.vy, 200); // limit fall speed
   } else {
-    // Smooth momentum: slightly softer gravity while still rising (no sharp threshold)
-    const gravityFactor = player.vy < 0 ? 0.72 : 1.0;
-    player.vy = Math.min(player.vy + gravity * gravityFactor * dt, maxFall);
+    // ── NORMAL PLANES ──
+    const gravity  = 520;
+    const uplift   = 700;
+    const maxFall  = 320;
+    const maxRise  = -260 * Math.min(ctrl, 1.8);
+    if (isHolding) {
+      player.vy = Math.max(player.vy - uplift * ctrl * dt, maxRise);
+    } else {
+      const gravityFactor = player.vy < 0 ? 0.72 : 1.0;
+      player.vy = Math.min(player.vy + gravity * gravityFactor * dt, maxFall);
+    }
   }
   player.y += player.vy * dt;
 
@@ -1381,9 +1394,9 @@ function update(dt) {
   player.y = Math.max(player.h * 0.5, Math.min(H - player.h * 0.5, player.y));
   if (player.y <= player.h * 0.5 || player.y >= H - player.h * 0.5) player.vy *= 0.2; // dampen instead of zero
 
-  // Trail
-  player.trail.unshift({ x: player.x, y: player.y });
-  if (player.trail.length > 24) player.trail.pop();
+  // Trail — origin at back of plane (left edge) so it streams behind
+  player.trail.unshift({ x: player.x - 22, y: player.y + (player.vy * 0.012) });
+  if (player.trail.length > 32) player.trail.pop();
 
   if (player.invincible > 0) player.invincible -= dt;
   if (shootCooldown > 0) shootCooldown -= dt;
@@ -2419,111 +2432,110 @@ function drawTrail() {
 
   const colors = skin.colors;
   if (skinId === 1) {
-    // Sparkle: tiny golden stars scattered along trail
+    // Sparkle: golden stars scattered behind plane
     trail.forEach((pt, i) => {
       const frac  = 1 - i / len;
-      const alpha = frac * 0.9;
       const col   = colors[i % colors.length];
       ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(pt.x + (Math.sin(i * 2.7 + now) * 5), pt.y + (Math.cos(i * 3.1 + now) * 5));
+      ctx.globalAlpha = frac * 1.0;
+      ctx.translate(pt.x + (Math.sin(i * 2.7 + now) * 6), pt.y + (Math.cos(i * 3.1 + now) * 6));
       ctx.fillStyle = col;
-      const r = frac * 5;
-      for (let s = 0; s < 4; s++) {
-        const a = (s / 4) * Math.PI * 2;
+      const r = frac * 9;
+      for (let s = 0; s < 5; s++) {
+        const a = (s / 5) * Math.PI * 2;
         ctx.beginPath();
-        ctx.arc(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.5, r * 0.35, 0, Math.PI * 2);
+        ctx.arc(Math.cos(a) * r * 0.5, Math.sin(a) * r * 0.5, r * 0.4, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
     });
   } else if (skinId === 2) {
-    // Rainbow: hue-cycling dots
+    // Rainbow: hue-cycling dots — bigger and more opaque
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
       const col  = colors[i % colors.length];
-      ctx.save(); ctx.globalAlpha = frac * 0.92;
+      ctx.save(); ctx.globalAlpha = frac * 0.95;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 13, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 18, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   } else if (skinId === 3) {
-    // Sunray: warm glow with radial gradient
+    // Sunray: warm glow — larger radius
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
       if (frac < 0.04) return;
-      const r  = frac * 17;
+      const r   = frac * 24;
       const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
-      grd.addColorStop(0, `rgba(255,220,50,${frac * 0.7})`);
+      grd.addColorStop(0, `rgba(255,220,50,${(frac * 0.85).toFixed(2)})`);
+      grd.addColorStop(0.6, `rgba(255,100,0,${(frac * 0.4).toFixed(2)})`);
       grd.addColorStop(1, 'rgba(255,100,0,0)');
       ctx.fillStyle = grd;
       ctx.beginPath(); ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2); ctx.fill();
     });
   } else if (skinId === 4) {
-    // Ice: pale blue crystalline dots
+    // Ice: pale blue crystalline — larger and brighter
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
-      ctx.save(); ctx.globalAlpha = frac * 0.88;
-      const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, frac * 14);
-      grd.addColorStop(0, '#FFFFFF'); grd.addColorStop(0.4, '#B3E5FC'); grd.addColorStop(1, 'rgba(0,200,255,0)');
+      ctx.save(); ctx.globalAlpha = frac * 0.95;
+      const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, frac * 20);
+      grd.addColorStop(0, '#FFFFFF'); grd.addColorStop(0.35, '#B3E5FC'); grd.addColorStop(1, 'rgba(0,200,255,0)');
       ctx.fillStyle = grd;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 14, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 20, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   } else if (skinId === 5) {
-    // Lightning: jagged electric line + sparks
+    // Lightning: jagged electric line + fat sparks
     ctx.save();
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2.5; ctx.globalAlpha = 0.85;
-    ctx.shadowColor = '#80D8FF'; ctx.shadowBlur = 8;
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 4; ctx.globalAlpha = 0.9;
+    ctx.shadowColor = '#80D8FF'; ctx.shadowBlur = 14;
     ctx.beginPath();
     trail.forEach((pt, i) => {
-      const jitter = i > 0 ? (Math.sin(i * 17.3 + now * 8) * 5) : 0;
+      const jitter = i > 0 ? (Math.sin(i * 17.3 + now * 8) * 7) : 0;
       i === 0 ? ctx.moveTo(pt.x, pt.y + jitter) : ctx.lineTo(pt.x, pt.y + jitter);
     });
     ctx.stroke();
-    // Sparks
     trail.forEach((pt, i) => {
-      if (i % 3 !== 0) return;
+      if (i % 2 !== 0) return;
       const frac = 1 - i / len;
       ctx.fillStyle = i % 2 === 0 ? '#FFFDE7' : '#80D8FF';
-      ctx.globalAlpha = frac * 0.9;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y + (Math.sin(i * 5.1 + now * 6) * 8), frac * 3, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = frac * 0.95;
+      ctx.beginPath(); ctx.arc(pt.x, pt.y + (Math.sin(i * 5.1 + now * 6) * 10), frac * 5, 0, Math.PI * 2); ctx.fill();
     });
     ctx.restore();
   } else if (skinId === 6) {
-    // Fire: gradient from yellow (near) to red (far), bigger near player
+    // Fire: large glowing flame trail
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
-      const r    = frac * 19;
+      const r    = frac * 26;
       if (r < 1) return;
       const grd = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r);
-      grd.addColorStop(0, `rgba(255,230,50,${frac * 0.9})`);
-      grd.addColorStop(0.5, `rgba(255,120,0,${frac * 0.6})`);
-      grd.addColorStop(1, 'rgba(200,30,0,0)');
+      grd.addColorStop(0, `rgba(255,240,80,${(frac * 0.95).toFixed(2)})`);
+      grd.addColorStop(0.4, `rgba(255,120,0,${(frac * 0.75).toFixed(2)})`);
+      grd.addColorStop(1, 'rgba(200,20,0,0)');
       ctx.fillStyle = grd;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y + Math.sin(i * 2.1 + now * 3) * 3, r, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y + Math.sin(i * 2.1 + now * 3) * 4, r, 0, Math.PI * 2); ctx.fill();
     });
   } else if (skinId === 7) {
-    // Wave: sinusoidal colored dots
+    // Wave: sinusoidal dots — bigger swing and radius
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
       const col  = colors[i % colors.length];
-      const yOff = Math.sin(i * 0.8 + now * 4) * 8;
-      ctx.save(); ctx.globalAlpha = frac * 0.92;
+      const yOff = Math.sin(i * 0.8 + now * 4) * 12;
+      ctx.save(); ctx.globalAlpha = frac * 0.95;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y + yOff, frac * 12, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y + yOff, frac * 17, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   } else if (skinId === 8) {
-    // Neon: glowing multicolor
+    // Neon: glowing multicolor — stronger glow
     trail.forEach((pt, i) => {
       const frac = 1 - i / len;
       const col  = colors[i % colors.length];
       ctx.save();
-      ctx.shadowColor = col; ctx.shadowBlur = 18;
-      ctx.globalAlpha = frac * 0.95;
+      ctx.shadowColor = col; ctx.shadowBlur = 28;
+      ctx.globalAlpha = frac * 0.98;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 11, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, frac * 16, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     });
   }
