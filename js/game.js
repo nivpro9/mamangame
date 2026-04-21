@@ -1610,7 +1610,7 @@ function update(dt) {
         if (b.x > obs.x - obs.w / 2 - 8 && b.x < obs.x + obs.w / 2 + 8) {
           const inBody = b.y < gapTop || b.y > gapBot; // inside top or bottom pillar, not in the gap
           if (inBody) {
-            if (wpY !== null && Math.abs(b.y - wpY) < 30) {
+            if (wpY !== null && Math.abs(b.y - wpY) < 45) {
               pillarDestroyed = true; // direct hit on the glowing crack!
             } else {
               spawnParticles(b.x, b.y, '#a08060', 3); // small spark: hit body, wrong spot
@@ -4484,10 +4484,37 @@ function updateMission(id, value, absolute) {
   for (const m of Save.data.missions) {
     if (m.id !== id || m.completed) continue;
     m.progress = absolute ? Math.max(m.progress, value) : m.progress + value;
-    if (m.progress >= m.goal) { m.progress = m.goal; m.completed = true; }
+    if (m.progress >= m.goal) {
+      m.progress = m.goal;
+      m.completed = true;
+      showMissionCompleteToast(m); // 🎉 celebrate in-game!
+    }
     changed = true;
   }
   if (changed) Save.save();
+}
+
+function showMissionCompleteToast(mission) {
+  // Don't stack more than one toast at a time
+  const existing = document.getElementById('mission-toast');
+  if (existing) existing.remove();
+
+  const el = document.createElement('div');
+  el.id = 'mission-toast';
+  el.className = 'mission-toast';
+  el.innerHTML =
+    '<div class="mt-stars">⭐ 🌟 ⭐</div>'
+    + '<div class="mt-title">✅ MISSION COMPLETE!</div>'
+    + '<div class="mt-label">' + mission.label + '</div>'
+    + '<div class="mt-rewards">+' + mission.coins + ' 🪙 &nbsp;·&nbsp; +' + mission.xp + ' XP</div>'
+    + '<div class="mt-confetti">🎉 🎊 🎉</div>';
+  document.body.appendChild(el);
+
+  // Fade out after 3s
+  setTimeout(() => {
+    el.style.animation = 'mt-fade-out 0.7s ease forwards';
+    setTimeout(() => { if (el.parentNode) el.remove(); }, 700);
+  }, 3200);
 }
 
 function claimMission(idx) {
