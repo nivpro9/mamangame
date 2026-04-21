@@ -841,7 +841,7 @@ let isHolding = false;
 
 // ── AMMO CAPACITY ─────────────────────────────────────────
 // Base 3 bullets always available; cannon upgrade raises the cap (7 tiers)
-function maxAmmo() { return [3, 5, 8, 12, 17, 24, 33][Math.min(6, Save.data.upgrades.cannon)]; }
+function maxAmmo() { return [6, 8, 12, 16, 22, 30, 40][Math.min(6, Save.data.upgrades.cannon)]; }
 
 // ── PLAYER ───────────────────────────────────────────────
 function createPlayer() {
