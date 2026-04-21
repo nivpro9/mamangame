@@ -686,6 +686,13 @@ const Save = {
     try { raw = localStorage.getItem(this.KEY); } catch(e) {}
     if (!raw) { try { raw = sessionStorage.getItem(this.KEY); } catch(e) {} }
     if (!raw) { raw = this._getCookie(); }
+    // RECOVERY: if no save found, check for old save under pfe_v2/pfe_v3 from key changes
+    if (!raw && this.KEY !== 'pfe_v2') {
+      try { raw = localStorage.getItem('pfe_v2'); } catch(e) {}
+    }
+    if (!raw && this.KEY !== 'pfe_v3') {
+      try { raw = localStorage.getItem('pfe_v3'); } catch(e) {}
+    }
     try { this.data = raw ? JSON.parse(raw) : null; } catch { this.data = null; }
     if (!this.data) this.data = this.fresh();
     // Field safety
