@@ -1244,14 +1244,10 @@ function updateShootBtn() {
   const full  = ammo >= cap;
   // Label: show ammo count
   btn.textContent = '🔫 ' + ammo;
-  // Opacity: only go dim when ammo is 0 (empty).
-  // Has ammo + on cooldown → slightly dimmed (reloading), NOT invisible.
+  // Opacity: transparent ONLY when ammo = 0. Full opacity as long as any ammo remains.
   if (ammo <= 0) {
     btn.style.opacity   = '0.25';
     btn.style.transform = 'scale(0.88)';
-  } else if (!ready) {              // has ammo, brief cooldown after shot
-    btn.style.opacity   = '0.70';
-    btn.style.transform = 'scale(0.95)';
   } else {
     btn.style.opacity   = '1';
     btn.style.transform = 'scale(1)';
@@ -1259,9 +1255,6 @@ function updateShootBtn() {
   // Border / glow colour: gold=full, red=low, normal otherwise
   if (ammo <= 0) {
     btn.style.borderColor = 'rgba(255,90,20,0.3)';
-    btn.style.boxShadow   = 'none';
-  } else if (!ready) {
-    btn.style.borderColor = 'rgba(255,90,20,0.55)';
     btn.style.boxShadow   = 'none';
   } else if (full) {
     btn.style.borderColor = '#FFD700';
