@@ -1598,30 +1598,39 @@ function update(dt) {
           tutHints.push({ text: t('cannonTutHint'), x: W * 0.5, y: H * 0.35, alpha: 1, timer: 4 });
         }
       }
-      // Bullets can only destroy pillars with a weak point — must hit near the glowing crack
+      // Bullets are blocked by the pillar body.
+      // Only a shot that lands near the GLOWING CRACK (weak point) destroys the pillar.
       let pillarDestroyed = false;
-      if (obs.hasWeakPoint) {
-        const wpY = obs.weakTop
-          ? (obs.gapY - obs.gap / 2) - 10  // crack at gap edge of top pillar
-          : (obs.gapY + obs.gap / 2) + 10; // crack at gap edge of bottom pillar
-        bullets = bullets.filter(b => {
-          if (b.x > obs.x - obs.w / 2 - 8 && b.x < obs.x + obs.w / 2 + 8) {
-            if (Math.abs(b.y - wpY) < 30) { pillarDestroyed = true; return false; }
+      const gapTop = obs.gapY - obs.gap / 2;
+      const gapBot = obs.gapY + obs.gap / 2;
+      const wpY = obs.hasWeakPoint
+        ? (obs.weakTop ? gapTop - 10 : gapBot + 10)
+        : null; // null = no weak point, bullet just gets absorbed
+      bullets = bullets.filter(b => {
+        if (b.x > obs.x - obs.w / 2 - 8 && b.x < obs.x + obs.w / 2 + 8) {
+          const inBody = b.y < gapTop || b.y > gapBot; // inside top or bottom pillar, not in the gap
+          if (inBody) {
+            if (wpY !== null && Math.abs(b.y - wpY) < 30) {
+              pillarDestroyed = true; // direct hit on the glowing crack!
+            } else {
+              spawnParticles(b.x, b.y, '#a08060', 3); // small spark: hit body, wrong spot
+            }
+            return false; // bullet is always consumed when it hits the pillar body
           }
-          return true;
-        });
-        if (pillarDestroyed) {
-          const px = obs.x, py = obs.weakTop ? obs.gapY - obs.gap / 2 : obs.gapY + obs.gap / 2;
-          spawnParticles(px, py, '#8D6E63', 14);
-          spawnParticles(px, py, '#FF9800', 8);
-          screenShake = 0.3;
-          updateMission('shoot', 1);
-          Snd.play('crash');
-          sessionCoins += 8;
-          Vibrate.buzz(35);
-          popups.push({ text: '💥 +8', x: px, y: py - 24, alpha: 1, timer: 1.2, color: '#FF9800' });
-          return false; // remove pillar
         }
+        return true;
+      });
+      if (pillarDestroyed) {
+        const px = obs.x, py = obs.weakTop ? gapTop : gapBot;
+        spawnParticles(px, py, '#8D6E63', 14);
+        spawnParticles(px, py, '#FF9800', 8);
+        screenShake = 0.3;
+        updateMission('shoot', 1);
+        Snd.play('crash');
+        sessionCoins += 8;
+        Vibrate.buzz(35);
+        popups.push({ text: '💥 +8', x: px, y: py - 24, alpha: 1, timer: 1.2, color: '#FF9800' });
+        return false; // remove pillar
       }
       if (player.invincible <= 0) {
         const hw = player.w * 0.38, hh = player.h * 0.38;
@@ -4646,6 +4655,128 @@ function showDailyGiftPopup(streak, coins) {
       </button>
     </div>`;
   document.body.appendChild(overlay);
+}
+
+// ── HOW TO PLAY ───────────────────────────────────────────
+let howToPageIdx = 0;
+const HOW_TO_PAGES = [
+  {
+    title: 'CONTROLS',
+    icon: '✋',
+    color: '#42A5F5',
+    items: [
+      { icon: '👆', label: 'Hold', desc: 'Press & hold the screen to fly UP' },
+      { icon: '🖐️', label: 'Release', desc: 'Let go to glide DOWN — find the gap!' },
+      { icon: '🔫', label: 'Shoot', desc: 'Tap the cannon button to fire (needs ammo)' },
+    ]
+  },
+  {
+    title: 'THE GOAL',
+    icon: '🏁',
+    color: '#66BB6A',
+    items: [
+      { icon: '📏', label: 'Distance', desc: 'Fly far enough to reach the level\'s distance goal' },
+      { icon: '✈️', label: 'Gaps', desc: 'Navigate through the gap in every pillar — don\'t hit the walls!' },
+      { icon: '🛬', label: 'Landing', desc: 'Fly onto the runway at the end to complete the level and progress!' },
+    ]
+  },
+  {
+    title: 'COLLECT THESE',
+    icon: '✅',
+    color: '#FFA726',
+    items: [
+      { icon: '🪙', label: 'Coins', desc: 'Spend on upgrades & new vehicles in the shop' },
+      { icon: '💎', label: 'Diamonds', desc: 'Rare & very valuable — grab every one you see!' },
+      { icon: '🎁', label: 'Mystery Box', desc: 'Random reward: coins, shield or even diamonds' },
+      { icon: '🛡️', label: 'Shield', desc: 'Absorbs one crash so you survive — very useful!' },
+      { icon: '🚀', label: 'Ammo Pack', desc: 'Gives you one bullet to shoot with' },
+    ]
+  },
+  {
+    title: 'SHOOTING',
+    icon: '🔫',
+    color: '#EF5350',
+    items: [
+      { icon: '🔥', label: 'Weak Point', desc: 'Some pillars have a GLOWING ORANGE CRACK — that\'s the target' },
+      { icon: '💥', label: 'Destroy Pillar', desc: 'Shoot the crack directly to blow up the entire pillar!' },
+      { icon: '⚠️', label: 'Body is Solid', desc: 'Bullets hitting the pillar anywhere else just get absorbed — only the crack works!' },
+      { icon: '🔴', label: 'Spike Balls', desc: 'Shoot to destroy them and earn +2 coins' },
+      { icon: '🚁', label: 'Drones & Missiles', desc: 'Shoot enemy units for coins and safety' },
+    ]
+  },
+  {
+    title: 'DANGERS',
+    icon: '☠️',
+    color: '#EF5350',
+    items: [
+      { icon: '🟫', label: 'Pillars', desc: 'Fly through the GAP — crashing into the wall costs you a life or shield' },
+      { icon: '🔴', label: 'Spike Balls', desc: 'Deadly spiky obstacles — dodge or shoot them' },
+      { icon: '🚁', label: 'Drones & Missiles', desc: 'Enemy units that fly toward you — shoot or dodge!' },
+      { icon: '☝️', label: 'Ceiling & Floor', desc: 'Touch the top or bottom edge and you take damage' },
+      { icon: '👹', label: 'Boss (Level 10, 20...)', desc: 'Every 10th level is a boss fight — stock up on ammo and shields first!' },
+    ]
+  },
+  {
+    title: 'PROGRESS & REWARDS',
+    icon: '⚔️',
+    color: '#AB47BC',
+    items: [
+      { icon: '🌍', label: '7 Worlds', desc: 'Sky → Forest → Candy → Flowers → Ice → Fruits → Space — 10 levels each' },
+      { icon: '⚙️', label: 'Upgrades', desc: 'Spend coins to boost speed, shields, magnet & more' },
+      { icon: '⚔️', label: 'Battle Pass', desc: 'Complete daily missions → earn XP → unlock tier rewards' },
+      { icon: '🎰', label: 'Daily Spin', desc: 'Free spin every 24 hours — win coins, shields, bonus vehicles & more!' },
+      { icon: '🎁', label: 'Daily Gift', desc: 'Log in every day for a coin bonus — streaks give bigger rewards!' },
+    ]
+  },
+];
+
+function showHowTo() {
+  howToPageIdx = 0;
+  showScreen('screen-howto');
+  renderHowToPage();
+}
+
+function closeHowTo() {
+  showScreen('screen-menu');
+}
+
+function howToNav(dir) {
+  if (dir > 0 && howToPageIdx >= HOW_TO_PAGES.length - 1) { closeHowTo(); return; }
+  howToPageIdx = Math.max(0, Math.min(HOW_TO_PAGES.length - 1, howToPageIdx + dir));
+  renderHowToPage();
+}
+
+function renderHowToPage() {
+  const page = HOW_TO_PAGES[howToPageIdx];
+  const total = HOW_TO_PAGES.length;
+  document.getElementById('howto-page-num').textContent  = howToPageIdx + 1;
+  document.getElementById('howto-page-total').textContent = total;
+
+  document.getElementById('howto-content').innerHTML =
+    '<div class="howto-page-icon">' + page.icon + '</div>'
+    + '<div class="howto-page-title" style="color:' + page.color + '">' + page.title + '</div>'
+    + '<div class="howto-items">'
+    + page.items.map(item =>
+        '<div class="howto-item">'
+        + '<div class="howto-item-icon">' + item.icon + '</div>'
+        + '<div class="howto-item-text">'
+        + '<div class="howto-item-label">' + item.label + '</div>'
+        + '<div class="howto-item-desc">'  + item.desc  + '</div>'
+        + '</div></div>'
+      ).join('')
+    + '</div>';
+
+  // Dots
+  document.getElementById('howto-dots').innerHTML = HOW_TO_PAGES.map((_, i) =>
+    '<div class="howto-dot' + (i === howToPageIdx ? ' active' : '') + '" onclick="howToPageIdx=' + i + ';renderHowToPage()"></div>'
+  ).join('');
+
+  // Next button label
+  const nxt = document.getElementById('howto-next');
+  nxt.textContent = howToPageIdx === total - 1 ? '✓ DONE' : 'NEXT ›';
+
+  // Prev button disabled state
+  document.getElementById('howto-prev').disabled = howToPageIdx === 0;
 }
 
 // ── DAILY SPIN ───────────────────────────────────────────
