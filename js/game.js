@@ -79,7 +79,7 @@ function generateLevels() {
       biome:        Math.min(6, Math.floor(idx / 10)),
       goal:         Math.round(250 + Math.pow(t, 0.55) * 3000), // 250 → 3000 m (easier goal)
       speed:        (2.4 + t * 3.6) * 0.95,                       // 2.28 → 5.88 px/frame (slower overall, -5%)
-      gapFraction:  (0.44 - t * 0.08) * 1.15,                    // 0.506 → 0.414 H (larger gaps, easier)
+      gapFraction:  (0.44 - t * 0.08),                           // 0.44 → 0.36 H (13% smaller gaps)
       spawnInterval:Math.max(1.0, (2.2 - t * 0.8) * 1.15),       // 2.53 → 1.38 s (slower spawn, more time to react)
       fanChance:    i < 10 ? 0 : Math.min(0.25, (i - 10) * 0.018),
       birdChance:   i < 20 ? 0 : Math.min(0.25, (i - 20) * 0.015),
@@ -846,8 +846,8 @@ function createPlayer() {
 function createPillar() {
   const gap = H * levelData.gapFraction;
   const gapY = H * 0.15 + Math.random() * (H * 0.70);
-  // 1-in-3 pillars have a shootable weak point (glowing crack)
-  const hasWeakPoint = Math.random() < 0.33;
+  // 50% destroyable (weak point), 50% solid (must navigate the gap)
+  const hasWeakPoint = Math.random() < 0.50;
   const weakTop = hasWeakPoint ? (Math.random() < 0.5) : false; // weak point on top or bottom pillar
   return { type:'pillar', x: W + 140, gapY, gap, w: 52, scored: false, seed: Math.floor(Math.random() * 99991),
            hasWeakPoint, weakTop };
@@ -1040,10 +1040,33 @@ function drawBoss() {
   ctx.moveTo(42, 4); ctx.lineTo(12, 24); ctx.lineTo(-26, 18); ctx.lineTo(-20, 4);
   ctx.closePath(); ctx.fill();
 
-  // Wings
+  // Wings — unique per world
   ctx.fillStyle = c2;
-  ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-18, -54); ctx.lineTo(-30, -22); ctx.closePath(); ctx.fill();
-  ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(-18, 54); ctx.lineTo(-30, 22); ctx.closePath(); ctx.fill();
+  const world = boss.world || 0;
+  if (world === 1) { // Forest: thicker/leafier wings
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-22, -58); ctx.lineTo(-32, -22); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(-22, 58); ctx.lineTo(-32, 22); ctx.closePath(); ctx.fill();
+  } else if (world === 2) { // Candy: spiral wings
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.quadraticCurveTo(-20, -50, -28, -22); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, 22); ctx.quadraticCurveTo(-20, 50, -28, 22); ctx.closePath(); ctx.fill();
+  } else if (world === 3) { // Flowers: curved petals
+    ctx.beginPath(); ctx.arc(-15, -35, 12, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-15, 35, 12, 0, Math.PI * 2); ctx.fill();
+  } else if (world === 4) { // Ice: spiky wings
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-20, -56); ctx.lineTo(-12, -36); ctx.lineTo(-28, -50); ctx.lineTo(-30, -22); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(-20, 56); ctx.lineTo(-12, 36); ctx.lineTo(-28, 50); ctx.lineTo(-30, 22); ctx.closePath(); ctx.fill();
+  } else if (world === 5) { // Fruits: round body segments
+    ctx.beginPath(); ctx.arc(-16, -25, 10, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(-16, 25, 10, 0, Math.PI * 2); ctx.fill();
+  } else if (world === 6) { // Space: energy wings
+    ctx.globalAlpha = alpha * 0.6;
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-20, -52); ctx.lineTo(-30, -22); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(-20, 52); ctx.lineTo(-30, 22); ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = alpha;
+  } else { // Sky (default): standard wings
+    ctx.beginPath(); ctx.moveTo(0, -22); ctx.lineTo(-18, -54); ctx.lineTo(-30, -22); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0, 22); ctx.lineTo(-18, 54); ctx.lineTo(-30, 22); ctx.closePath(); ctx.fill();
+  }
 
   // Eye / cannon
   const eyeColor = boss.phase === 2 ? '#ff1111' : boss.phase === 1 ? '#FF8C00' : '#FFD700';
