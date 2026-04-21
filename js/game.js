@@ -634,7 +634,7 @@ function initLangSelector() {
 
 // ── SAVE ─────────────────────────────────────────────────
 const Save = {
-  KEY: 'pfe_v2',
+  KEY: 'pfe_v3', // DEBUG BUILD - fresh save with all unlocked
   COOKIE_DAYS: 365,
   defaults: {
     coins: 999999, bestLevel: 70, activeVehicle: 9,
