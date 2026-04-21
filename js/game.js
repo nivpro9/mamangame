@@ -1244,12 +1244,24 @@ function updateShootBtn() {
   const full  = ammo >= cap;
   // Label: show ammo count
   btn.textContent = '🔫 ' + ammo;
-  // Visual state
-  btn.style.opacity   = ready ? '1' : '0.38';
-  btn.style.transform = ready ? 'scale(1)' : 'scale(0.9)';
+  // Opacity: only go dim when ammo is 0 (empty).
+  // Has ammo + on cooldown → slightly dimmed (reloading), NOT invisible.
+  if (ammo <= 0) {
+    btn.style.opacity   = '0.25';
+    btn.style.transform = 'scale(0.88)';
+  } else if (!ready) {              // has ammo, brief cooldown after shot
+    btn.style.opacity   = '0.70';
+    btn.style.transform = 'scale(0.95)';
+  } else {
+    btn.style.opacity   = '1';
+    btn.style.transform = 'scale(1)';
+  }
   // Border / glow colour: gold=full, red=low, normal otherwise
-  if (!ready) {
-    btn.style.borderColor = 'rgba(255,90,20,0.4)';
+  if (ammo <= 0) {
+    btn.style.borderColor = 'rgba(255,90,20,0.3)';
+    btn.style.boxShadow   = 'none';
+  } else if (!ready) {
+    btn.style.borderColor = 'rgba(255,90,20,0.55)';
     btn.style.boxShadow   = 'none';
   } else if (full) {
     btn.style.borderColor = '#FFD700';
@@ -1604,7 +1616,7 @@ function update(dt) {
       const gapTop = obs.gapY - obs.gap / 2;
       const gapBot = obs.gapY + obs.gap / 2;
       const wpY = obs.hasWeakPoint
-        ? (obs.weakTop ? gapTop - 10 : gapBot + 10)
+        ? (obs.weakTop ? gapTop / 2 : gapBot + (H - gapBot) / 2)
         : null; // null = no weak point, bullet just gets absorbed
       bullets = bullets.filter(b => {
         if (b.x > obs.x - obs.w / 2 - 8 && b.x < obs.x + obs.w / 2 + 8) {
@@ -1621,7 +1633,7 @@ function update(dt) {
         return true;
       });
       if (pillarDestroyed) {
-        const px = obs.x, py = obs.weakTop ? gapTop : gapBot;
+        const px = obs.x, py = obs.weakTop ? gapTop / 2 : gapBot + (H - gapBot) / 2;
         spawnParticles(px, py, '#8D6E63', 14);
         spawnParticles(px, py, '#FF9800', 8);
         screenShake = 0.3;
@@ -2176,7 +2188,7 @@ function drawObstacle(obs) {
     _drawWallForBiome(obs.x, obs.w, topH, botY, obs.seed || 0);
     // Draw weak-point — large, unmissable glowing crack with arrow + SHOOT! label
     if (obs.hasWeakPoint) {
-      const wpY   = obs.weakTop ? topH - 10 : botY + 10;
+      const wpY   = obs.weakTop ? topH / 2 : botY + (H - botY) / 2;
       const t     = performance.now() * 0.004;
       const pulse = 0.65 + 0.35 * Math.sin(t);          // main glow pulse
       const ring  = 0.4  + 0.6  * Math.sin(t * 1.5);   // outer ring pulse
@@ -2214,10 +2226,10 @@ function drawObstacle(obs) {
       ctx.moveTo(obs.x - 5,  wpY - 16); ctx.lineTo(obs.x + 7,  wpY + 16);
       ctx.stroke();
 
-      // ── Arrow pointing at the crack (from outside the pillar toward it) ──
-      const arrowAbove = obs.weakTop; // arrow floats in the gap pointing UP toward crack
-      const arrowBaseY = arrowAbove ? wpY + 30 : wpY - 30; // start of arrow shaft (in the gap)
-      const arrowTipY  = arrowAbove ? wpY + 6  : wpY - 6;  // tip near the crack
+      // ── Arrow pointing at the crack — floats in the gap, tip touches the pillar edge ──
+      const arrowAbove = obs.weakTop; // true = crack is in top pillar, arrow points up
+      const arrowBaseY = arrowAbove ? topH + 28 : botY - 28; // shaft base, always in the gap
+      const arrowTipY  = arrowAbove ? topH + 6  : botY - 6;  // tip near the pillar edge
       ctx.globalAlpha = pulse;
       ctx.fillStyle   = '#FFD700';
       ctx.strokeStyle = '#FF8C00'; ctx.lineWidth = 2;
@@ -2239,7 +2251,7 @@ function drawObstacle(obs) {
       ctx.fill();
 
       // ── "SHOOT!" label ──
-      const lblY = arrowAbove ? arrowBaseY + 16 : arrowBaseY - 6;
+      const lblY = arrowAbove ? arrowBaseY + 18 : arrowBaseY - 18;
       ctx.globalAlpha = pulse;
       ctx.font = 'bold 11px Arial';
       ctx.textAlign = 'center';
