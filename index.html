@@ -284,6 +284,7 @@
       <span class="hud-label" data-i18n="level">LEVEL</span>
       <span id="hud-level">1</span>
       <span class="hud-label" style="margin-top:3px"><span class="coin" style="width:14px;height:14px;font-size:8px;vertical-align:middle"></span> <span id="hud-coins" style="color:#FFD700;font-weight:bold;">0</span></span>
+      <span class="hud-label" style="margin-top:3px">🛡️ <span id="hud-shields" style="color:#87CEEB;font-weight:bold;">0</span></span>
     </div>
     <div class="hud-center">
       <span class="hud-label" data-i18n="distance">DISTANCE</span>
@@ -345,6 +346,12 @@
     <div id="death-ammo-shop" class="death-ammo-shop hidden">
       <button class="death-ammo-btn" id="death-buy-ammo">🔫 +1 · 50 <span class="coin coin-sm"></span></button>
       <span id="death-ammo-count" class="death-ammo-count">0</span>
+    </div>
+
+    <!-- Buy shield row — shown when shields < 3 and coins >= 250 -->
+    <div id="death-shield-shop" class="death-ammo-shop hidden">
+      <button class="death-ammo-btn" id="death-buy-shield">🛡️ +1 · 250 <span class="coin coin-sm"></span></button>
+      <span id="death-shield-count" class="death-ammo-count">0</span>
     </div>
 
     <!-- ENDED section: shown when revives are exhausted -->

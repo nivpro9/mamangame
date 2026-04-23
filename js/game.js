@@ -653,6 +653,7 @@ const Save = {
     levelBests: {}, prestige: 0,
     dataVersion: 2,
     lastSpin: 0, spinShields: 0, spinAmmo: 0, boughtAmmo: 0, savedAmmo: 0,
+    boughtShields: 0,
     spinSpeed: 0, spinDoubleCoins: 0,
     lastLogin: 0, loginStreak: 0,
     gameCount: 0,
@@ -1364,6 +1365,8 @@ function initGame(levelNum) {
   shieldHits = upg.shield + (Save.data.activeVehicle === 7 ? 1 : 0); // Large Airliner perk
   // Apply spin shield bonus
   if (Save.data.spinShields > 0) { shieldHits += Save.data.spinShields; Save.data.spinShields = 0; Save.save(); }
+  // Apply purchased shields (from death screen)
+  if (Save.data.boughtShields > 0) { shieldHits = Math.min(shieldHits + Save.data.boughtShields, 5); Save.data.boughtShields = 0; Save.save(); }
 
   // Base speed
   speed = levelData.speed * VEHICLES[Save.data.activeVehicle].speed;
@@ -2035,6 +2038,10 @@ function updateHUD() {
     if (hudCenterN) hudCenterN.style.maxWidth = '';
   }
   document.getElementById('hud-coins').textContent = Save.data.coins + sessionCoins;
+
+  // Shield counter display
+  const shieldEl = document.getElementById('hud-shields');
+  if (shieldEl) shieldEl.textContent = shieldHits;
 
   // Ammo HUD panel — show only during boss fights (shoot button handles other times)
   const cap = maxAmmo();
@@ -3472,6 +3479,18 @@ function showReviveScreen() {
       document.getElementById('death-ammo-count').textContent = ammo;
     } else {
       deathAmmoShop.classList.add('hidden');
+    }
+  }
+
+  // Shield shop row — show only when shields < 3 and coins >= 250, not free play
+  const deathShieldShop = document.getElementById('death-shield-shop');
+  if (deathShieldShop) {
+    const canBuyShield = !isFreePlay && shieldHits < 3 && (Save.data.coins >= 250);
+    if (canBuyShield) {
+      deathShieldShop.classList.remove('hidden');
+      document.getElementById('death-shield-count').textContent = shieldHits;
+    } else {
+      deathShieldShop.classList.add('hidden');
     }
   }
 
@@ -5197,6 +5216,24 @@ window.addEventListener('load', () => {
     Save.data.boughtAmmo = pending + 1;
     Save.save();
     document.getElementById('death-ammo-count').textContent = ammo + Save.data.boughtAmmo + ' (next game)';
+  });
+
+  // Shield buy on death screen (250 coins per shield, max 3)
+  const deathBuyShieldBtn = document.getElementById('death-buy-shield');
+  if (deathBuyShieldBtn) deathBuyShieldBtn.addEventListener('click', () => {
+    const COST = 250, MAX_SHIELDS = 3;
+    if (Save.data.coins < COST || shieldHits >= MAX_SHIELDS) return;
+    Save.data.coins -= COST;
+    shieldHits = Math.min(shieldHits + 1, MAX_SHIELDS);
+    Save.data.boughtShields = (Save.data.boughtShields || 0) + 1;
+    Save.save();
+    document.getElementById('hud-shields').textContent = shieldHits;
+    document.getElementById('death-shield-count').textContent = shieldHits;
+    // Fade out if at max
+    if (shieldHits >= MAX_SHIELDS) {
+      deathBuyShieldBtn.style.opacity = '0.45';
+      deathBuyShieldBtn.disabled = true;
+    }
   });
 
   window.addEventListener('resize', () => {
