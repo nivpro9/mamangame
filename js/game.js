@@ -850,8 +850,8 @@ let tutPhase = 0;  // 0=hint, 1=gap hint, 2=ammo hint, 3=done
 let isHolding = false;
 
 // ── AMMO CAPACITY ─────────────────────────────────────────
-// Base 3 bullets always available; cannon upgrade raises the cap (7 tiers)
-function maxAmmo() { return [6, 8, 12, 16, 22, 30, 40][Math.min(6, Save.data.upgrades.cannon)]; }
+// Fixed ammo capacity (removed cannon upgrade system)
+function maxAmmo() { return 7; }
 
 // ── PLAYER ───────────────────────────────────────────────
 function createPlayer() {
@@ -1520,8 +1520,8 @@ function update(dt) {
     }
   }
 
-  // Trail — origin at back of plane (left edge) so it streams behind
-  player.trail.unshift({ x: player.x - 22, y: player.y + (player.vy * 0.012) });
+  // Trail — origin at back of plane (left edge) so it streams behind at 90 degrees
+  player.trail.unshift({ x: player.x - 22, y: player.y });
   if (player.trail.length > 32) player.trail.pop();
 
   if (player.invincible > 0) player.invincible -= dt;
@@ -1530,11 +1530,8 @@ function update(dt) {
   if (speedBoostEffect > 0) speedBoostEffect = Math.max(0, speedBoostEffect - dt);
   if (comboTimer > 0) { comboTimer -= dt; if (comboTimer <= 0) coinCombo = 0; }
 
-  // Auto-fire level 3 cannon
-  if (upg.cannon >= 3 && ammo > 0) {
-    shootAutoTimer -= dt;
-    if (shootAutoTimer <= 0) { shoot(); shootAutoTimer = 2.5; }
-  } else if (veh.id === 9) {
+  // Auto-fire disabled (upgrade system removed)
+  if (veh.id === 9) {
     // Super Airflight perk: auto-fires every 4s without consuming ammo
     shootAutoTimer -= dt;
     if (shootAutoTimer <= 0) {
@@ -2054,10 +2051,8 @@ function updateHUD() {
     let ammoStr = '';
     if (cap <= 0) {
       ammoStr = '—';
-    } else if (cap <= 12) {
-      for (let i = 0; i < cap; i++) ammoStr += i < ammo ? '●' : '○';
-      if (isFull) ammoStr += ' ★';
     } else {
+      // Show count/capacity format (e.g., "5/7")
       ammoStr = isFull ? 'MAX ★' : ammo + '/' + cap;
     }
     hudAmmoEl.textContent = ammoStr;
@@ -4039,34 +4034,8 @@ function renderShop() {
     </div>`;
   }).join('');
 
-  document.getElementById('upgrades-list').innerHTML = UPGRADES.map(upg => {
-    const level = Save.data.upgrades[upg.id];
-    const maxed = level >= upg.maxLevel;
-    const cost  = maxed ? 0 : upg.costs[level];
-    const pct   = (level / upg.maxLevel) * 100;
-    const lvlLocked = upg.levelReq && Save.data.currentLevel < upg.levelReq;
-    const descExtra = upg.id === 'control' && level > 0 ? ` — +${level*15}%` : '';
-    if (lvlLocked) {
-      return `<div class="upgrade-row" style="opacity:0.45;pointer-events:none">
-        <div class="up-icon">🔒</div>
-        <div class="up-info">
-          <div class="up-name">${upg.icon} ${upg.name} <span style="color:rgba(255,255,255,0.4);font-size:12px">Lv 0/${upg.maxLevel}</span></div>
-          <div class="up-desc">Reach Level ${upg.levelReq} to unlock</div>
-          <div class="up-bar"><div class="up-bar-fill" style="width:0%"></div></div>
-        </div>
-        <div class="up-cost" style="color:#888">LVL ${upg.levelReq}</div>
-      </div>`;
-    }
-    return `<div class="upgrade-row" onclick="buyUpgrade('${upg.id}')">
-      <div class="up-icon">${upg.icon}</div>
-      <div class="up-info">
-        <div class="up-name">${t('un_'+upg.id)} <span style="color:rgba(255,255,255,0.4);font-size:12px">Lv ${level}/${upg.maxLevel}</span></div>
-        <div class="up-desc">${t('ud_'+upg.id)}${descExtra}</div>
-        <div class="up-bar"><div class="up-bar-fill" style="width:${pct}%"></div></div>
-      </div>
-      ${maxed ? '<div class="up-maxed">MAX</div>' : `<div class="up-cost"><span class='coin coin-sm'></span>${cost}</div>`}
-    </div>`;
-  }).join('');
+  // UPGRADES REMOVED — system disabled to prevent game-breaking bugs
+  // document.getElementById('upgrades-list').innerHTML = ''; // removed rendering
 
   // Skins
   document.getElementById('skins-grid').innerHTML = TRAIL_SKINS.map(sk => {
@@ -4132,17 +4101,10 @@ function selectVehicle(id) {
     Save.save(); renderShop(); Snd.play('buy');
   }
 }
+// UPGRADES DISABLED — function removed to prevent game-breaking bugs
 function buyUpgrade(id) {
-  const upg = UPGRADES.find(u => u.id === id);
-  if (!upg) return;
-  if (upg.levelReq && Save.data.currentLevel < upg.levelReq) return; // level-locked
-  const level = Save.data.upgrades[id];
-  if (level >= upg.maxLevel) return;
-  const cost = upg.costs[level];
-  if (Save.data.coins >= cost) {
-    Save.data.coins -= cost; Save.data.upgrades[id]++;
-    Save.save(); renderShop(); Snd.play('buy');
-  }
+  // No-op: upgrade system removed
+  return;
 }
 
 // ── INPUT ─────────────────────────────────────────────────
