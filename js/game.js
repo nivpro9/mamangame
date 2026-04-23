@@ -1351,7 +1351,7 @@ function initGame(levelNum) {
   mysteryBoxTimer = 30 + Math.random() * 20;
   bossAmmoWarningDone = false;
   coinCombo = 0; comboTimer = 0; screenShake = 0; lastLightningTime = 0; speedBoostEffect = 0;
-  spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 10 + Math.random() * 6;
+  spawnTimer = 1.5; coinTimer = 1.0; ammoTimer = 14 + Math.random() * 8;
   targetTimer = 8 + Math.random() * 6;
   enemyTimer = currentLevel >= 25 ? 8 + Math.random() * 6 : 99999;
   shieldPickupTimer = currentLevel >= 30 ? 18 + Math.random() * 12 : 99999;
@@ -1619,7 +1619,7 @@ function update(dt) {
     ammoTimer -= dt;
     if (ammoTimer <= 0) {
       ammoPickups.push({ x: W + 30, y: H * 0.15 + Math.random() * H * 0.7, anim: 0 });
-      ammoTimer = 8 + Math.random() * 7;
+      ammoTimer = 12 + Math.random() * 10;
     }
   }
 
@@ -1961,8 +1961,8 @@ function update(dt) {
       bossAmmoWarningDone = true;
       const cap = maxAmmo();
       if (cap > 0) {
-        // Spawn 4 ammo crates in a spread so player can stock up
-        for (let i = 0; i < 4; i++) {
+        // Spawn 2 ammo crates in a spread so player can stock up
+        for (let i = 0; i < 2; i++) {
           ammoPickups.push({ x: W + 30 + i * 70, y: H * 0.2 + i * (H * 0.18), anim: 0 });
         }
         popups.push({ text: '⚔️ BOSS AHEAD — STOCK UP!', x: W * 0.5, y: H * 0.28, alpha: 1, timer: 3.0, color: '#FF5722' });
@@ -3495,8 +3495,9 @@ function showReviveScreen() {
   }
 
   // Determine available revives
+  const isBossLevel = BOSS_LEVELS.has(currentLevel);
   const cost      = (reviveCount + 1) * 100;
-  const canCoin   = reviveCount < 3 && (Save.data.coins >= cost);
+  const canCoin   = !isBossLevel && reviveCount < 3 && (Save.data.coins >= cost);
   const canAd     = !coinReviveUsedThisGame && AdManager.canShowRewardedAd();
 
   const continueEl = document.getElementById('death-continue');
