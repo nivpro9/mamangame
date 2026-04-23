@@ -38,8 +38,8 @@ const Vibrate = {
 // ═══════════════════════════════════════════════════════
 
 // ── BOSS LEVELS (last level of every world) ──────────────
-const BOSS_LEVELS = new Set([10, 20, 30, 40, 50, 60, 70]);
-const BOSS_NAMES  = ['GUARDIAN','FOREST SPIRIT','CANDY DEMON','BLOOM TITAN','ICE GIANT','JUNGLE BEAST','VOID EMPEROR'];
+const BOSS_LEVELS = new Set([10, 20, 30, 40, 50, 60, 70, 80, 90, 100]);
+const BOSS_NAMES  = ['GUARDIAN','FOREST SPIRIT','CANDY DEMON','BLOOM TITAN','ICE GIANT','JUNGLE BEAST','VOID EMPEROR','CRYSTAL GUARDIAN','CHAOS ENTITY','FINAL BOSS'];
 const BOSS_COLORS = [
   ['#4CAF50','#1B5E20'], // Sky     – green
   ['#2E7D32','#1B4A1B'], // Forest  – dark green
@@ -48,6 +48,9 @@ const BOSS_COLORS = [
   ['#00BCD4','#006064'], // Ice     – cyan
   ['#FF6F00','#BF360C'], // Fruits  – orange
   ['#E040FB','#4A148C'], // Space   – deep purple
+  ['#64B5F6','#1565C0'], // Crystal – light blue
+  ['#7C4DFF','#311B92'], // Chaos   – indigo
+  ['#FF1744','#C51162'], // Final   – deep red
 ];
 
 // ── BIOMES (one per 10 levels) ──────────────────────────
@@ -59,6 +62,9 @@ const BIOMES = [
   { name:'Ice',     sky:['#9cd4ef','#cce8f8','#eef6ff'], cloud:'255,255,255', stars:false, rain:false, snow:true,  nebula:false },
   { name:'Fruits',  sky:['#0a2800','#1a6010','#3ab828'], cloud:'180,240,120', stars:false, rain:false, snow:false, nebula:false },
   { name:'Space',   sky:['#000000','#020012','#06002a'], cloud:'120,80,200',  stars:true,  rain:false, snow:false, nebula:true  },
+  { name:'Nebula',  sky:['#1a0033','#4a0066','#8a00cc'], cloud:'180,100,200', stars:true,  rain:false, snow:false, nebula:true  },
+  { name:'Void',    sky:['#0a0a0a','#1a1a2a','#2a2a4a'], cloud:'100,60,150',  stars:true,  rain:false, snow:false, nebula:true  },
+  { name:'Eternity',sky:['#2a0a4a','#6a1a8a','#aa3aaa'], cloud:'200,80,255',  stars:true,  rain:false, snow:false, nebula:true  },
 ];
 const PILLAR_COLS = [
   ['#3a6e35','#4d9030'], // Sky     – green
@@ -68,15 +74,18 @@ const PILLAR_COLS = [
   ['#4890c8','#60a8e0'], // Ice     – blue
   ['#5a8010','#8ab030'], // Fruits  – tropical green
   ['#0a083a','#18147a'], // Space   – dark blue
+  ['#6a1a8a','#9a3aba'], // Nebula  – bright purple
+  ['#2a2a4a','#5a5a7a'], // Void    – grey blue
+  ['#8a1aaa','#ca4aea'], // Eternity– bright magenta
 ];
 
-// ── 70 LEVELS ────────────────────────────────────────────
+// ── 100 LEVELS ───────────────────────────────────────────
 function generateLevels() {
-  return Array.from({ length: 70 }, (_, idx) => {
-    const i = idx + 1, t = idx / 69;
+  return Array.from({ length: 100 }, (_, idx) => {
+    const i = idx + 1, t = idx / 99;
     return {
       id:           i,
-      biome:        Math.min(6, Math.floor(idx / 10)),
+      biome:        Math.min(9, Math.floor(idx / 10)),
       goal:         Math.round(250 + Math.pow(t, 0.55) * 3000), // 250 → 3000 m (easier goal)
       speed:        (2.4 + t * 3.6) * 0.95,                       // 2.28 → 5.88 px/frame (slower overall, -5%)
       gapFraction:  (0.44 - t * 0.08),                           // 0.44 → 0.36 H (13% smaller gaps)
@@ -1326,7 +1335,7 @@ function initBgEffects(biome) {
 
 // ── INIT GAME ────────────────────────────────────────────
 function initGame(levelNum) {
-  currentLevel = Math.max(1, Math.min(70, levelNum));
+  currentLevel = Math.max(1, Math.min(100, levelNum));
   levelData = LEVELS[currentLevel - 1];
   currentBiome = levelData.biome;
 
@@ -3718,7 +3727,7 @@ function showShop() {
 }
 
 // ── LEVEL SELECT ──────────────────────────────────────────
-const WORLD_EMOJIS  = ['☀️','🌲','🍬','🌸','❄️','🍎','🚀'];
+const WORLD_EMOJIS  = ['☀️','🌲','🍬','🌸','❄️','🍎','🚀','🌌','🌑','✨'];
 const WORLD_COLORS  = [
   'rgba(58,143,194,0.55)',  // Sky
   'rgba(26,92,30,0.70)',    // Forest
@@ -3727,6 +3736,9 @@ const WORLD_COLORS  = [
   'rgba(156,212,239,0.4)',  // Ice
   'rgba(26,96,16,0.65)',    // Fruits
   'rgba(6,0,42,0.85)',      // Space
+  'rgba(106,26,138,0.75)',  // Nebula
+  'rgba(42,42,74,0.80)',    // Void
+  'rgba(138,26,170,0.78)',  // Eternity
 ];
 
 function showLevelSelect() {
