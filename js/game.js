@@ -167,7 +167,7 @@ const LANGS = {
     ud_magnet:'Attract nearby coins',
     ud_shield:'Extra hit before crashing',
     ud_cannon:'Unlocks ammo pickups & shooting',
-    bm0:'Sky', bm1:'Forest', bm2:'Candy', bm3:'Flowers', bm4:'Ice', bm5:'Fruits', bm6:'Space',
+    bm0:'Sky', bm1:'Forest', bm2:'Candy', bm3:'Flowers', bm4:'Ice', bm5:'Fruits', bm6:'Space', bm7:'Nebula', bm8:'Void', bm9:'Eternity',
     holdUp:'HOLD TO FLY UP',
     comboText:'COMBO',
     newBest:'🏆 NEW BEST',
@@ -222,7 +222,7 @@ const LANGS = {
     ud_magnet:'Attira le monete vicine',
     ud_shield:'Colpo extra prima di schiantarsi',
     ud_cannon:'Sblocca munizioni e sparo',
-    bm0:'Cielo', bm1:'Foresta', bm2:'Caramelle', bm3:'Fiori', bm4:'Ghiaccio', bm5:'Frutti', bm6:'Spazio',
+    bm0:'Cielo', bm1:'Foresta', bm2:'Caramelle', bm3:'Fiori', bm4:'Ghiaccio', bm5:'Frutti', bm6:'Spazio', bm7:'Nebula', bm8:'Vuoto', bm9:'Eternità',
     holdUp:'TIENI PER SALIRE',
     comboText:'COMBO',
     newBest:'🏆 NUOVO RECORD',
@@ -277,7 +277,7 @@ const LANGS = {
     ud_magnet:'Attire les pièces proches',
     ud_shield:'Un coup supplémentaire avant le crash',
     ud_cannon:'Débloque munitions et tir',
-    bm0:'Ciel', bm1:'Forêt', bm2:'Bonbons', bm3:'Fleurs', bm4:'Glace', bm5:'Fruits', bm6:'Espace',
+    bm0:'Ciel', bm1:'Forêt', bm2:'Bonbons', bm3:'Fleurs', bm4:'Glace', bm5:'Fruits', bm6:'Espace', bm7:'Nébuleuse', bm8:'Vide', bm9:'Éternité',
     holdUp:'MAINTENIR POUR MONTER',
     comboText:'COMBO',
     newBest:'🏆 NOUVEAU RECORD',
@@ -332,7 +332,7 @@ const LANGS = {
     ud_magnet:'Притягивает близкие монеты',
     ud_shield:'Дополнительный удар перед гибелью',
     ud_cannon:'Открывает подбор боеприпасов и стрельбу',
-    bm0:'Небо', bm1:'Лес', bm2:'Конфеты', bm3:'Цветы', bm4:'Лёд', bm5:'Фрукты', bm6:'Космос',
+    bm0:'Небо', bm1:'Лес', bm2:'Конфеты', bm3:'Цветы', bm4:'Лёд', bm5:'Фрукты', bm6:'Космос', bm7:'Туманность', bm8:'Пустота', bm9:'Вечность',
     holdUp:'УДЕРЖИ ДЛЯ ПОДЪЁМА',
     comboText:'КОМБО',
     newBest:'🏆 НОВЫЙ РЕКОРД',
@@ -387,7 +387,7 @@ const LANGS = {
     ud_magnet:'近くのコインを引き寄せる',
     ud_shield:'クラッシュ前に追加ヒット',
     ud_cannon:'弾薬収集と射撃を解放',
-    bm0:'空', bm1:'森', bm2:'お菓子', bm3:'お花', bm4:'氷原', bm5:'フルーツ', bm6:'宇宙',
+    bm0:'空', bm1:'森', bm2:'お菓子', bm3:'お花', bm4:'氷原', bm5:'フルーツ', bm6:'宇宙', bm7:'星雲', bm8:'虚空', bm9:'永遠',
     holdUp:'長押しで上昇',
     comboText:'コンボ',
     newBest:'🏆 ベスト更新',
@@ -442,7 +442,7 @@ const LANGS = {
     ud_magnet:'吸引附近硬币',
     ud_shield:'坠毁前额外一次撞击',
     ud_cannon:'解锁弹药拾取和射击',
-    bm0:'天空', bm1:'森林', bm2:'糖果', bm3:'花朵', bm4:'冰雪', bm5:'水果', bm6:'太空',
+    bm0:'天空', bm1:'森林', bm2:'糖果', bm3:'花朵', bm4:'冰雪', bm5:'水果', bm6:'太空', bm7:'星云', bm8:'虚空', bm9:'永恒',
     holdUp:'长按上飞',
     comboText:'连击',
     newBest:'🏆 新纪录',
@@ -497,7 +497,7 @@ const LANGS = {
     ud_magnet:'מושך מטבעות קרובים',
     ud_shield:'מכה נוספת לפני התרסקות',
     ud_cannon:'פותח תחמושת וירייה',
-    bm0:'שמיים', bm1:'יער', bm2:'סוכריות', bm3:'פרחים', bm4:'קרח', bm5:'פירות', bm6:'חלל',
+    bm0:'שמיים', bm1:'יער', bm2:'סוכריות', bm3:'פרחים', bm4:'קרח', bm5:'פירות', bm6:'חלל', bm7:'ערפילית', bm8:'חלל עמוק', bm9:'נצח',
     holdUp:'לחץ ממושך לעלות',
     comboText:'קומבו',
     newBest:'🏆 שיא חדש',
@@ -552,7 +552,7 @@ const LANGS = {
     ud_magnet:'يجذب العملات القريبة',
     ud_shield:'ضربة إضافية قبل الانهيار',
     ud_cannon:'يفتح التقاط الذخيرة والتصويب',
-    bm0:'السماء', bm1:'الغابة', bm2:'الحلوى', bm3:'الزهور', bm4:'الجليد', bm5:'الفواكه', bm6:'الفضاء',
+    bm0:'السماء', bm1:'الغابة', bm2:'الحلوى', bm3:'الزهور', bm4:'الجليد', bm5:'الفواكه', bm6:'الفضاء', bm7:'السديم', bm8:'الفراغ', bm9:'الأبدية',
     holdUp:'اضغط مطولاً للصعود',
     comboText:'سلسلة',
     newBest:'🏆 رقم قياسي جديد',
@@ -1214,8 +1214,8 @@ function updateEnemies(dt) {
 
 // ── COIN ─────────────────────────────────────────────────
 // Coin value increases each biome (world)
-const COIN_VALUES = [1, 3, 5, 8, 12, 18, 25]; // per biome 0-6 (Sky=1, rises each world)
-function coinValue() { return COIN_VALUES[Math.min(6, currentBiome)]; }
+const COIN_VALUES = [1, 3, 5, 8, 12, 18, 25, 35, 50, 70]; // per biome 0-9 (Sky=1, rises each world)
+function coinValue() { return COIN_VALUES[Math.min(COIN_VALUES.length - 1, currentBiome)]; }
 
 function spawnCoin() {
   const nextPillar = obstacles.find(o => o.type === 'pillar' && o.x > W * 0.5);
@@ -1244,26 +1244,12 @@ function spawnParticles(x, y, color, n = 8) {
 function shoot() {
   if (gameState !== 'playing' || !player?.alive) return;
   if (isFreePlay) return; // no shooting in free play
-  const lvl = Save.data.upgrades.cannon || 0;
   if (ammo <= 0 || shootCooldown > 0) return;
   ammo--;
-  // Cooldown per level (0=base has slow cooldown, upgrades speed it up)
-  const cooldowns = [1.4, 0.90, 0.55, 0.40, 0.30, 0.22, 0.16];
-  shootCooldown = cooldowns[Math.min(lvl, cooldowns.length - 1)];
+  shootCooldown = 0.55; // fixed cooldown — upgrade system removed
   const bulletVx = speed + 380;
-  if (lvl >= 5) {
-    // Level 5-6: triple shot (spread + center)
-    bullets.push({ x: player.x + 26, y: player.y - 8, vx: bulletVx, vy: -45, r: 6 });
-    bullets.push({ x: player.x + 26, y: player.y,     vx: bulletVx, vy:   0, r: 6 });
-    bullets.push({ x: player.x + 26, y: player.y + 8, vx: bulletVx, vy:  45, r: 6 });
-  } else if (lvl >= 3) {
-    // Level 3-4: double-barrel spread
-    bullets.push({ x: player.x + 26, y: player.y - 5, vx: bulletVx, vy: -30, r: 6 });
-    bullets.push({ x: player.x + 26, y: player.y + 5, vx: bulletVx, vy:  30, r: 6 });
-  } else {
-    // Level 1-2: single straight shot
-    bullets.push({ x: player.x + 26, y: player.y, vx: bulletVx, vy: 0, r: 6 });
-  }
+  // Single straight shot
+  bullets.push({ x: player.x + 26, y: player.y, vx: bulletVx, vy: 0, r: 6 });
   Snd.play('shoot');
   spawnParticles(player.x + 20, player.y, '#ff9800', 14);
   for (let i = 0; i < 8; i++) {
@@ -1939,7 +1925,7 @@ function update(dt) {
     levelData.spawnInterval= Math.max(0.45, (2.0 - fp_t * 1.35) * 1.12 - fp_t2 * 0.2);
     levelData.fanChance    = Math.min(0.35, fp_t * 0.20 + fp_t2 * 0.15);
     levelData.birdChance   = Math.min(0.20, fp_t * 0.08 + fp_t2 * 0.12);
-    const newBiome = Math.min(6, Math.floor(distance / 700));
+    const newBiome = Math.min(BIOMES.length - 1, Math.floor(distance / 700));
     if (newBiome !== currentBiome) {
       currentBiome = newBiome;
       initBgEffects(currentBiome);
@@ -2583,12 +2569,15 @@ function _wallAsteroid(cx, w, topH, botY, seed) {
 // Coin colors per biome
 const COIN_COLORS = [
   ['#FFD700','#FFA000'], // Sky — gold
-  ['#FF8C00','#E65100'], // Sunset — orange
-  ['#B39DDB','#7E57C2'], // Night — purple
-  ['#78909C','#455A64'], // Storm — steel
-  ['#80DEEA','#00ACC1'], // Arctic — ice blue
-  ['#FF7043','#BF360C'], // Canyon — copper
+  ['#FF8C00','#E65100'], // Forest — orange
+  ['#B39DDB','#7E57C2'], // Candy — purple
+  ['#F48FB1','#C2185B'], // Flowers — pink
+  ['#80DEEA','#00ACC1'], // Ice — ice blue
+  ['#A5D6A7','#388E3C'], // Fruits — green
   ['#E040FB','#7B1FA2'], // Space — violet
+  ['#CE93D8','#6A1B9A'], // Nebula — deep purple
+  ['#B0BEC5','#546E7A'], // Void — grey
+  ['#F8BBD9','#AD1457'], // Eternity — rose gold
 ];
 // ── TRAIL SKIN RENDERER ──────────────────────────────────
 function drawTrail() {
@@ -2718,7 +2707,7 @@ function drawTrail() {
 function drawCoin(coin, t) {
   if (coin.collected) return;
   const val = coin.val || 1;
-  const biome = Math.min(6, currentBiome);
+  const biome = Math.min(COIN_COLORS.length - 1, currentBiome);
   const [c1, c2] = COIN_COLORS[biome];
   ctx.save(); ctx.translate(coin.x, coin.y);
   const s = 0.9 + 0.1 * Math.sin(t * 3 + coin.anim); ctx.scale(s, s);
@@ -3652,7 +3641,7 @@ function showLevelComplete() {
     Save.data.diamonds = (Save.data.diamonds || 0) + 1;
   }
   if (!Save.data.tutorialDone) { Save.data.tutorialDone = true; }
-  const isLast = currentLevel >= 70;
+  const isLast = currentLevel >= 100;
   if (isLast) {
     // PRESTIGE — reset to level 1, keep everything, earn a star
     Save.data.prestige = (Save.data.prestige || 0) + 1;
@@ -3690,7 +3679,7 @@ function showLevelComplete() {
   const newBiome = LEVELS[nextLevel - 1]?.biome;
   const bioLabel = document.getElementById('lc-biome');
   if (!isLast && nextLevel % 10 === 1 && newBiome !== currentBiome) {
-    bioLabel.textContent = tf('coinsWorthText', t('bm' + newBiome).toUpperCase(), COIN_VALUES[newBiome]);
+    bioLabel.textContent = tf('coinsWorthText', t('bm' + newBiome).toUpperCase(), COIN_VALUES[Math.min(COIN_VALUES.length - 1, newBiome)]);
     bioLabel.classList.remove('hidden');
   } else if (isLast) {
     bioLabel.textContent = t('allCompleteText');
@@ -5044,14 +5033,8 @@ function applySpinPrize(prize) {
     // 3 shield hits for next level
     Save.data.spinShields = Math.min(6, (Save.data.spinShields || 0) + 3);
   } else if (prize.id === 'ammo') {
-    if (Save.data.upgrades.cannon > 0) {
-      // Full ammo magazine for next level
-      Save.data.spinAmmo = 20;
-    } else {
-      // No cannon yet — give coins instead
-      Save.data.coins += 100;
-      prize.label = '+100 🪙 (buy Cannon first!)';
-    }
+    // Full ammo for next level
+    Save.data.spinAmmo = 20;
   } else if (prize.id === 'speed') {
     // TURBO: +65% speed for the entire next level
     Save.data.spinSpeed = 1;
